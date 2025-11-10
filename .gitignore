@@ -9,3 +9,6 @@ CMakeCache.txt
 *.cmake
 Makefile
 build/*
+Cmake/*
+PortableGit/*
+.vs/*
