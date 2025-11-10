@@ -1,0 +1,11 @@
+*.exe
+.vscode/*
+*.code-workspace
+__pycache__/
+obj/*
+*.o
+CMakeFiles/*
+CMakeCache.txt
+*.cmake
+Makefile
+build/*
