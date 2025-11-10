@@ -12,7 +12,7 @@ file(GLOB SOURCES CONFIGURE_DEPENDS
 add_executable(CHAIN ${SOURCES})
 
 set(CXXFLAGS
-"-g -O0 -Wall -std=c++11 -Wno-missing-braces -pedantic -Wno-unused-variable -Wsign-compare -Wno-delete-non-virtual-dtor -fpermissive -stdlib=libc++"
+"-g -O0 -Wall -static -std=c++11 -Wno-missing-braces -pedantic -Wno-unused-variable -Wsign-compare -Wno-delete-non-virtual-dtor -fpermissive -stdlib=libc++"
 )
 
 target_include_directories(CHAIN
