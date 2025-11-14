@@ -26,7 +26,7 @@ class TrafficManager {
       intersections_.push_back(inter);
     }
     TrafficManager() {
-      
+      SetUpIntersections();
     }
 
     void Draw();

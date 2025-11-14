@@ -20,6 +20,9 @@
 #include <raylib.h>
 #include <nlohmann/json.hpp>
 
+#include "traffic_manager.hpp"
+#include "road.hpp"
+
 #define TICK_RATE 60
 
 float resize_factor = 1.0;
@@ -59,8 +62,8 @@ int main(void)
     // InitWindow(256*zoom, 144*zoom, "Game");
     InitWindow(1920/2, 1080/2, "Game");
     SetTargetFPS(TICK_RATE);
-    // ToggleFullscreen();
-    // setup_hud(inventory);
+
+    TrafficManager traffic;
 
     while (!WindowShouldClose())
     {
@@ -69,6 +72,7 @@ int main(void)
         }
         BeginDrawing();
             DrawText("Hello, World!",0,0,20,WHITE);
+            traffic.Draw();
         EndDrawing();
         
     }

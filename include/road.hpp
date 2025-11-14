@@ -14,6 +14,8 @@
 
 class Factory;
 
+class Road;
+
 struct Intersection {
   Vector2 position;
   std::vector<Road*> roads;
@@ -33,6 +35,16 @@ class Road {
     }
     std::vector<Intersection*> GetIntersections() {
       return intersections_;
+    }
+    std::vector<Vector2> GetPoints() {
+      return points_;
+    }
+    void Draw() {
+      for(int xx = 0; xx < points_.size() - 2; xx++) {
+        for(int yy = 0; yy < points_.size() - 1; yy++) {
+          DrawLine(points_[xx].x,points_[xx].y,points_[yy].x,points_[yy].y,WHITE);
+        }
+      }
     }
 };
 
