@@ -9,10 +9,15 @@ map_element.hpp
 
 class Element {
 	private:
-		Vector2 position;
+		Vector2 position_;
 	public:
-		void SetPosition(Vector2);
-		Vector2 GetPosition();
+		void SetPosition(Vector2 position) {
+			position_ = position;
+		}
+		Vector2 GetPosition() {
+			return position_;
+		}
+		void Tick();
 };
 
 #endif
