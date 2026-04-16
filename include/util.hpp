@@ -32,4 +32,26 @@ bool LinesIntersect(float p0_x, float p0_y, float p1_x, float p1_y, float p2_x ,
     return false; // No collision    
 }
 
+bool VectorsIntersect(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3){
+    float s1_x;
+    float s1_y; 
+    float s2_x; 
+    float s2_y;
+    
+    s1_x = p1.x - p0.x;     
+    s1_y = p1.y - p0.y;
+    s2_x = p3.x - p2.x;
+    s2_y = p3.y - p2.y;
+
+    float s;
+    float t;
+    
+    s = (-s1_y * (p0.x - p2.x) + s1_x * (p0.y - p2.y)) / (-s2_x * s1_y + s1_x * s2_y);
+    t = ( s2_x * (p0.y - p2.y) - s2_y * (p0.x - p2.x)) / (-s2_x * s1_y + s1_x * s2_y);
+
+    if(s >= 0 && s <= 1 && t >= 0 && t <= 1) return true;
+    
+    return false; // No collision    
+}
+
 #endif

@@ -15,7 +15,7 @@
 
 class TrafficManager {
   private:
-    void SetUpIntersections();
+    void SetUp();
     std::vector<Intersection*> intersections_;
     std::vector<Road*> roads_;
   public:
@@ -26,7 +26,7 @@ class TrafficManager {
       intersections_.push_back(inter);
     }
     TrafficManager() {
-      SetUpIntersections();
+      SetUp();
     }
 
     void Draw();

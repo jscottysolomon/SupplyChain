@@ -12,15 +12,27 @@ file(GLOB SOURCES CONFIGURE_DEPENDS
 
 add_executable(CHAIN ${SOURCES})
 
-set(CXXFLAGS
-"-g -O0 -Wall -static -std=c++11 -Wno-missing-braces -pedantic -Wno-unused-variable -Wsign-compare -Wno-delete-non-virtual-dtor -fpermissive -stdlib=libc++"
-)
+#set(CXXFLAGS
+#"-g -O0 -Wall -static -std=c++11 -Wno-missing-braces -pedantic -Wno-unused-variable -Wsign-compare -Wno-delete-non-virtual-dtor -fpermissive -stdlib=libc++"
+#)
 
 target_include_directories(CHAIN
     PRIVATE 
     ${CMAKE_SOURCE_DIR}/include/
     ${CMAKE_SOURCE_DIR}/external/
     ${CMAKE_SOURCE_DIR}/lib/
+)
+
+target_compile_options(CHAIN PRIVATE
+    -g
+    -O0
+    -Wall
+    -Wno-missing-braces
+    -pedantic
+    -Wno-unused-variable
+    -Wsign-compare
+    -Wno-delete-non-virtual-dtor
+    -fpermissive
 )
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")

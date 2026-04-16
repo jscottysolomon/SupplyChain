@@ -71,7 +71,7 @@ int main(void)
 
         }
         BeginDrawing();
-            DrawText("Hello, World!",0,0,20,WHITE);
+            DrawText("Hello, Worlddd!",0,0,20,WHITE);
             traffic.Draw();
         EndDrawing();
         
