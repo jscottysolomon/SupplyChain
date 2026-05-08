@@ -10,7 +10,7 @@
 
 #include <vector>
 
-#include<raylib.h>
+#include <raylib.h>
 
 #include "traffic_node.hpp"
 
@@ -33,13 +33,18 @@ class Road : public TrafficNode {
       this->points_ = points;
     }
     void AddIntersection(Intersection* intersection) {
-      intersections_.push_back(intersection);
+      if(std::count(intersections_.begin(), intersections_.end(), intersection) > 0) {
+        intersections_.push_back(intersection);
+      }
     }
     std::vector<Intersection*> GetIntersections() {
       return intersections_;
     }
     std::vector<Vector2> GetPoints() {
       return points_;
+    }
+    void AddFactory(Factory* factory) {
+      factories_.push_back(factory);
     }
 
     Vector2 GetStart() {return points_[0];}

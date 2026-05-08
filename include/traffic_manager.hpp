@@ -12,12 +12,15 @@
 #include <vector>
 
 #include "road.hpp"
+//CANNOT depend on traffic_manager_hpp
+class Factory;
 
 class TrafficManager {
   private:
     void SetUp();
     std::vector<Intersection*> intersections_;
     std::vector<Road*> roads_;
+    std::vector<Factory*> factories_;
   public:
     std::vector<Intersection*> GetIntersections() {
       return intersections_;
@@ -28,6 +31,16 @@ class TrafficManager {
     TrafficManager() {
       SetUp();
     }
+    ~TrafficManager() {
+      for(int i = 0; i < roads_.size() - 1; i++) {
+        delete roads_[i];
+      }
+      for(int i = 0; i < factories_.size() - 1; i++) {
+        delete factories_[i];
+      }
+    }
+
+    void TrafficHelper(Factory* factory, std::vector<Road*> roads, int length);
 
     void Draw();
 

@@ -23,6 +23,7 @@
 #include "traffic_manager.hpp"
 #include "road.hpp"
 
+
 #define TICK_RATE 60
 
 float resize_factor = 1.0;

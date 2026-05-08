@@ -3,13 +3,14 @@ Factory.hpp
 */
 
 #include <vector>
+#include <raylib.h>
 
 #include "element.hpp"
 
 #ifndef FACTORY_HPP
 #define FACTORY_HPP
 
-class Truck;
+class Truck; //avoiding circular dependency
 
 struct Dock {
 	Vector2 position;
@@ -19,9 +20,12 @@ struct Dock {
 
 class Factory : public Element {
 	private:
-		int capacity;
-		std::vector<Dock> docks;
+		int capacity_;
+		std::vector<Dock> docks_;
 	public:
+		Factory(Vector2 points) {
+			SetPosition(points);
+		}
 		bool HasEmptyDock();
 
 };

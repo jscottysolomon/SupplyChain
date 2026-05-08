@@ -18,6 +18,9 @@ class Element {
 			return position_;
 		}
 		void Tick();
+		void Draw() {
+			DrawRectangle(position_.x,position_.y,10,10,BLUE);
+		}
 };
 
 #endif
