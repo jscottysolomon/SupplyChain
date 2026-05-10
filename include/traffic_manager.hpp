@@ -12,8 +12,9 @@
 #include <vector>
 
 #include "road.hpp"
-//CANNOT depend on traffic_manager_hpp
+class Truck;
 class Factory;
+//CANNOT depend on traffic_manager_hpp
 
 class TrafficManager {
   private:
@@ -21,6 +22,7 @@ class TrafficManager {
     std::vector<Intersection*> intersections_;
     std::vector<Road*> roads_;
     std::vector<Factory*> factories_;
+    std::vector<Truck*> trucks_;
   public:
     std::vector<Intersection*> GetIntersections() {
       return intersections_;
@@ -37,6 +39,9 @@ class TrafficManager {
       }
       for(int i = 0; i < factories_.size() - 1; i++) {
         delete factories_[i];
+      }
+      for(Truck* t:trucks_) {
+        delete t;
       }
     }
 

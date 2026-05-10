@@ -21,12 +21,33 @@ struct Dock {
 class Factory : public Element {
 	private:
 		int capacity_;
-		std::vector<Dock> docks_;
+		std::vector<Dock*> docks_;
 	public:
 		Factory(Vector2 points) {
 			SetPosition(points);
 		}
 		bool HasEmptyDock();
+		std::vector<Dock*> GetDocks() {return docks_;}
+		void IncreaseDockCapacity(){capacity_++;}
+		void SetCapacity(int capacity) {capacity_ = capacity;}
+};
+
+class FactoryBuilder {
+	private:
+		Factory* factory;
+
+	public:
+		FactoryBuilder(Vector2 vec) {
+			factory = new Factory(vec);
+			factory->SetCapacity(1);
+		}
+
+		Factory* Build() {return factory;}
+
+		FactoryBuilder& Capacity(int capcity) {
+			factory->SetCapacity(capcity);
+			return *this;
+		}
 
 };
 

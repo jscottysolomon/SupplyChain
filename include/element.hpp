@@ -8,7 +8,7 @@ map_element.hpp
 #include <raylib.h>
 
 class Element {
-	private:
+	protected:
 		Vector2 position_;
 	public:
 		void SetPosition(Vector2 position) {
@@ -18,8 +18,8 @@ class Element {
 			return position_;
 		}
 		void Tick();
-		void Draw() {
-			DrawRectangle(position_.x,position_.y,10,10,BLUE);
+		virtual void Draw() {
+			DrawRectangle(position_.x,position_.y,15,15,BLUE);
 		}
 };
 
