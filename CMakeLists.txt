@@ -8,6 +8,7 @@ set(SRC "src")
 
 file(GLOB SOURCES CONFIGURE_DEPENDS 
 "src/*.cpp"
+"src/core/*.cpp"
 "src/util/*.cpp")
 
 add_executable(CHAIN ${SOURCES})

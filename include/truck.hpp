@@ -19,6 +19,7 @@ class Truck : public Element {
 		int capacity_;
 		double speed_;
 		Factory* factory_;
+		Road* current_road_;
 		std::vector<Widget*> widgets_;
 		std::vector<Factory*> stops_; 	//list of factories to go to
 		std::vector<Road*> route_;		//directions to current factory in list
@@ -31,6 +32,8 @@ class Truck : public Element {
 		// void SetStops(std::vector<Factory*> stops) {stops_ = stops;}
 		void AddStop(Factory* factory);
 		void ClearStops(){stops_.clear();}
+		Road* GetCurrentRoad() {return current_road_;}
+		void SetCurrentRoad(Road* r) {current_road_ = r;}
 		void Draw() override {
 			DrawRectangle(position_.x,position_.y,8,8,PINK);
 		}

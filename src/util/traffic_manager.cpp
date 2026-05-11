@@ -58,6 +58,17 @@ void TrafficManager::SetUp() {
       }
     }
 
+    for(Truck* t:trucks_) {
+      Point p1 = {roads_[xx]->GetStart().x, roads_[xx]->GetStart().y};
+      Point p2 = {roads_[xx]->GetEnd().x, roads_[xx]->GetEnd().y};
+      Point p3 = {t->GetPosition().x, t->GetPosition().y};
+      // if(xx==yy) {continue;}
+
+      if(doIntersect(p1,p2,p3,p3)) {
+        t->SetCurrentRoad(roads_[xx]);
+      }
+    }
+
     //not the best implementation but it works; need to test edge cases and optimize later
     // bool intersects = false;
     // bool closest = false;
@@ -88,7 +99,7 @@ void TrafficManager::SetUp() {
 
   }
 
-  
+  t1->AddStop(f2);
 
 }
 

@@ -9,12 +9,14 @@
 void Truck::AddStop(Factory* factory) {
     bool add = false;
 
-    std::vector<Road*> route = CalculateRoute(0,factory,{},nullptr);
+    std::vector<Road*> route = CalculateRoute(0,factory,{},current_road_);
 
     add = route.size() > 0;
+    int i =0;
 
     if(add)
         stops_.push_back(factory);
+
 }
 
 std::vector<Road*> Truck::CalculateRoute(int len, Factory* factory, std::vector<Road*> route, Road* road) {
