@@ -40,6 +40,7 @@ void TrafficManager::SetUp() {
 
   Truck* t1 = new Truck({50,270});
   Truck* t2 = new Truck({175,200});
+
   trucks_.push_back(t1);
   trucks_.push_back(t2);
 
@@ -52,8 +53,8 @@ void TrafficManager::SetUp() {
       // if(xx==yy) {continue;}
 
       if(doIntersect(p1,p2,p3,p4)) {
-        roads_[xx]->AddNode(roads_[yy]);
-        roads_[yy]->AddNode(roads_[xx]);
+        roads_[xx]->AddRoad(roads_[yy]);
+        roads_[yy]->AddRoad(roads_[xx]);
       }
     }
 
@@ -86,6 +87,8 @@ void TrafficManager::SetUp() {
     // }
 
   }
+
+  
 
 }
 

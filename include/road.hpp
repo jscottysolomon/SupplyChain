@@ -12,10 +12,7 @@
 
 #include <raylib.h>
 
-#include "traffic_node.hpp"
-
 class Factory;
-
 class Road;
 
 struct Intersection {
@@ -23,15 +20,30 @@ struct Intersection {
   std::vector<Road*> roads;
 };
 
-class Road : public TrafficNode {
+class Road {
   private:
     std::vector<Vector2> points_;
     std::vector<Intersection*> intersections_;
     std::vector<Factory*> factories_;
+    std::vector<Road*> connections_;
   public:
     Road(std::vector<Vector2> points) {
       this->points_ = points;
     }
+
+    std::vector<Road*> GetRoads() {
+        return connections_;
+    }
+    
+    void AddRoad(Road* node) {
+        connections_.push_back(node);
+    }
+
+    void RemoveRoad(Road* node) {
+        connections_.erase(std::remove(connections_.begin(), connections_.end(), node), connections_.end());
+    }
+
+
     void AddIntersection(Intersection* intersection) {
       if(std::count(intersections_.begin(), intersections_.end(), intersection) > 0) {
         intersections_.push_back(intersection);
@@ -46,6 +58,8 @@ class Road : public TrafficNode {
     void AddFactory(Factory* factory) {
       factories_.push_back(factory);
     }
+
+    std::vector<Factory*> GetFactories(){return factories_;}
 
     Vector2 GetStart() {return points_[0];}
     Vector2 GetEnd() {return points_[1];}
