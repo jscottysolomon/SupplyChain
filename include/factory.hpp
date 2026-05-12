@@ -18,7 +18,7 @@ struct Dock {
 	Truck* truck;
 };
 
-class Factory : public Element {
+class Factory : public Entity {
 	private:
 		int capacity_;
 		std::vector<Dock*> docks_;

@@ -2,12 +2,14 @@
 map_element.hpp
 */
 
-#ifndef ELEMENT_HPP
-#define ELEMENT_HPP
+#ifndef ENTITY_HPP
+#define ENTITY_HPP
 
 #include <raylib.h>
 
-class Element {
+//TODO implement global unique id system
+
+class Entity {
 	protected:
 		Vector2 position_;
 	public:
@@ -21,6 +23,7 @@ class Element {
 		virtual void Draw() {
 			DrawRectangle(position_.x,position_.y,15,15,BLUE);
 		}
+		virtual void OnTick() {}
 };
 
 #endif
