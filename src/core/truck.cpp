@@ -5,6 +5,7 @@
 #include <raymath.h>
 
 #include "factory.hpp"
+#include "intersection.hpp"
 #include "road.hpp"
 
 void Truck::OnTick() {
@@ -13,20 +14,34 @@ void Truck::OnTick() {
 
 void Truck::Move() {
     if(directions_.size() <=0 ) return;
+    if(directions_[0].size() <= 0) return;
     if(stops_.size() <=0) return;
     if(docked_) return;
     if(factory_ != nullptr) return;
 
-    Vector2 movement_vector = Vector2Subtract(stops_[0]->GetPosition(), position_);
+    if(intersection_ == nullptr && directions_[0].size() > 1) {
+        intersection_ = directions_[0][0]->GetIntersection(directions_[0][1]);
+        target_ = intersection_->GetPosition();
+    } else if(directions_[0].size() == 1)  {
+        target_ = stops_[0]->GetPosition();
+    }
+
+    Vector2 movement_vector = Vector2Subtract(target_, position_);
 
     Vector2 movement = Vector2Scale(movement_vector, speed_);
 
     position_ = Vector2Add(position_, movement);
 
-    if(Vector2Distance(position_, stops_[0]->GetPosition()) <= 10) {
-        // docked_ = true;
-        stops_.erase(stops_.begin());
-        directions_.erase(directions_.begin());
+    if(Vector2Distance(position_, target_) <= 10) {
+        if(directions_[0].size() > 1) {
+            directions_[0].erase(directions_[0].begin());
+            intersection_ = nullptr;
+        } else {
+            stops_.erase(stops_.begin());
+            directions_.erase(directions_.begin());
+            intersection_ = nullptr;
+        }
+        
     }
 
 }

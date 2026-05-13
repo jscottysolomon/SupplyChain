@@ -43,6 +43,10 @@ class Intersection {
             v_color_ = LightColor::G;
             h_color_ = LightColor::G;
         }
+        std::vector<Road*> GetRoads() {
+            return {v_road_, h_road_};
+        }
+        Vector2 GetPosition() {return position_;}
 
         void OnTick();
 };

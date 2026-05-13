@@ -13,6 +13,7 @@
 
 class Factory; //avoiding circular dependency
 class Road;
+class Intersection;
 
 class Truck : public Entity {
 	private:
@@ -21,6 +22,8 @@ class Truck : public Entity {
 		Factory* factory_;
 		Road* current_road_;
 		bool docked_;
+		Intersection* intersection_;
+		Vector2 target_;
 		std::vector<Widget*> widgets_;
 		std::vector<Factory*> stops_; 	//list of factories to go to
 		std::vector<std::vector<Road*>> directions_;		//directions to current factory in list
@@ -33,6 +36,7 @@ class Truck : public Entity {
 			docked_ = false;
 			factory_ = nullptr;
 			speed_ = .025f;
+			intersection_ = nullptr;
 		}
 		void OnTick() override;
 		// void SetStops(std::vector<Factory*> stops) {stops_ = stops;}

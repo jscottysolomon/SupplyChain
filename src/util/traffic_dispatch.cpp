@@ -47,23 +47,27 @@ void TrafficDispatch::SetUp() {
 
   for(int xx = 0; xx < roads_.size(); ++xx) {
     for(int yy = xx + 1; yy < roads_.size(); ++yy) {
-      Point p1 = {roads_[xx]->GetStart().x, roads_[xx]->GetStart().y};
-      Point p2 = {roads_[xx]->GetEnd().x, roads_[xx]->GetEnd().y};
-      Point p3 = {roads_[yy]->GetStart().x, roads_[yy]->GetStart().y};
-      Point p4 = {roads_[yy]->GetEnd().x, roads_[yy]->GetEnd().y};
-      // if(xx==yy) {continue;}
+      // Point p1 = {roads_[xx]->GetStart().x, roads_[xx]->GetStart().y};
+      // Point p2 = {roads_[xx]->GetEnd().x, roads_[xx]->GetEnd().y};
+      // Point p3 = {roads_[yy]->GetStart().x, roads_[yy]->GetStart().y};
+      // Point p4 = {roads_[yy]->GetEnd().x, roads_[yy]->GetEnd().y};
+      // // if(xx==yy) {continue;}
 
-      if(doIntersect(p1,p2,p3,p4)) {
+      // if(doIntersect(p1,p2,p3,p4)) {
+      //   roads_[xx]->AddRoad(roads_[yy]);
+      //   roads_[yy]->AddRoad(roads_[xx]);
+      //   // Intersection* intersection = new Intersection()
+      // }
+
+      Vector2 col = {};
+
+      if(CheckCollisionLines(roads_[xx]->GetStart(), roads_[xx]->GetEnd(), roads_[yy]->GetStart(), roads_[yy]->GetEnd(), &col)) {
         roads_[xx]->AddRoad(roads_[yy]);
         roads_[yy]->AddRoad(roads_[xx]);
-        // Intersection* intersection = new Intersection()
+        Intersection* inter = new Intersection(col,roads_[xx],roads_[yy]);
+        roads_[xx]->AddIntersection(inter);
+        roads_[yy]->AddIntersection(inter);
       }
-
-      // Vector2 col = {};
-
-      // if(CheckCollisionLines(roads_[xx]->GetStart(), roads_[xx]->GetEnd(), roads_[yy]->GetStart(), roads_[yy]->GetEnd(), &col)) {
-      //   Intersection* inter = new Intersection(col,roads_[xx],roads_[yy]);
-      // }
 
       
     }

@@ -38,12 +38,15 @@ class Road {
         // connections_.erase(std::remove(connections_.begin(), connections_.end(), node), connections_.end());
     }
 
-
     void AddIntersection(Intersection* intersection) {
       // if(std::count(intersections_.begin(), intersections_.end(), intersection) > 0) {
       //   intersections_.push_back(intersection);
       // }
+      intersections_.push_back(intersection);
     }
+
+    Intersection* GetIntersection(Road* r2);
+
     std::vector<Intersection*> GetIntersections() {
       return intersections_;
     }
