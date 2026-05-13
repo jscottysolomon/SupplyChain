@@ -12,31 +12,33 @@ void Truck::OnTick() {
 }
 
 void Truck::Move() {
-    if(route_.size() <=0 ) return;
+    if(directions_.size() <=0 ) return;
+    if(stops_.size() <=0) return;
     if(docked_) return;
-    if(factory_ == nullptr) return;
+    if(factory_ != nullptr) return;
 
-    float speed = 5.0f;
+    Vector2 movement_vector = Vector2Subtract(stops_[0]->GetPosition(), position_);
 
-    Vector2 movement_vector = Vector2Subtract(factory_->GetPosition(), position_);
-
-    Vector2 movement = Vector2Scale(movement_vector, speed);
+    Vector2 movement = Vector2Scale(movement_vector, speed_);
 
     position_ = Vector2Add(position_, movement);
+
+    if(Vector2Distance(position_, stops_[0]->GetPosition()) <= 10) {
+        docked_ = true;
+    }
 
 }
 
 void Truck::AddStop(Factory* factory) {
     bool add = false;
 
-    std::vector<Road*> route = CalculateRoute(0,factory,{},current_road_);
+    directions_ = CalculateRoute(0,factory,{},current_road_);
 
-    add = route.size() > 0;
+    add = directions_.size() > 0;
     int i =0;
 
     if(add)
         stops_.push_back(factory);
-
 }
 
 std::vector<Road*> Truck::CalculateRoute(int len, Factory* factory, std::vector<Road*> route, Road* road) {

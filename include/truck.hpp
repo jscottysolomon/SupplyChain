@@ -17,13 +17,13 @@ class Road;
 class Truck : public Entity {
 	private:
 		int capacity_;
-		double speed_;
+		float speed_;
 		Factory* factory_;
 		Road* current_road_;
 		bool docked_;
 		std::vector<Widget*> widgets_;
 		std::vector<Factory*> stops_; 	//list of factories to go to
-		std::vector<Road*> route_;		//directions to current factory in list
+		std::vector<Road*> directions_;		//directions to current factory in list
 		std::vector<Road*> CalculateRoute(int len, Factory* factory, std::vector<Road*> route, Road* road);
 		void Move();
 
@@ -32,6 +32,7 @@ class Truck : public Entity {
 			SetPosition(vec);
 			docked_ = false;
 			factory_ = nullptr;
+			speed_ = .025f;
 		}
 		void OnTick() override;
 		// void SetStops(std::vector<Factory*> stops) {stops_ = stops;}

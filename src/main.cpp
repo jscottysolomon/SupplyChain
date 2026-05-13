@@ -71,7 +71,10 @@ int main(void)
         if(IsWindowResized()) {
 
         }
+        traffic.OnTick();
+
         BeginDrawing();
+            ClearBackground(background);
             DrawText("Hello, Worlddd!",0,0,20,WHITE);
             traffic.Draw();
         EndDrawing();

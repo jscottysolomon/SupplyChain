@@ -46,6 +46,7 @@ class TrafficManager {
     }
 
     void TrafficHelper(Factory* factory, std::vector<Road*> roads, int length);
+    void OnTick();
 
     void Draw();
 

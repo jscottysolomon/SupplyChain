@@ -103,6 +103,12 @@ void TrafficManager::SetUp() {
 
 }
 
+void TrafficManager::OnTick() {
+  for(Truck* t: trucks_) {
+    t->OnTick();
+  }
+}
+
 void TrafficManager::Draw() {
   for(Road* r:roads_) {
     r->Draw();
