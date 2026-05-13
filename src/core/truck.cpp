@@ -24,23 +24,35 @@ void Truck::Move() {
     position_ = Vector2Add(position_, movement);
 
     if(Vector2Distance(position_, stops_[0]->GetPosition()) <= 10) {
-        docked_ = true;
+        // docked_ = true;
+        stops_.erase(stops_.begin());
+        directions_.erase(directions_.begin());
     }
 
 }
 
 void Truck::AddStop(Factory* factory) {
     bool add = false;
+    std::vector<Road*> dir;
 
-    directions_ = CalculateRoute(0,factory,{},current_road_);
+    if(directions_.size() <= 0) {
+        dir = CalculateRoute(0,factory,{},current_road_);
+    } else {
+        std::vector<Road*> prev_route = directions_[directions_.size() - 1];
+        dir = CalculateRoute(0,factory,{},prev_route[prev_route.size() - 1]);
+    }
 
-    add = directions_.size() > 0;
+    add = dir.size() > 0;
     int i =0;
 
-    if(add)
+    if(add) {
         stops_.push_back(factory);
+        directions_.push_back(dir);
+    }
+        
 }
 
+//TODO: edge case where two factories are on the same road
 std::vector<Road*> Truck::CalculateRoute(int len, Factory* factory, std::vector<Road*> route, Road* road) {
     if(road == nullptr) {
         return {};

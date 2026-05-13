@@ -1,6 +1,6 @@
 /**
  * @file traffice_manager.cpp
- * @brief 
+ * @brief This is kind of a god object that is going to be reworked to assign paths to trucks
  * @author J. Scotty Solomon
  * @date 12-Nov-25
  */
@@ -9,11 +9,12 @@
 #include <raymath.h>
 
 #include "factory.hpp"
+#include "intersection.hpp"
 #include "util.hpp"
-#include "traffic_manager.hpp"
+#include "traffic_dispatch.hpp"
 #include "truck.hpp"
 
-void TrafficManager::SetUp() {
+void TrafficDispatch::SetUp() {
   Road* r1 = new Road({{50,300},{50,10}});
   Road* r2 = new Road({{300,300},{300,10}});
   Road* r3 = new Road({{50,100},{300,100}});
@@ -55,7 +56,16 @@ void TrafficManager::SetUp() {
       if(doIntersect(p1,p2,p3,p4)) {
         roads_[xx]->AddRoad(roads_[yy]);
         roads_[yy]->AddRoad(roads_[xx]);
+        // Intersection* intersection = new Intersection()
       }
+
+      // Vector2 col = {};
+
+      // if(CheckCollisionLines(roads_[xx]->GetStart(), roads_[xx]->GetEnd(), roads_[yy]->GetStart(), roads_[yy]->GetEnd(), &col)) {
+      //   Intersection* inter = new Intersection(col,roads_[xx],roads_[yy]);
+      // }
+
+      
     }
 
     for(Truck* t:trucks_) {
@@ -100,16 +110,21 @@ void TrafficManager::SetUp() {
   }
 
   t1->AddStop(f2);
+  t1->AddStop(f3);
+  t1->AddStop(f);
+
+  // t2->AddStop(f);
+
 
 }
 
-void TrafficManager::OnTick() {
+void TrafficDispatch::OnTick() {
   for(Truck* t: trucks_) {
     t->OnTick();
   }
 }
 
-void TrafficManager::Draw() {
+void TrafficDispatch::Draw() {
   for(Road* r:roads_) {
     r->Draw();
   }

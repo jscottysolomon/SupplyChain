@@ -26,4 +26,7 @@ class Entity {
 		virtual void OnTick() {}
 };
 
+//Trying to obscure id.
+int NextId();
+
 #endif

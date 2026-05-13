@@ -13,12 +13,7 @@
 #include <raylib.h>
 
 class Factory;
-class Road;
-
-struct Intersection {
-  Vector2 position;
-  std::vector<Road*> roads;
-};
+class Intersection;
 
 class Road {
   private:
@@ -40,14 +35,14 @@ class Road {
     }
 
     void RemoveRoad(Road* node) {
-        connections_.erase(std::remove(connections_.begin(), connections_.end(), node), connections_.end());
+        // connections_.erase(std::remove(connections_.begin(), connections_.end(), node), connections_.end());
     }
 
 
     void AddIntersection(Intersection* intersection) {
-      if(std::count(intersections_.begin(), intersections_.end(), intersection) > 0) {
-        intersections_.push_back(intersection);
-      }
+      // if(std::count(intersections_.begin(), intersections_.end(), intersection) > 0) {
+      //   intersections_.push_back(intersection);
+      // }
     }
     std::vector<Intersection*> GetIntersections() {
       return intersections_;

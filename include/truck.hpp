@@ -8,7 +8,7 @@
 #include <raylib.h>
 #include <vector>
 
-#include "element.hpp"
+#include "entity.hpp"
 #include "widget.hpp"
 
 class Factory; //avoiding circular dependency
@@ -23,7 +23,7 @@ class Truck : public Entity {
 		bool docked_;
 		std::vector<Widget*> widgets_;
 		std::vector<Factory*> stops_; 	//list of factories to go to
-		std::vector<Road*> directions_;		//directions to current factory in list
+		std::vector<std::vector<Road*>> directions_;		//directions to current factory in list
 		std::vector<Road*> CalculateRoute(int len, Factory* factory, std::vector<Road*> route, Road* road);
 		void Move();
 

@@ -20,7 +20,7 @@
 #include <raylib.h>
 #include <nlohmann/json.hpp>
 
-#include "traffic_manager.hpp"
+#include "traffic_dispatch.hpp"
 #include "road.hpp"
 
 
@@ -64,7 +64,7 @@ int main(void)
     InitWindow(1920/2, 1080/2, "Game");
     SetTargetFPS(TICK_RATE);
 
-    TrafficManager traffic;
+    TrafficDispatch traffic;
 
     while (!WindowShouldClose())
     {

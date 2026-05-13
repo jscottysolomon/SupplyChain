@@ -5,7 +5,7 @@ Factory.hpp
 #include <vector>
 #include <raylib.h>
 
-#include "element.hpp"
+#include "entity.hpp"
 
 #ifndef FACTORY_HPP
 #define FACTORY_HPP
