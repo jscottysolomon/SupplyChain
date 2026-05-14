@@ -7,6 +7,7 @@
 
 #include <raylib.h>
 #include <vector>
+#include <queue>
 
 #include "entity.hpp"
 #include "widget.hpp"
@@ -27,7 +28,10 @@ class Truck : public Entity {
 		std::vector<Widget*> widgets_;
 		std::vector<Factory*> stops_; 	//list of factories to go to
 		std::vector<std::vector<Road*>> directions_;		//directions to current factory in list
+		std::queue<Intersection*> directs_;
+		
 		std::vector<Road*> CalculateRoute(int len, Factory* factory, std::vector<Road*> route, Road* road);
+		std::vector<Road*> CalculateRoute(Factory* target, Road* start);
 		void Move();
 
 	public:
@@ -41,6 +45,7 @@ class Truck : public Entity {
 		void OnTick() override;
 		// void SetStops(std::vector<Factory*> stops) {stops_ = stops;}
 		void AddStop(Factory* factory);
+		void AddStop(std::vector<Factory*> factories);
 		void ClearStops(){stops_.clear();}
 		Road* GetCurrentRoad() {return current_road_;}
 		void SetCurrentRoad(Road* r) {current_road_ = r;}

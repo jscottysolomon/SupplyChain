@@ -14,51 +14,61 @@
 #include "traffic_dispatch.hpp"
 #include "truck.hpp"
 
+#define THRESHOLD 40
+
 void TrafficDispatch::SetUp() {
-  Road* r1 = new Road({{50,300},{50,10}});
-  Road* r2 = new Road({{300,300},{300,10}});
-  Road* r3 = new Road({{50,100},{300,100}});
-  Road* r4 = new Road({{50,200},{300,200}});
-  // Road* r5 = new Road({{300,10},{50,300}});
+  Road* r1 = new Road({{330,420},{330,120}});
+  Road* r2 = new Road({{430,420},{430,120}});
+  Road* r3 = new Road({{530,420},{530,120}});
+  Road* r4 = new Road({{630,420},{630,120}});
+  Road* r5 = new Road({{330,420},{630,420}});
+  Road* r6 = new Road({{330,320},{630,320}});
+  Road* r7 = new Road({{330,220},{630,220}});
+  Road* r8 = new Road({{330,120},{630,120}});
+  
+  
+  Factory* f1 = FactoryBuilder({340,420}).Capacity(3).Build();   // bottom-left edge
+  Factory* f2 = FactoryBuilder({430,330}).Build();               // near center
+  Factory* f3 = FactoryBuilder({460,220}).Build();               // right edge
+  Factory* f4 = FactoryBuilder({630,130}).Capacity(2).Build();   // top-right corner
+  Factory* f5 = FactoryBuilder({330,150}).Build();               // left edge
+  Factory* f6 = FactoryBuilder({530,120}).Build();               // top edge
+
+  r5->AddFactory(f1); // {340,420}
+  r6->AddFactory(f2); // {430,330}
+  r7->AddFactory(f3); // {460,220}
+  r4->AddFactory(f4); // {630,130}
+  r1->AddFactory(f5); // {330,150}
+  r8->AddFactory(f6); // {530,120}
+
+  Truck* t1 = new Truck({330,420});
+  Truck* t2 = new Truck({430,320});
+  Truck* t3 = new Truck({530,220});
+  Truck* t4 = new Truck({630,120});
+
+  trucks_.push_back(t1);
+  trucks_.push_back(t2);
+  trucks_.push_back(t3);
+  trucks_.push_back(t4);
+
+  factories_.push_back(f1);
+  factories_.push_back(f2);
+  factories_.push_back(f3);
+  factories_.push_back(f4);
+  factories_.push_back(f5);
+  factories_.push_back(f6);
 
   roads_.push_back(r1);
   roads_.push_back(r2);
   roads_.push_back(r3);
   roads_.push_back(r4);
-  // roads_.push_back(r5);
-
-  Factory* f = FactoryBuilder({50,20}).Capacity(3).Build();
-  Factory* f2 = FactoryBuilder({150,100}).Build();
-  Factory* f3 = FactoryBuilder({300,270}).Build();
-  
-  factories_.push_back(f);
-  factories_.push_back(f2);
-  factories_.push_back(f3);
-
-  r1->AddFactory(f);
-  r2->AddFactory(f2);
-  r3->AddFactory(f3);  
-
-  Truck* t1 = new Truck({50,270});
-  Truck* t2 = new Truck({175,200});
-
-  trucks_.push_back(t1);
-  trucks_.push_back(t2);
+  roads_.push_back(r5);
+  roads_.push_back(r6);
+  roads_.push_back(r7);
+  roads_.push_back(r8);
 
   for(int xx = 0; xx < roads_.size(); ++xx) {
     for(int yy = xx + 1; yy < roads_.size(); ++yy) {
-      // Point p1 = {roads_[xx]->GetStart().x, roads_[xx]->GetStart().y};
-      // Point p2 = {roads_[xx]->GetEnd().x, roads_[xx]->GetEnd().y};
-      // Point p3 = {roads_[yy]->GetStart().x, roads_[yy]->GetStart().y};
-      // Point p4 = {roads_[yy]->GetEnd().x, roads_[yy]->GetEnd().y};
-      // // if(xx==yy) {continue;}
-
-      // if(doIntersect(p1,p2,p3,p4)) {
-      //   roads_[xx]->AddRoad(roads_[yy]);
-      //   roads_[yy]->AddRoad(roads_[xx]);
-      //   // Intersection* intersection = new Intersection()
-      // }
-
       Vector2 col = {};
 
       if(CheckCollisionLines(roads_[xx]->GetStart(), roads_[xx]->GetEnd(), roads_[yy]->GetStart(), roads_[yy]->GetEnd(), &col)) {
@@ -68,20 +78,23 @@ void TrafficDispatch::SetUp() {
         roads_[xx]->AddIntersection(inter);
         roads_[yy]->AddIntersection(inter);
       }
-
-      
     }
 
     for(Truck* t:trucks_) {
       Point p1 = {roads_[xx]->GetStart().x, roads_[xx]->GetStart().y};
       Point p2 = {roads_[xx]->GetEnd().x, roads_[xx]->GetEnd().y};
       Point p3 = {t->GetPosition().x, t->GetPosition().y};
-      // if(xx==yy) {continue;}
 
       if(doIntersect(p1,p2,p3,p3)) {
         t->SetCurrentRoad(roads_[xx]);
       }
     }
+
+    // for(Factory* f: factories_) {
+    //   if(CheckCollisionPointLine(roads_[xx]->GetStart(), roads_[xx]->GetEnd(), f->GetPosition(), THRESHOLD)) {
+    //     roads_[xx]->AddFactory(f);
+    //   }
+    // }
 
     //not the best implementation but it works; need to test edge cases and optimize later
     // bool intersects = false;
@@ -113,12 +126,7 @@ void TrafficDispatch::SetUp() {
 
   }
 
-  t1->AddStop(f2);
-  t1->AddStop(f3);
-  t1->AddStop(f);
-
-  // t2->AddStop(f);
-
+  t1->AddStop({f4,f6,f2,f5});
 
 }
 
