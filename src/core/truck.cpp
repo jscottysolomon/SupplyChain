@@ -142,6 +142,10 @@ std::vector<Road*> Truck::CalculateRoute(Factory* target, Road* start) {
     }
 
     std::reverse(route.begin(), route.end());
+
+    for(Road* r: route) {
+        // directs_.push(r);
+    }
     return route;
 }
 

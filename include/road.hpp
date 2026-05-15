@@ -57,6 +57,8 @@ class Road {
       factories_.push_back(factory);
     }
 
+    bool IsHorizontal() {return(points_[0].x == points_[1].x);}
+
     std::vector<Factory*> GetFactories(){return factories_;}
 
     Vector2 GetStart() {return points_[0];}

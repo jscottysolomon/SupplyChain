@@ -89,8 +89,52 @@ void TrafficDispatch::SetUp() {
         t->SetCurrentRoad(roads_[xx]);
       }
     }
+  }
 
-    // for(Factory* f: factories_) {
+  for(Road* r: roads_) {
+    std::vector<Intersection*> r_ints = r->GetIntersections();
+
+    std::vector <InterComp> vec;
+
+    for(Intersection* inter: r_ints) {
+      vec.push_back(InterComp(inter, r->IsHorizontal()));
+    }
+
+    std::sort(vec.begin(), vec.end(), less_than_key());
+
+    for(int ii = 0; ii < r_ints.size(); ii++) {
+      if(ii > 0) {
+        r_ints[ii]->AddIntersection(r_ints[ii-1]);
+      } 
+      if(ii < r_ints.size() - 1) {
+        r_ints[ii]->AddIntersection(r_ints[ii+1]);
+      }
+    }
+  }
+
+  t1->AddStop({f4,f6,f2,f5});
+
+}
+
+void TrafficDispatch::OnTick() {
+  for(Truck* t: trucks_) {
+    t->OnTick();
+  }
+}
+
+void TrafficDispatch::Draw() {
+  for(Road* r:roads_) {
+    r->Draw();
+  }
+  for(Factory* f:factories_) {
+    f->Draw();
+  }
+  for(Truck* t: trucks_) {
+    t->Draw();
+  }
+}
+
+// for(Factory* f: factories_) {
     //   if(CheckCollisionPointLine(roads_[xx]->GetStart(), roads_[xx]->GetEnd(), f->GetPosition(), THRESHOLD)) {
     //     roads_[xx]->AddFactory(f);
     //   }
@@ -123,27 +167,3 @@ void TrafficDispatch::SetUp() {
     //     roads_[xx]->AddFactory(factory);
     //   }
     // }
-
-  }
-
-  t1->AddStop({f4,f6,f2,f5});
-
-}
-
-void TrafficDispatch::OnTick() {
-  for(Truck* t: trucks_) {
-    t->OnTick();
-  }
-}
-
-void TrafficDispatch::Draw() {
-  for(Road* r:roads_) {
-    r->Draw();
-  }
-  for(Factory* f:factories_) {
-    f->Draw();
-  }
-  for(Truck* t: trucks_) {
-    t->Draw();
-  }
-}
