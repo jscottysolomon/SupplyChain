@@ -27,11 +27,12 @@ class Truck : public Entity {
 		Vector2 target_;
 		std::vector<Widget*> widgets_;
 		std::vector<Factory*> stops_; 	//list of factories to go to
-		std::vector<std::vector<Road*>> directions_;		//directions to current factory in list
-		std::queue<Intersection*> directs_;
+		// std::vector<std::vector<Road*>> directions_;		//directions to current factory in list
+		std::queue<Road*> directions_;
+		// std::queue<Intersection*> directs_;
 		
-		std::vector<Road*> CalculateRoute(int len, Factory* factory, std::vector<Road*> route, Road* road);
-		std::vector<Road*> CalculateRoute(Factory* target, Road* start);
+		std::queue<Road*> CalculateRoute(int len, Factory* factory, std::vector<Road*> route, Road* road);
+		std::queue<Road*> CalculateRoute(Factory* target, Road* start);
 		void Move();
 
 	public:

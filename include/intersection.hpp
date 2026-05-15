@@ -29,6 +29,7 @@ class Intersection {
         Road* v_road_;
         LightColor h_color_;
         LightColor v_color_;
+        std::vector<Intersection*> intersection_;
     public:
         Intersection(Vector2 position, Road* r1, Road*r2) {
             position_ = position;
@@ -46,6 +47,9 @@ class Intersection {
         std::vector<Road*> GetRoads() {
             return {v_road_, h_road_};
         }
+        std::vector<Intersection*> GetIntersections() {return intersection_;}
+        void AddIntersection(Intersection* inter) {intersection_.push_back(inter);}
+
         Vector2 GetPosition() {return position_;}
 
         void OnTick();
