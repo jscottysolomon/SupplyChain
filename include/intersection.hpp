@@ -58,6 +58,7 @@ class Intersection {
         }
 
         Vector2 GetPosition() {return position_;}
+        std::vector<Intersection*> GetIntersections(){return intersections_;}
 
         void OnTick();
 };

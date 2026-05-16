@@ -35,10 +35,10 @@ class TrafficDispatch {
       SetUp();
     }
     ~TrafficDispatch() {
-      for(int i = 0; i < roads_.size(); i++) {
+      for(std::size_t i = 0; i < roads_.size(); i++) {
         delete roads_[i];
       }
-      for(int i = 0; i < factories_.size(); i++) {
+      for(std::size_t i = 0; i < factories_.size(); i++) {
         delete factories_[i];
       }
       for(Truck* t:trucks_) {

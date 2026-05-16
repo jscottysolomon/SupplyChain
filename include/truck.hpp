@@ -33,6 +33,7 @@ class Truck : public Entity {
 		std::vector<Road*> CalculateRoute(int len, Factory* factory, std::vector<Road*> route, Road* road);
 		std::vector<Road*> CalculateRoute(Factory* target, Road* start);
 		void Move();
+		
 
 	public:
 		Truck(Vector2 vec) {
