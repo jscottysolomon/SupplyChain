@@ -5,18 +5,22 @@
  * @date 12-Nov-25
  */
 
+#include "traffic_dispatch.hpp"
+
 #include <raylib.h>
 #include <raymath.h>
 
 #include "factory.hpp"
 #include "intersection.hpp"
 #include "util.hpp"
-#include "traffic_dispatch.hpp"
+#include "traffic_control.hpp"
 #include "truck.hpp"
 
 #define THRESHOLD 40
 
 void TrafficDispatch::SetUp() {
+  controller_ = new TrafficControl(intersections_);
+
   Road* r1 = new Road({{330,420},{330,120}});
   Road* r2 = new Road({{430,420},{430,120}});
   Road* r3 = new Road({{530,420},{530,120}});
@@ -25,38 +29,16 @@ void TrafficDispatch::SetUp() {
   Road* r6 = new Road({{330,320},{630,320}});
   Road* r7 = new Road({{330,220},{630,220}});
   Road* r8 = new Road({{330,120},{630,120}});
-  
-  
-  Factory* f1 = FactoryBuilder({340,420}).Capacity(3).Build();   // bottom-left edge
-  Factory* f2 = FactoryBuilder({430,330}).Build();               // near center
-  Factory* f3 = FactoryBuilder({460,220}).Build();               // right edge
-  Factory* f4 = FactoryBuilder({630,130}).Capacity(2).Build();   // top-right corner
-  Factory* f5 = FactoryBuilder({330,150}).Build();               // left edge
-  Factory* f6 = FactoryBuilder({530,120}).Build();               // top edge
 
-  r5->AddFactory(f1); // {340,420}
-  r6->AddFactory(f2); // {430,330}
-  r7->AddFactory(f3); // {460,220}
-  r4->AddFactory(f4); // {630,130}
-  r1->AddFactory(f5); // {330,150}
-  r8->AddFactory(f6); // {530,120}
-
-  Truck* t1 = new Truck({330,420});
-  Truck* t2 = new Truck({430,320});
-  Truck* t3 = new Truck({530,220});
-  Truck* t4 = new Truck({630,120});
+  Truck* t1 = new Truck({330,420}, *controller_);
+  Truck* t2 = new Truck({430,320}, *controller_);
+  Truck* t3 = new Truck({530,220}, *controller_);
+  Truck* t4 = new Truck({630,120}, *controller_);
 
   trucks_.push_back(t1);
   trucks_.push_back(t2);
   trucks_.push_back(t3);
   trucks_.push_back(t4);
-
-  factories_.push_back(f1);
-  factories_.push_back(f2);
-  factories_.push_back(f3);
-  factories_.push_back(f4);
-  factories_.push_back(f5);
-  factories_.push_back(f6);
 
   roads_.push_back(r1);
   roads_.push_back(r2);
@@ -102,18 +84,38 @@ void TrafficDispatch::SetUp() {
 
     std::sort(vec.begin(), vec.end(), less_than_key());
 
-    for(int ii = 0; ii < r_ints.size(); ii++) {
+    for(std::size_t ii = 0; ii < r_ints.size(); ii++) {
       if(ii > 0) {
-        r_ints[ii]->AddIntersection(r_ints[ii-1]);
+        r_ints.at(ii)->AddIntersection(r_ints.at(ii-1));
       } 
       if(ii < r_ints.size() - 1) {
-        r_ints[ii]->AddIntersection(r_ints[ii+1]);
+        r_ints.at(ii)->AddIntersection(r_ints.at(ii+1));
       }
     }
   }
 
+  Factory* f1 = FactoryBuilder({340,420}).Capacity(3).WithRoad(r5).Build();   // bottom-left edge
+  Factory* f2 = FactoryBuilder({430,330}).WithRoad(r6).Build();               // near center
+  Factory* f3 = FactoryBuilder({460,220}).WithRoad(r7).Build();               // right edge
+  Factory* f4 = FactoryBuilder({630,130}).Capacity(2).WithRoad(r4).Build();   // top-right corner
+  Factory* f5 = FactoryBuilder({330,150}).WithRoad(r1).Build();               // left edge
+  Factory* f6 = FactoryBuilder({530,120}).WithRoad(r8).Build();               // top edge
+
+  r5->AddFactory(f1); // {340,420}
+  r6->AddFactory(f2); // {430,330}
+  r7->AddFactory(f3); // {460,220}
+  r4->AddFactory(f4); // {630,130}
+  r1->AddFactory(f5); // {330,150}
+  r8->AddFactory(f6); // {530,120}
+
   t1->AddStop({f4,f6,f2,f5});
 
+  factories_.push_back(f1);
+  factories_.push_back(f2);
+  factories_.push_back(f3);
+  factories_.push_back(f4);
+  factories_.push_back(f5);
+  factories_.push_back(f6);
 }
 
 void TrafficDispatch::OnTick() {

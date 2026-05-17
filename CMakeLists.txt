@@ -16,7 +16,7 @@ file(GLOB SOURCES CONFIGURE_DEPENDS
 add_executable(CHAIN ${SOURCES})
 
 #set(CXXFLAGS
-#"-g -O0 -Wall -static -std=c++11 -Wno-missing-braces -pedantic -Wno-unused-variable -Wsign-compare -Wno-delete-non-virtual-dtor -fpermissive -stdlib=libc++"
+#"-g -O0 -Wall -std=c++11 -Wno-missing-braces -pedantic -Wno-unused-variable -Wsign-compare -Wno-delete-non-virtual-dtor -fpermissive -stdlib=libc++"
 #)
 
 target_include_directories(CHAIN
@@ -26,23 +26,41 @@ target_include_directories(CHAIN
     ${CMAKE_SOURCE_DIR}/lib/
 )
 
-target_compile_options(CHAIN PRIVATE
-    -g
-    -O0
-    -Wall
-    -Wno-missing-braces
-    -pedantic
-    -Wno-unused-variable
-    -Wsign-compare
-    -Wno-delete-non-virtual-dtor
-    -fpermissive
-)
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+if(MSVC)
+    target_link_libraries(CHAIN PRIVATE
+        "${CMAKE_SOURCE_DIR}/lib/raylib.lib"
+        opengl32
+        gdi32
+        winmm
+        user32
+        shell32
+    )
+
+    target_compile_options(CHAIN PRIVATE
+        /W4
+        /Zi
+        /fsanitize=address
+    )
+
+    target_link_options(CHAIN PRIVATE
+        /fsanitize=address
+    )
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     target_link_libraries(CHAIN PRIVATE "${CMAKE_SOURCE_DIR}/lib/raylib.lib" OpenGL32 Gdi32 WinMM kernel32 shell32 User32)
     add_compile_options (-fcolor-diagnostics)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    # This block is executed if clang++ is used
+    target_compile_options(CHAIN PRIVATE
+        -g
+        -O0
+        -Wall
+        -Wno-missing-braces
+        -pedantic
+        -Wno-unused-variable
+        -Wsign-compare
+        -Wno-delete-non-virtual-dtor
+        -fpermissive
+    )
     target_link_libraries(CHAIN PRIVATE "${CMAKE_SOURCE_DIR}/lib/libraylib.a" opengl32 gdi32 winmm)
     add_compile_options (-fdiagnostics-color=always)
 else()

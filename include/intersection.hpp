@@ -12,7 +12,7 @@
 #ifndef INTERSECTION_HPP
 #define INTERSECTION_HPP
 
-#include <bits/stdc++.h>
+#include <algorithm>
 #include <raylib.h>
 #include <vector>
 
@@ -59,6 +59,7 @@ class Intersection {
 
         Vector2 GetPosition() {return position_;}
         std::vector<Intersection*> GetIntersections(){return intersections_;}
+        bool HasRoad(Road* r) {return (h_road_ == r) || (v_road_ == r);}
 
         void OnTick();
 };

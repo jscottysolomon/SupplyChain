@@ -1,6 +1,6 @@
 #include "truck.hpp"
 
-#include <bits/stdc++.h>
+#include <algorithm>
 #include <raylib.h>
 #include <raymath.h>
 
@@ -76,9 +76,23 @@ void Truck::AddStop(std::vector<Factory*> facts) {
 void Truck::AddStop(Factory* factory) {
     bool add = false;
     std::vector<Road*> dir;
+    std::vector<Intersection*> route;
 
     if(directions_.size() <= 0) {
         dir = CalculateRoute(0,factory,{},current_road_);
+        
+        for(Intersection* i: current_road_->GetIntersections()) {
+            if(intersection_ == nullptr) {
+                intersection_ = i;
+            } else if( Vector2Distance(position_,i->GetPosition())
+                < Vector2Distance(position_,intersection_->GetPosition())) {
+                    intersection_ = i;
+            }
+        }
+
+        route = controller_.RequestRoute(intersection_,factory->GetIntersection());
+
+
     } else {
         std::vector<Road*> prev_route = directions_[directions_.size() - 1];
         dir = CalculateRoute(0,factory,{},prev_route[prev_route.size() - 1]);
@@ -95,58 +109,59 @@ void Truck::AddStop(Factory* factory) {
 }
 
 std::vector<Road*> Truck::CalculateRoute(Factory* target, Road* start) {
-    if (start == nullptr || target == nullptr) {
-        return {};
-    }
+    // if (start == nullptr || target == nullptr) {
+    //     return {};
+    // }
 
-    std::queue<Road*> q;
-    std::unordered_map<Road*, Road*> parent;
-    std::unordered_set<Road*> visited;
+    // std::queue<Road*> q;
+    // std::unordered_map<Road*, Road*> parent;
+    // std::unordered_set<Road*> visited;
 
-    q.push(start);
-    visited.insert(start);
-    parent[start] = nullptr;
+    // q.push(start);
+    // visited.insert(start);
+    // parent[start] = nullptr;
 
-    Road* goalRoad = nullptr;
+    // Road* goalRoad = nullptr;
 
-    while (!q.empty()) {
-        Road* road = q.front();
-        q.pop();
+    // while (!q.empty()) {
+    //     Road* road = q.front();
+    //     q.pop();
 
-        for (Factory* f : road->GetFactories()) {
-            if (f == target) {
-                goalRoad = road;
-                break;
-            }
-        }
+    //     for (Factory* f : road->GetFactories()) {
+    //         if (f == target) {
+    //             goalRoad = road;
+    //             break;
+    //         }
+    //     }
 
-        if (goalRoad != nullptr) {
-            break;
-        }
+    //     if (goalRoad != nullptr) {
+    //         break;
+    //     }
 
-        for (Road* next : road->GetRoads()) {
-            if (next != nullptr && visited.insert(next).second) {
-                parent[next] = road;
-                q.push(next);
-            }
-        }
-    }
+    //     for (Road* next : road->GetRoads()) {
+    //         if (next != nullptr && visited.insert(next).second) {
+    //             parent[next] = road;
+    //             q.push(next);
+    //         }
+    //     }
+    // }
 
-    if (goalRoad == nullptr) {
-        return {};
-    }
+    // if (goalRoad == nullptr) {
+    //     return {};
+    // }
 
-    std::vector<Road*> route;
-    for (Road* r = goalRoad; r != nullptr; r = parent[r]) {
-        route.push_back(r);
-    }
+    // std::vector<Road*> route;
+    // for (Road* r = goalRoad; r != nullptr; r = parent[r]) {
+    //     route.push_back(r);
+    // }
 
-    std::reverse(route.begin(), route.end());
+    // std::reverse(route.begin(), route.end());
 
-    for(Road* r: route) {
-        // directs_.push(r);
-    }
-    return route;
+    // for(Road* r: route) {
+    //     // directs_.push(r);
+    // }
+    // return route;
+    return {};
 }
 
 //TODO: edge case where two factories are on the same road

@@ -16,3 +16,4 @@ mingw64/*
 commands.txt
 tester-cppcheck-build-dir/
 *.cppcheck
+out/*

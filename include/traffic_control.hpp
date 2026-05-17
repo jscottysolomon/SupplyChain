@@ -20,9 +20,9 @@ class TrafficControl {
         TrafficControl(std::vector<Intersection*>& intersections)
         : intersections_(intersections)
         {
-            
+
         }
-        std::vector<Intersection*> RequestRoute(Intersection* src, Intersection dest);
+        std::vector<Intersection*> RequestRoute(Intersection* src, Intersection* dest);
 
 };
 

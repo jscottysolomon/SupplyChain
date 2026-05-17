@@ -15,6 +15,7 @@
 class Truck;
 class Factory;
 class Intersection;
+class TrafficControl;
 //CANNOT depend on TRAFFIC_DISPATCH_HPP
 
 class TrafficDispatch {
@@ -24,6 +25,7 @@ class TrafficDispatch {
     std::vector<Road*> roads_;
     std::vector<Factory*> factories_;
     std::vector<Truck*> trucks_;
+    TrafficControl* controller_;
   public:
     std::vector<Intersection*> GetIntersections() {
       return intersections_;
@@ -35,11 +37,11 @@ class TrafficDispatch {
       SetUp();
     }
     ~TrafficDispatch() {
-      for(std::size_t i = 0; i < roads_.size(); i++) {
-        delete roads_[i];
+      for(std::size_t ii = 0; ii < roads_.size(); ii++) {
+        delete roads_.at(ii);
       }
       for(std::size_t i = 0; i < factories_.size(); i++) {
-        delete factories_[i];
+        delete factories_.at(i);
       }
       for(Truck* t:trucks_) {
         delete t;
@@ -47,6 +49,8 @@ class TrafficDispatch {
       for(Intersection* inter: intersections_) {
         delete inter;
       }
+
+      delete controller_;
     }
 
     void TrafficHelper(Factory* factory, std::vector<Road*> roads, int length);

@@ -10,6 +10,7 @@
 #include <queue>
 
 #include "entity.hpp"
+#include "traffic_control.hpp"
 #include "widget.hpp"
 
 class Factory; //avoiding circular dependency
@@ -24,6 +25,7 @@ class Truck : public Entity {
 		Road* current_road_;
 		bool docked_;
 		Intersection* intersection_;
+		TrafficControl& controller_;
 		Vector2 target_;
 		std::vector<Widget*> widgets_;
 		std::vector<Factory*> stops_; 	//list of factories to go to
@@ -36,7 +38,7 @@ class Truck : public Entity {
 		
 
 	public:
-		Truck(Vector2 vec) {
+		Truck(Vector2 vec, TrafficControl& controller) : controller_(controller){
 			SetPosition(vec);
 			docked_ = false;
 			factory_ = nullptr;

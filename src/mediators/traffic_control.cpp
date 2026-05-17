@@ -11,11 +11,11 @@
 
 Vertex* GetVertex(std::vector<Vertex*> vertices, Intersection* intersection);
 
-std::vector<Intersection*> TrafficControl::RequestRoute(Intersection* src, Intersection dest) {
+std::vector<Intersection*> TrafficControl::RequestRoute(Intersection* src, Intersection* dest) {
     std::vector<Vertex*> vertices = Dijkstra(src);
     std::vector<Intersection*> route;
 
-    Vertex* v = GetVertex(vertices,src);
+    Vertex* v = GetVertex(vertices,dest);
 
     while(v != nullptr) {
         route.push_back(v->inter);
@@ -37,6 +37,8 @@ std::vector<Vertex*> TrafficControl::Dijkstra(Intersection* src)
     std::vector<Vertex*> vertices;
     std::vector<Vertex*> unvisited;
 
+    int sizee = intersections_.size();
+
     for(Intersection* inter: intersections_) {
         struct Vertex* v = new Vertex;
         v->inter = inter;
@@ -56,8 +58,8 @@ std::vector<Vertex*> TrafficControl::Dijkstra(Intersection* src)
         int rmv = 0;
         Vertex* u = unvisited[0];
         for(std::size_t ii = 0; ii < unvisited.size(); ii++) {
-            if(unvisited[ii]->dist < u->dist) {
-                u = unvisited[ii];
+            if(unvisited.at(ii)->dist < u->dist) {
+                u = unvisited.at(ii);
                 rmv = ii;
             }
         }
