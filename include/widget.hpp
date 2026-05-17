@@ -10,8 +10,12 @@ widget.hpp
 class Widget {
 	private:
 		std::string name_;
-		int base_value;
+		int id_;
+		
 	public:
+		Widget() {
+			
+		}
 };
 
 #endif

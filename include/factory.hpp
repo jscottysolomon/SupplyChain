@@ -31,14 +31,52 @@ class Factory : public Entity {
 			SetPosition(points);
 			intersection_ = nullptr;
 		}
+		~Factory() {
+			for(Dock* dock: docks_) {
+				delete dock;
+			}
+		}
 		bool HasEmptyDock();
+		Dock* DockRequest(Truck* truck);
+		void OnTick() override;
+
 		std::vector<Dock*> GetDocks() {return docks_;}
+		void AddDock(Vector2 pos, Truck* t){
+			struct Dock* dock = new Dock;
+
+			dock->position = pos;
+			dock->truck = t;
+			dock->occupied = (t != nullptr);
+
+			docks_.push_back(dock);
+		}
+
+		//Will return nullptr if not found
+		Dock* GetDock(Truck* t) {
+			for(Dock* dock: docks_) {
+				if(dock->truck == t) {
+					return dock;
+				}
+			}
+
+			return nullptr;
+		}
+
+
 		void IncreaseDockCapacity(){capacity_++;}
 		void SetCapacity(int capacity) {capacity_ = capacity;}
 		void SetRoad(Road* r) {road_ = r;}
 		Road* GetRoad() {return road_;}
 		void SetIntersection(Intersection* i) {intersection_ = i;}
 		Intersection* GetIntersection() {return intersection_;}
+
+		void Draw() override {
+			DrawRectangle(position_.x,position_.y,15,15,BLUE);
+
+			for(Dock* d: docks_) {
+				DrawRectangle(position_.x,position_.y,10,10,RED);
+			}
+		}
 };
 
 class FactoryBuilder {
@@ -59,6 +97,12 @@ class FactoryBuilder {
 		}
 
 		FactoryBuilder& WithRoad(Road* road);
+
+		FactoryBuilder& WithDock(Vector2 pos, Truck* truck) {
+			factory->AddDock(pos,truck);
+			return *this;
+		}
+
 
 };
 

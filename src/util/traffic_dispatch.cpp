@@ -1,6 +1,7 @@
 /**
  * @file traffice_manager.cpp
- * @brief This is kind of a god object that is going to be reworked to assign paths to trucks
+ * @brief This is kind of a god object that is going to be reworked to be in charge of
+ * creating trucks, factories, et cetera.
  * @author J. Scotty Solomon
  * @date 12-Nov-25
  */
@@ -49,8 +50,8 @@ void TrafficDispatch::SetUp() {
   roads_.push_back(r7);
   roads_.push_back(r8);
 
-  for(int xx = 0; xx < roads_.size(); ++xx) {
-    for(int yy = xx + 1; yy < roads_.size(); ++yy) {
+  for(std::size_t xx = 0; xx < roads_.size(); ++xx) {
+    for(std::size_t yy = xx + 1; yy < roads_.size(); ++yy) {
       Vector2 col = {};
 
       if(CheckCollisionLines(roads_[xx]->GetStart(), roads_[xx]->GetEnd(), roads_[yy]->GetStart(), roads_[yy]->GetEnd(), &col)) {
@@ -95,12 +96,43 @@ void TrafficDispatch::SetUp() {
     }
   }
 
-  Factory* f1 = FactoryBuilder({340,420}).Capacity(3).WithRoad(r5).Build();   // bottom-left edge
-  Factory* f2 = FactoryBuilder({430,330}).WithRoad(r6).Build();               // near center
-  Factory* f3 = FactoryBuilder({460,220}).WithRoad(r7).Build();               // right edge
-  Factory* f4 = FactoryBuilder({630,130}).Capacity(2).WithRoad(r4).Build();   // top-right corner
-  Factory* f5 = FactoryBuilder({330,150}).WithRoad(r1).Build();               // left edge
-  Factory* f6 = FactoryBuilder({530,120}).WithRoad(r8).Build();               // top edge
+  // Factory* f1 = FactoryBuilder({340,420}).Capacity(3).WithRoad(r5).Build();   // bottom-left edge
+  // Factory* f2 = FactoryBuilder({430,330}).WithRoad(r6).Build();               // near center
+  // Factory* f3 = FactoryBuilder({460,220}).WithRoad(r7).Build();               // right edge
+  // Factory* f4 = FactoryBuilder({630,130}).Capacity(2).WithRoad(r4).Build();   // top-right corner
+  // Factory* f5 = FactoryBuilder({330,150}).WithRoad(r1).Build();               // left edge
+  // Factory* f6 = FactoryBuilder({530,120}).WithRoad(r8).Build();               // top edge
+  Factory* f1 = FactoryBuilder({340,420})
+    .Capacity(3)
+    .WithRoad(r5)
+    .WithDock({340,435}, nullptr)
+    .Build();   // bottom-left edge
+
+  Factory* f2 = FactoryBuilder({430,330})
+      .WithRoad(r6)
+      .WithDock({430,345}, nullptr)
+      .Build();   // near center
+
+  Factory* f3 = FactoryBuilder({460,220})
+      .WithRoad(r7)
+      .WithDock({460,235}, nullptr)
+      .Build();   // right edge
+
+  Factory* f4 = FactoryBuilder({630,130})
+      .Capacity(2)
+      .WithRoad(r4)
+      .WithDock({645,130}, nullptr)
+      .Build();   // top-right corner
+
+  Factory* f5 = FactoryBuilder({330,150})
+      .WithRoad(r1)
+      .WithDock({345,150}, nullptr)
+      .Build();   // left edge
+
+  Factory* f6 = FactoryBuilder({530,120})
+      .WithRoad(r8)
+      .WithDock({530,135}, nullptr)
+      .Build();   // top edge
 
   r5->AddFactory(f1); // {340,420}
   r6->AddFactory(f2); // {430,330}
@@ -117,6 +149,23 @@ void TrafficDispatch::SetUp() {
   factories_.push_back(f4);
   factories_.push_back(f5);
   factories_.push_back(f6);
+}
+
+TrafficDispatch::~TrafficDispatch() {
+  for(std::size_t ii = 0; ii < roads_.size(); ii++) {
+    delete roads_.at(ii);
+  }
+  for(std::size_t i = 0; i < factories_.size(); i++) {
+    delete factories_.at(i);
+  }
+  for(Truck* t:trucks_) {
+    delete t;
+  }
+  for(Intersection* inter: intersections_) {
+    delete inter;
+  }
+
+  delete controller_;
 }
 
 void TrafficDispatch::OnTick() {

@@ -8,7 +8,9 @@
 #include <vector>
 #include <queue>
 
+#include "factory.hpp"
 #include "intersection.hpp"
+#include "truck.hpp"
 
 Vertex* GetVertex(std::vector<Vertex*> vertices, Intersection* intersection);
 
@@ -100,4 +102,8 @@ Vertex* GetVertex(std::vector<Vertex*> vertices, Intersection* intersection) {
     }
 
     return nullptr;
+}
+
+Dock* TrafficControl::RequestDock(Factory* factory, Truck* truck) {
+    return factory->DockRequest(truck);
 }

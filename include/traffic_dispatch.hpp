@@ -36,22 +36,7 @@ class TrafficDispatch {
     TrafficDispatch() {
       SetUp();
     }
-    ~TrafficDispatch() {
-      for(std::size_t ii = 0; ii < roads_.size(); ii++) {
-        delete roads_.at(ii);
-      }
-      for(std::size_t i = 0; i < factories_.size(); i++) {
-        delete factories_.at(i);
-      }
-      for(Truck* t:trucks_) {
-        delete t;
-      }
-      for(Intersection* inter: intersections_) {
-        delete inter;
-      }
-
-      delete controller_;
-    }
+    ~TrafficDispatch();
 
     void TrafficHelper(Factory* factory, std::vector<Road*> roads, int length);
     void OnTick();

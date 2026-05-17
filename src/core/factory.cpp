@@ -7,6 +7,22 @@
 #include "intersection.hpp"
 #include "road.hpp"
 
+void Factory::OnTick() {
+
+}
+
+Dock* Factory::DockRequest(Truck* truck) {
+    for(Dock* d: docks_) {
+        if(!d->occupied) {
+            d->occupied = true;
+            d->truck = truck;
+            return d;
+        }
+    }
+
+    return nullptr;
+}
+
 FactoryBuilder& FactoryBuilder::WithRoad(Road* road) {
     factory->SetRoad(road);
 

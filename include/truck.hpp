@@ -16,6 +16,7 @@
 class Factory; //avoiding circular dependency
 class Road;
 class Intersection;
+struct Dock;
 
 //TODO change stops to priority queue
 class Truck : public Entity {
@@ -23,6 +24,7 @@ class Truck : public Entity {
 		int capacity_;		//widgets capacity
 		float speed_;		//movement speed
 		Road* current_road_;
+		Dock* dock_;
 		bool docked_;		//docked at factory
 		Intersection* intersection_;	//current intersection
 		TrafficControl& controller_;	//traffic control mediator
@@ -37,8 +39,10 @@ class Truck : public Entity {
 			docked_ = false;
 			speed_ = .05f;
 			intersection_ = nullptr;
+			dock_ = nullptr;
 		}
 		void OnTick() override;
+		void OnDock();
 		void AddStop(Factory* factory);
 		void AddStop(std::vector<Factory*> factories);
 		void ClearStops(){stops_.clear();}

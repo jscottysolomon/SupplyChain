@@ -4,8 +4,10 @@
 #include <vector>
 #include <queue>
 
+class Factory;
 class Intersection;
 class Truck;
+struct Dock;
 
 struct Vertex{
     Intersection* inter;
@@ -25,6 +27,7 @@ class TrafficControl {
         }
         std::queue<Intersection*> RequestRoute(Intersection* src, Intersection* dest);
         bool RequestIntersection(Intersection* inter, Truck* truck);
+        Dock* RequestDock(Factory* factory, Truck* truck);
 
 };
 
