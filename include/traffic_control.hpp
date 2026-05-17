@@ -2,7 +2,7 @@
 #define TRAFFIC_CONTROLLER_HPP
 
 #include <vector>
-
+#include <queue>
 class Intersection;
 
 struct Vertex{
@@ -22,7 +22,7 @@ class TrafficControl {
         {
 
         }
-        std::vector<Intersection*> RequestRoute(Intersection* src, Intersection* dest);
+        std::queue<Intersection*> RequestRoute(Intersection* src, Intersection* dest);
 
 };
 

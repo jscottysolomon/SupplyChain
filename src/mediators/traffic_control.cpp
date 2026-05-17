@@ -6,12 +6,13 @@
 #include <raylib.h>
 #include <raymath.h>
 #include <vector>
+#include <queue>
 
 #include "intersection.hpp"
 
 Vertex* GetVertex(std::vector<Vertex*> vertices, Intersection* intersection);
 
-std::vector<Intersection*> TrafficControl::RequestRoute(Intersection* src, Intersection* dest) {
+std::queue<Intersection*> TrafficControl::RequestRoute(Intersection* src, Intersection* dest) {
     std::vector<Vertex*> vertices = Dijkstra(src);
     std::vector<Intersection*> route;
 
@@ -26,9 +27,13 @@ std::vector<Intersection*> TrafficControl::RequestRoute(Intersection* src, Inter
         delete v;
     }
 
-    std::reverse(route.begin(),route.end());
+    std::queue<Intersection*> ret;
 
-    return route;
+    for (auto it = route.rbegin(); it != route.rend(); ++it) {
+        ret.push(*it);
+    }
+
+    return ret;
 }
 
 std::vector<Vertex*> TrafficControl::Dijkstra(Intersection* src)

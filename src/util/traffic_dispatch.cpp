@@ -59,6 +59,7 @@ void TrafficDispatch::SetUp() {
         Intersection* inter = new Intersection(col,roads_[xx],roads_[yy]);
         roads_[xx]->AddIntersection(inter);
         roads_[yy]->AddIntersection(inter);
+        intersections_.push_back(inter);
       }
     }
 
