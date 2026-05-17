@@ -17,36 +17,28 @@ class Factory; //avoiding circular dependency
 class Road;
 class Intersection;
 
+//TODO change stops to priority queue
 class Truck : public Entity {
 	private:
-		int capacity_;
-		float speed_;
-		Factory* factory_;
+		int capacity_;		//widgets capacity
+		float speed_;		//movement speed
 		Road* current_road_;
-		bool docked_;
-		Intersection* intersection_;
-		TrafficControl& controller_;
-		Vector2 target_;
-		std::vector<Widget*> widgets_;
+		bool docked_;		//docked at factory
+		Intersection* intersection_;	//current intersection
+		TrafficControl& controller_;	//traffic control mediator
+		Vector2 target_;				//target position
+		std::vector<Widget*> widgets_;	//widgets on board
 		std::vector<Factory*> stops_; 	//list of factories to go to
-		std::vector<std::vector<Road*>> directions_;		//directions to current factory in list
-		std::queue<Intersection*> route_;
-		
-		std::vector<Road*> CalculateRoute(int len, Factory* factory, std::vector<Road*> route, Road* road);
-		std::vector<Road*> CalculateRoute(Factory* target, Road* start);
+		std::queue<Intersection*> route_;	//route to current target factory
 		void Move();
-		
-
 	public:
 		Truck(Vector2 vec, TrafficControl& controller) : controller_(controller){
 			SetPosition(vec);
 			docked_ = false;
-			factory_ = nullptr;
 			speed_ = .05f;
 			intersection_ = nullptr;
 		}
 		void OnTick() override;
-		// void SetStops(std::vector<Factory*> stops) {stops_ = stops;}
 		void AddStop(Factory* factory);
 		void AddStop(std::vector<Factory*> factories);
 		void ClearStops(){stops_.clear();}
@@ -55,11 +47,6 @@ class Truck : public Entity {
 		void Draw() override {
 			DrawRectangle(position_.x,position_.y,8,8,PINK);
 		}
-		//TODO: prioritize stop
-};
-
-class TruckMediator {
-
 };
 
 #endif

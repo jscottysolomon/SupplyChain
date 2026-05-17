@@ -23,7 +23,6 @@
 #include "traffic_dispatch.hpp"
 #include "road.hpp"
 
-
 #define TICK_RATE 60
 
 float resize_factor = 1.0;
@@ -60,8 +59,7 @@ int main(void)
     signal(SIGSEGV, segfault_handler);
 
     /*Graphics*/
-    // InitWindow(256*zoom, 144*zoom, "Game");
-    InitWindow(1920/2, 1080/2, "Game");
+    InitWindow(1920/2, 1080/2, "SupplyChain");
     SetTargetFPS(TICK_RATE);
 
     TrafficDispatch traffic;
@@ -75,19 +73,16 @@ int main(void)
 
         BeginDrawing();
             ClearBackground(background);
-            DrawText("Hello, Worlddd!",0,0,20,WHITE);
             traffic.Draw();
         EndDrawing();
         
     }
 
-    // clean_up();
     CloseWindow();
 
     return 0;
 }
 
 void segfault_handler(int signal) {
-    // clean_up();
     exit(EXIT_FAILURE); 
 }

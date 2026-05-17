@@ -39,9 +39,6 @@ class Road {
     }
 
     void AddIntersection(Intersection* intersection) {
-      // if(std::count(intersections_.begin(), intersections_.end(), intersection) > 0) {
-      //   intersections_.push_back(intersection);
-      // }
       intersections_.push_back(intersection);
     }
 
@@ -65,11 +62,6 @@ class Road {
     Vector2 GetEnd() {return points_[1];}
     
     void Draw() {
-      // for(int xx = 0; xx < points_.size() - 2; xx++) {
-      //   for(int yy = 0; yy < points_.size() - 1; yy++) {
-      //     DrawLine(points_[xx].x,points_[xx].y,points_[yy].x,points_[yy].y,WHITE);
-      //   }
-      // }
       DrawLine(points_[0].x,points_[0].y,points_[1].x,points_[1].y,WHITE);
     }
 };

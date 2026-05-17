@@ -136,37 +136,3 @@ void TrafficDispatch::Draw() {
     t->Draw();
   }
 }
-
-// for(Factory* f: factories_) {
-    //   if(CheckCollisionPointLine(roads_[xx]->GetStart(), roads_[xx]->GetEnd(), f->GetPosition(), THRESHOLD)) {
-    //     roads_[xx]->AddFactory(f);
-    //   }
-    // }
-
-    //not the best implementation but it works; need to test edge cases and optimize later
-    // bool intersects = false;
-    // bool closest = false;
-    // for(Factory* factory: factories_) {
-    //   Vector2 r_start = roads_[xx]->GetStart();
-    //   Vector2 r_end = roads_[xx]->GetEnd();
-    //   Vector2 f_pos = factory->GetPosition();
-    //   Vector2 closest;
-    //   bool add = false;
-      
-    //   if((f_pos.x <= r_start.x && f_pos.x >= r_end.x)
-    //       || (f_pos.x >= r_start.x && f_pos.x <= r_end.x)) {
-    //         // add = Vector2Distance();
-    //         closest.y = r_start.y;
-		// 			  closest.x = f_pos.x;
-    //         add = Vector2Distance(closest,f_pos) < 35;
-    //   } else if((f_pos.y <= r_start.y && f_pos.y >= r_end.y)
-    //       || (f_pos.y >= r_start.y && f_pos.y <= r_end.y)) {
-    //         closest = r_start;
-		// 			  closest.y = f_pos.y;
-    //         add = Vector2Distance(closest,f_pos) < 35;
-    //       }
-
-    //   if(add) {
-    //     roads_[xx]->AddFactory(factory);
-    //   }
-    // }

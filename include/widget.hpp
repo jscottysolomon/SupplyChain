@@ -9,7 +9,7 @@ widget.hpp
 
 class Widget {
 	private:
-		std::string name;
+		std::string name_;
 		int base_value;
 	public:
 };
