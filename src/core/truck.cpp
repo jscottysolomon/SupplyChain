@@ -8,14 +8,64 @@
 #include "factory.hpp"
 #include "intersection.hpp"
 #include "road.hpp"
+#include "rules.hpp"
+#include "widget.hpp"
 
 void Truck::OnTick() {
     Move();
-    OnDock();
+    Load();
 }
 
 void Truck::OnDock() {
 
+}
+
+void Truck::RequestUnload() {
+    if(stops_.empty()) return;
+
+    
+}
+
+void Truck::Unload() {
+
+}
+
+void Truck::RequestLoad() {
+    if(stops_.empty()) return;
+
+    if(load_plan_ != nullptr) {
+        delete load_plan_;
+    }
+
+    load_plan_ = new LoadPlanner;
+    std::set<int> whitelist = {1,2,3};
+
+    load_plan_->SetReceiverInventory(&inventory_);
+    stops_.at(0)->SetPlanInventory(load_plan_,false);
+    load_plan_->SetWhitelist(whitelist);
+
+    ExactQuantityStrategy* strat = new ExactQuantityStrategy(50);
+    load_plan_->AddWidgetStrategy(strat,1);
+
+    stops_.at(0)->UnloadRequest(this,load_plan_);
+}
+void Truck::Load() {
+    if(load_plan_ == nullptr) return;
+    if(!docked_) return;
+
+    load_plan_->Load();
+
+    if(load_plan_->IsFinished()) {
+        stops_.erase(stops_.begin());
+        docked_ = false;
+        dock_ = nullptr;
+    }
+}
+
+//TODO implement:
+//1. full capacity, x number of items, have x amt that factory needs, et cetera
+void CheckUndock() {
+    
 }
 
 void Truck::Move() {
@@ -37,6 +87,7 @@ void Truck::Move() {
         position_ = target_;
         if(dock_ != nullptr) {
             docked_ = true;
+            RequestLoad();
         } else if(route_.size() > 0) {
             intersection_ = nullptr;
         } else if(Vector2Distance(position_,stops_.at(0)->GetPosition()) <= 5) {

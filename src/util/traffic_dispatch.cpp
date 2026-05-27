@@ -121,7 +121,7 @@ void TrafficDispatch::SetUp() {
   Factory* f4 = FactoryBuilder({630,130})
       .Capacity(2)
       .WithRoad(r4)
-      .WithDock({645,130}, nullptr)
+      .WithDock({645,130}, nullptr).WithInventory({{1,90},{2,75}})
       .Build();   // top-right corner
 
   Factory* f5 = FactoryBuilder({330,150})
@@ -169,9 +169,14 @@ TrafficDispatch::~TrafficDispatch() {
 }
 
 void TrafficDispatch::OnTick() {
+  for(Factory* f: factories_) {
+    f->OnTick();
+  }
   for(Truck* t: trucks_) {
     t->OnTick();
   }
+
+
 }
 
 void TrafficDispatch::Draw() {

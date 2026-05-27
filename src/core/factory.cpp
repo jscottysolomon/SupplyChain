@@ -2,19 +2,33 @@
 
 #include <raylib.h>
 #include <raymath.h>
+#include <unordered_map>
 
 #include "factory.hpp"
 #include "intersection.hpp"
 #include "road.hpp"
+#include "widget.hpp"
 
 void Factory::OnTick() {
-
+    //Create Widget & Consume Resources
+    //Load/Unload docked trucks
 }
+
+void Factory::UnloadRequest(Truck* truck, LoadPlanner* plan) {
+    if(plan == nullptr) return;
+    
+    plan->UnloaderAgreed();
+}
+
+// LoadPlan Factory::LoadRequest(Truck* truck, LoadPlan plan) {
+
+//     return plan;
+// }
 
 Dock* Factory::DockRequest(Truck* truck) {
     for(Dock* d: docks_) {
-        if(!d->occupied) {
-            d->occupied = true;
+        if(!d->assigned) {
+            d->assigned = true;
             d->truck = truck;
             return d;
         }

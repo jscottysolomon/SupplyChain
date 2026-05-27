@@ -18,18 +18,16 @@
 #include <cstdlib>
 
 #include <raylib.h>
-#include <nlohmann/json.hpp>
 
-#include "traffic_dispatch.hpp"
 #include "road.hpp"
+#include "traffic_dispatch.hpp"
+#include "util.hpp"
 
 #define TICK_RATE 60
 
 float resize_factor = 1.0;
 float resized_tile_size = TILE_SIZE * resize_factor;
-// float zoom = 2.00;
 float zoom = 3.75;
-//full scree zoom is 7.5
 
 /**
  * @brief Unloads all loaded textures and allocated memory.
@@ -43,9 +41,6 @@ void clean_up();
  * @param signal 
  */
 void segfault_handler(int signal);
-
-/*Temp variables. Values will be loaded from save file in future*/
-
 
 Color background = {56,24,35,225};
 
@@ -63,6 +58,9 @@ int main(void)
     SetTargetFPS(TICK_RATE);
 
     TrafficDispatch traffic;
+    //TODO: move traffic control here
+
+    SetGlobalTime();
 
     while (!WindowShouldClose())
     {
