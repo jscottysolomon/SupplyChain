@@ -16,6 +16,7 @@
 #include <unordered_map>
 
 #include "inventory.hpp"
+#include "util.hpp"
 #include "widget.hpp"
 
 
@@ -199,7 +200,33 @@ class LoadListStrategy : public TertieryStrategy {
 //Finish Strategy
 ////////////////////////////////////////////////////////
 
-class FinishStrategy : public Strategy{};
+class FinishStrategy : public Strategy{
+public:
+    FinishStrategy(int val) {
+        compare_value_ = val;
+    }
+    FinishStrategy() {
+        compare_value_ = -1;
+    }
+    void SetWidegets(std::unordered_map<int,WidgetStrategy*>* widgets) {
+        widgets_ = widgets;
+    }
+    void SetTertiary(TertieryStrategy* strat) {
+        tertiary_strategy_ = strat;
+    }
+    void SetLastLoadTime(clock_t* time) {
+        last_load_ = time;
+    }
+    void CompareValue(int time) {
+        compare_value_ = time;
+    }
+    
+protected:
+    std::unordered_map<int,WidgetStrategy*>* widgets_;
+    TertieryStrategy* tertiary_strategy_;
+    clock_t* last_load_;
+    int compare_value_;
+};
 
 class AtCapacityStrategy : public FinishStrategy {
 public:
@@ -210,16 +237,28 @@ public:
 };
 
 class ToCapacityStrategy : public FinishStrategy {
-public: 
-    ToCapacityStrategy(int capacity) {
-        capacity_ = capacity;
-    }
+public:
+    ToCapacityStrategy(int var) : FinishStrategy(var){}
     virtual bool Run() override {
         if(receiver_inventory_ == nullptr) return false;
-        return receiver_inventory_->GetAvailableCapacity() == capacity_;
+        return receiver_inventory_->GetAvailableCapacity() == compare_value_;
     }
-private:
-    int capacity_;
+};
+
+class WaitTimeStrategy : public FinishStrategy {
+public:
+    WaitTimeStrategy(int var) : FinishStrategy(var){}
+    virtual bool Run() override {
+        if(last_load_ == nullptr) return false;
+        return (GetGlobalTime() - *last_load_ ) / CLOCKS_PER_SEC > compare_value_;
+    }
+};
+
+class PrimaryStrategy : public FinishStrategy {
+    virtual bool Run() override {
+        if(widgets_ == nullptr) return false;
+        return widgets_->empty();
+    }
 };
 
 class LoadPlan {
@@ -231,14 +270,19 @@ public:
         finish_strategy_ = nullptr;
     }
     ~LoadPlan() {
-        // if(tertiary_strategy_ != nullptr) {
-        //     delete tertiary_strategy_;
-        //     tertiary_strategy_ = nullptr;
-        // }
-        // if(finish_strategy_ != nullptr) {
-        //     delete finish_strategy_;
-        //     finish_strategy_ = nullptr;
-        // }
+        if(tertiary_strategy_ != nullptr) {
+            delete tertiary_strategy_;
+            tertiary_strategy_ = nullptr;
+        }
+        if(finish_strategy_ != nullptr) {
+            delete finish_strategy_;
+            finish_strategy_ = nullptr;
+        }
+
+        for(std::pair<int,WidgetStrategy*> p: widgets_) {
+            delete p.second;
+            p.second = nullptr;
+        }
     }
     //TODO deconstructor
     void SetReceiverInventory(Inventory* inv) {
@@ -282,6 +326,9 @@ public:
     void AddFinisherStrategy(FinishStrategy* strat) {
         strat->SetInventory(receiver_inventory_,unloader_inventory_);
         strat->SetLists(&whitelist_,&blacklist_);
+        strat->SetWidegets(&widgets_);
+        strat->SetTertiary(tertiary_strategy_);
+        strat->SetLastLoadTime(&last_load_);
         finish_strategy_ = strat;
     }
 

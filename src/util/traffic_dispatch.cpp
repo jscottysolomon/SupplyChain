@@ -10,6 +10,7 @@
 
 #include <raylib.h>
 #include <raymath.h>
+#include <unordered_map>
 
 #include "factory.hpp"
 #include "intersection.hpp"
@@ -96,43 +97,45 @@ void TrafficDispatch::SetUp() {
     }
   }
 
-  // Factory* f1 = FactoryBuilder({340,420}).Capacity(3).WithRoad(r5).Build();   // bottom-left edge
-  // Factory* f2 = FactoryBuilder({430,330}).WithRoad(r6).Build();               // near center
-  // Factory* f3 = FactoryBuilder({460,220}).WithRoad(r7).Build();               // right edge
-  // Factory* f4 = FactoryBuilder({630,130}).Capacity(2).WithRoad(r4).Build();   // top-right corner
-  // Factory* f5 = FactoryBuilder({330,150}).WithRoad(r1).Build();               // left edge
-  // Factory* f6 = FactoryBuilder({530,120}).WithRoad(r8).Build();               // top edge
+  std::unordered_map<int, int> inv = {{1,90},{2,75},{3,80},{4,10}};
+
   Factory* f1 = FactoryBuilder({340,420})
     .Capacity(3)
     .WithRoad(r5)
     .WithDock({340,435}, nullptr)
+    .WithInventory(inv)
     .Build();   // bottom-left edge
 
   Factory* f2 = FactoryBuilder({430,330})
-      .WithRoad(r6)
-      .WithDock({430,345}, nullptr)
-      .Build();   // near center
+    .WithRoad(r6)
+    .WithDock({430,345}, nullptr)
+    .WithInventory(inv)
+    .Build();   // near center
 
   Factory* f3 = FactoryBuilder({460,220})
-      .WithRoad(r7)
-      .WithDock({460,235}, nullptr)
-      .Build();   // right edge
+    .WithRoad(r7)
+    .WithDock({460,235}, nullptr)
+    .WithInventory(inv)
+    .Build();   // right edge
 
   Factory* f4 = FactoryBuilder({630,130})
-      .Capacity(2)
-      .WithRoad(r4)
-      .WithDock({645,130}, nullptr).WithInventory({{1,90},{2,75}})
-      .Build();   // top-right corner
+    .Capacity(2)
+    .WithRoad(r4)
+    .WithDock({645,130}, nullptr)
+    .WithInventory(inv)
+    .Build();   // top-right corner
 
   Factory* f5 = FactoryBuilder({330,150})
-      .WithRoad(r1)
-      .WithDock({345,150}, nullptr)
-      .Build();   // left edge
+    .WithRoad(r1)
+    .WithDock({345,150}, nullptr)
+    .WithInventory(inv)
+    .Build();   // left edge
 
   Factory* f6 = FactoryBuilder({530,120})
-      .WithRoad(r8)
-      .WithDock({530,135}, nullptr)
-      .Build();   // top edge
+    .WithRoad(r8)
+    .WithDock({530,135}, nullptr)
+    .WithInventory(inv)
+    .Build();   // top edge
 
   r5->AddFactory(f1); // {340,420}
   r6->AddFactory(f2); // {430,330}
