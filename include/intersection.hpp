@@ -24,13 +24,6 @@ enum class Direction {VERTICAL,HORIZONTAL};
 class Truck;
 
 class Intersection {
-    private:
-        Vector2 position_;
-        Road* h_road_;
-        Road* v_road_;
-        LightColor h_color_;
-        LightColor v_color_;
-        std::vector<Intersection*> intersections_; //adjacent intersections
     public:
         Intersection(Vector2 position, Road* r1, Road*r2) {
             position_ = position;
@@ -62,6 +55,13 @@ class Intersection {
         bool HasRoad(Road* r) {return (h_road_ == r) || (v_road_ == r);}
 
         void OnTick();
+    private:
+        Vector2 position_;
+        Road* h_road_;
+        Road* v_road_;
+        LightColor h_color_;
+        LightColor v_color_;
+        std::vector<Intersection*> intersections_; //adjacent intersections
 };
 
 struct InterComp

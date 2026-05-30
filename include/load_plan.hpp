@@ -1,3 +1,13 @@
+/**
+ * @file load_plan.hpp
+ * @author J. Scotty Solomon
+ * @brief agreed plan to unload widgets. Unloader and loader can be factory or trucks.
+ * @version 0.1
+ * @date 2026-05-30
+ * 
+ * @copyright Copyright (c) 2026
+ * 
+ */
 #ifndef LOAD_PLAN_HPP
 #define LOAD_PLAN_HPP
 
@@ -5,7 +15,7 @@
 #include <time.h>
 #include <unordered_map>
 
-#include "rules.hpp"
+#include "inventory.hpp"
 #include "widget.hpp"
 
 
@@ -63,9 +73,6 @@ public:
 protected: 
     int amount_;
     int loaded_amount_;
-    bool Ready() {
-
-    }
 };
 
 class ExactQuantityStrategy : public WidgetStrategy {
@@ -179,9 +186,12 @@ class LoadListStrategy : public TertieryStrategy {
             }
         }
 
-        return false;
+        //TODO wasn't able to load anything
+        if(!loaded) {
 
-        // return !loaded; //should this func ever return true? this is the last thing to load
+        }
+
+        return false;
     }
 };
 
@@ -212,15 +222,15 @@ private:
     int capacity_;
 };
 
-class LoadPlanner {
+class LoadPlan {
 public: 
-    LoadPlanner() {
+    LoadPlan() {
         finished_ = false;
         unloader_agreed_ = false;
         tertiary_strategy_ = nullptr;
         finish_strategy_ = nullptr;
     }
-    ~LoadPlanner() {
+    ~LoadPlan() {
         // if(tertiary_strategy_ != nullptr) {
         //     delete tertiary_strategy_;
         //     tertiary_strategy_ = nullptr;

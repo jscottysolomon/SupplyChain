@@ -10,8 +10,8 @@
 #include <queue>
 
 #include "entity.hpp"
-#include "load_planner.hpp"
-#include "rules.hpp"
+#include "inventory.hpp"
+#include "load_plan.hpp"
 #include "traffic_control.hpp"
 #include "widget.hpp"
 
@@ -22,6 +22,42 @@ struct Dock;
 
 //TODO change stops to priority queue
 class Truck : public Entity {
+	private:
+		//state
+		int capacity_;		//widgets capacity
+		float speed_;		//movement speed
+		bool docked_;		//docked at factory
+		bool create_route;
+
+		//References
+		Intersection* intersection_;	//current intersection
+		TrafficControl& controller_;	//traffic control mediator
+		Vector2 target_;				//target position
+		Road* current_road_;
+		Dock* dock_;
+
+		//logic
+		std::vector<Widget*> widgets_;	//widgets on board
+		std::vector<Factory*> stops_; 	//list of factories to go to
+		std::queue<Intersection*> route_;	//route to current target factory
+
+		//Cargo Managmeent
+		Inventory inventory_;
+		LoadPlan* unload_plan_;
+		LoadPlan* load_plan_;
+		void RequestUnload();
+		void Unload();
+		void RequestLoad();
+		void Load();
+		void SetInventory(std::unordered_map<int,int> inv) {
+			inventory_.SetInventory(inv);
+		}
+		std::unordered_map<int,int> GetInventory() {
+			return inventory_.GetInventory();
+		}
+
+		//Functions
+		void Move();
 	public:
 		Truck(Vector2 vec, TrafficControl& controller) : controller_(controller){
 			SetPosition(vec);
@@ -47,42 +83,6 @@ class Truck : public Entity {
 		void AddStop(Factory* factory);
 		void AddStop(std::vector<Factory*> factories);
 		void ClearStops(){stops_.clear();}
-	private:
-		//state
-		int capacity_;		//widgets capacity
-		float speed_;		//movement speed
-		bool docked_;		//docked at factory
-		bool create_route;
-
-		//References
-		Intersection* intersection_;	//current intersection
-		TrafficControl& controller_;	//traffic control mediator
-		Vector2 target_;				//target position
-		Road* current_road_;
-		Dock* dock_;
-
-		//logic
-		std::vector<Widget*> widgets_;	//widgets on board
-		std::vector<Factory*> stops_; 	//list of factories to go to
-		std::queue<Intersection*> route_;	//route to current target factory
-
-		//Cargo Managmeent
-		Inventory inventory_;
-		LoadPlanner* unload_plan_;
-		LoadPlanner* load_plan_;
-		void RequestUnload();
-		void Unload();
-		void RequestLoad();
-		void Load();
-		void SetInventory(std::unordered_map<int,int> inv) {
-			inventory_.SetInventory(inv);
-		}
-		std::unordered_map<int,int> GetInventory() {
-			return inventory_.GetInventory();
-		}
-
-		//Functions
-		void Move();
 		
 };
 

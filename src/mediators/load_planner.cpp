@@ -1,14 +1,13 @@
-#include "load_planner.hpp"
+#include "load_plan.hpp"
 
 #include <set>
 #include <time.h>
 #include <unordered_map>
 
-#include "rules.hpp"
 #include "util.hpp"
 #include "widget.hpp"
 
-void LoadPlanner::Load() {
+void LoadPlan::Load() {
     if(receiver_inventory_ == nullptr 
         || unloader_inventory_ == nullptr) {return;}
 

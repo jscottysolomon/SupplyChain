@@ -10,8 +10,6 @@ map_element.hpp
 //TODO implement global unique id system
 
 class Entity {
-	protected:
-		Vector2 position_;
 	public:
 		void SetPosition(Vector2 position) {
 			position_ = position;
@@ -24,6 +22,8 @@ class Entity {
 			DrawRectangle(position_.x,position_.y,15,15,BLUE);
 		}
 		virtual void OnTick() {}
+	protected:
+		Vector2 position_;
 };
 
 //Trying to obscure id.

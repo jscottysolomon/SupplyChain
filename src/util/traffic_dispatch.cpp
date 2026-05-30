@@ -69,7 +69,7 @@ void TrafficDispatch::SetUp() {
       Point p2 = {roads_[xx]->GetEnd().x, roads_[xx]->GetEnd().y};
       Point p3 = {t->GetPosition().x, t->GetPosition().y};
 
-      if(doIntersect(p1,p2,p3,p3)) {
+      if(DoIntersect(p1,p2,p3,p3)) {
         t->SetCurrentRoad(roads_[xx]);
       }
     }

@@ -19,13 +19,6 @@ class TrafficControl;
 //CANNOT depend on TRAFFIC_DISPATCH_HPP
 
 class TrafficDispatch {
-  private:
-    void SetUp();
-    std::vector<Intersection*> intersections_;
-    std::vector<Road*> roads_;
-    std::vector<Factory*> factories_;
-    std::vector<Truck*> trucks_;
-    TrafficControl* controller_;
   public:
     std::vector<Intersection*> GetIntersections() {
       return intersections_;
@@ -38,11 +31,16 @@ class TrafficDispatch {
     }
     ~TrafficDispatch();
 
-    void TrafficHelper(Factory* factory, std::vector<Road*> roads, int length);
     void OnTick();
 
     void Draw();
-
+  private:
+    void SetUp();
+    std::vector<Intersection*> intersections_;
+    std::vector<Road*> roads_;
+    std::vector<Factory*> factories_;
+    std::vector<Truck*> trucks_;
+    TrafficControl* controller_;
 };
 
 #endif

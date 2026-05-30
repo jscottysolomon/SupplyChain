@@ -7,8 +7,8 @@
 
 #include "factory.hpp"
 #include "intersection.hpp"
+#include "inventory.hpp"
 #include "road.hpp"
-#include "rules.hpp"
 #include "widget.hpp"
 
 void Truck::OnTick() {
@@ -37,7 +37,7 @@ void Truck::RequestLoad() {
         delete load_plan_;
     }
 
-    load_plan_ = new LoadPlanner;
+    load_plan_ = new LoadPlan;
     std::set<int> whitelist = {1,2,3};
 
     inventory_.SetWhitelist(whitelist);
@@ -60,6 +60,7 @@ void Truck::RequestLoad() {
 
     stops_.at(0)->UnloadRequest(this,load_plan_);
 }
+
 void Truck::Load() {
     if(load_plan_ == nullptr) return;
     if(!docked_) return;

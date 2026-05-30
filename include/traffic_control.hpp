@@ -16,9 +16,6 @@ struct Vertex{
 };
 
 class TrafficControl {
-    private:
-        std::vector<Intersection*>& intersections_;
-        std::vector<Vertex*> Dijkstra(Intersection* src);
     public:
         TrafficControl(std::vector<Intersection*>& intersections)
         : intersections_(intersections)
@@ -28,7 +25,9 @@ class TrafficControl {
         std::queue<Intersection*> RequestRoute(Intersection* src, Intersection* dest);
         bool RequestIntersection(Intersection* inter, Truck* truck);
         Dock* RequestDock(Factory* factory, Truck* truck);
-
+    private:
+        std::vector<Intersection*>& intersections_;
+        std::vector<Vertex*> Dijkstra(Intersection* src);
 };
 
 #endif

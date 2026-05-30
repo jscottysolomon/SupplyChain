@@ -6,8 +6,8 @@ Factory.hpp
 #include <raylib.h>
 
 #include "entity.hpp"
-#include "load_planner.hpp"
-#include "rules.hpp"
+#include "inventory.hpp"
+#include "load_plan.hpp"
 #include "widget.hpp"
 
 #ifndef FACTORY_HPP
@@ -22,8 +22,6 @@ struct Dock {
 	Truck* truck;
 	bool assigned;
 	bool cargo_ready;
-	// LoadPlan load_plan;
-	LoadPlan unload_plan;
 };
 
 class Factory : public Entity {
@@ -40,27 +38,33 @@ class Factory : public Entity {
 		}
 
 		//Mediator functions
-
-		/* Mediated truck requested dock station */
 		Dock* DockRequest(Truck* truck);
-
-		//Inventory & Docking management
-		
-
-		/*Truck requesting to undock from factory*/
-		Inventory inventory_;
-		float load_speed_;
-		void UnloadRequest(Truck* truck, LoadPlanner* plan);
-		// LoadPlan LoadRequest(Truck* truck, LoadPlan plan);
-
-		/*Telling Truck to undock*/
 		void Undock(Truck* t);
+		void UnloadRequest(Truck* truck, LoadPlan* plan);
+		std::unordered_map<int,int> Unload(Truck* t);		
 
+		//Getter, Setters, Check State, Et cetera
+		std::vector<Dock*> GetDocks() {return docks_;}
+		void IncreaseDockCapacity() {dock_capcity_++;}
+		void SetCapacity(int capacity) {dock_capcity_ = capacity;}
+		void SetRoad(Road* r) {road_ = r;}
+		Road* GetRoad() {return road_;}
+		void SetIntersection(Intersection* i) {intersection_ = i;}
+		Intersection* GetIntersection() {return intersection_;}
+		std::unordered_map<int,int> GetInventory()
+			{return inventory_.GetInventory();}
+		void SetInventory(std::unordered_map<int,int> inv) 
+			{inventory_.SetInventory(inv);}
+		bool HasEmptyDock();
 
-		std::unordered_map<int,int> Unload(Truck* t);
-
-
-		void OnTick() override;
+		Dock* GetDock(Truck* t) {
+			for(Dock* dock: docks_) {
+				if(dock->truck == t) {
+					return dock;
+				}
+			}
+			return nullptr;
+		}
 
 		void AddDock(Vector2 pos, Truck* t){
 			struct Dock* dock = new Dock;
@@ -71,38 +75,8 @@ class Factory : public Entity {
 
 			docks_.push_back(dock);
 		}
-
-		//Will return nullptr if not found
-		Dock* GetDock(Truck* t) {
-			for(Dock* dock: docks_) {
-				if(dock->truck == t) {
-					return dock;
-				}
-			}
-			return nullptr;
-		}
-		std::vector<Dock*> GetDocks() 
-			{return docks_;}
-		void IncreaseDockCapacity()
-			{dock_capcity_++;}
-		void SetCapacity(int capacity) 
-			{dock_capcity_ = capacity;}
-		void SetRoad(Road* r) 
-			{road_ = r;}
-		Road* GetRoad() 
-			{return road_;}
-		void SetIntersection(Intersection* i) 
-			{intersection_ = i;}
-		Intersection* GetIntersection() 
-			{return intersection_;}
-		bool HasEmptyDock();
-		std::unordered_map<int,int> GetInventory() {
-			return inventory_.GetInventory();
-		}
-		void SetInventory(std::unordered_map<int,int> inv) {
-			inventory_.SetInventory(inv);
-		}
-		void SetPlanInventory(LoadPlanner* plan, bool receiver) {
+		
+		void SetPlanInventory(LoadPlan* plan, bool receiver) {
 			if(receiver) {
 				plan->SetReceiverInventory(&inventory_);
 			} else {
@@ -110,6 +84,7 @@ class Factory : public Entity {
 			}
 		}
 
+		//Entity Functions
 		void Draw() override {
 			DrawRectangle(position_.x,position_.y,15,15,BLUE);
 
@@ -117,21 +92,22 @@ class Factory : public Entity {
 				DrawRectangle(position_.x,position_.y,10,10,RED);
 			}
 		}
+		void OnTick() override;
 
 	private:
 		int dock_capcity_;
 		int widget_capacity_;
+		float load_speed_;
+		std::vector<int> craftables_;
+		std::vector<int> loadables_;
 		std::vector<Dock*> docks_;
 		Intersection* intersection_;
 		Road* road_;
-		std::vector<int> craftables_;
-		std::vector<int> loadables_;
+		Inventory inventory_;
+		
 };
 
 class FactoryBuilder {
-	private:
-		Factory* factory;
-
 	public:
 		FactoryBuilder(Vector2 vec) {
 			factory = new Factory(vec);
@@ -156,6 +132,8 @@ class FactoryBuilder {
 			factory->SetInventory(inv);
 			return *this;
 		}
+	private:
+		Factory* factory;
 };
 
 #endif

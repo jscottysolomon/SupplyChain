@@ -12,7 +12,4 @@
 
 #define TILE_SIZE 16
 
-#include <raylib.h>
-#include <string>
-
 #endif

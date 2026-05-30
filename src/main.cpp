@@ -18,6 +18,7 @@
 #include <cstdlib>
 
 #include <raylib.h>
+#include <string>
 
 #include "road.hpp"
 #include "traffic_dispatch.hpp"

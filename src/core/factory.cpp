@@ -14,7 +14,7 @@ void Factory::OnTick() {
     //Load/Unload docked trucks
 }
 
-void Factory::UnloadRequest(Truck* truck, LoadPlanner* plan) {
+void Factory::UnloadRequest(Truck* truck, LoadPlan* plan) {
     if(plan == nullptr) return;
     
     plan->UnloaderAgreed();

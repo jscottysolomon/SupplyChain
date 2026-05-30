@@ -16,11 +16,6 @@ class Factory;
 class Intersection;
 
 class Road {
-  private:
-    std::vector<Vector2> points_;
-    std::vector<Intersection*> intersections_;
-    std::vector<Factory*> factories_;
-    std::vector<Road*> connections_;
   public:
     Road(std::vector<Vector2> points) {
       this->points_ = points;
@@ -64,6 +59,11 @@ class Road {
     void Draw() {
       DrawLine(points_[0].x,points_[0].y,points_[1].x,points_[1].y,WHITE);
     }
+  private:
+    std::vector<Vector2> points_;
+    std::vector<Intersection*> intersections_;
+    std::vector<Factory*> factories_;
+    std::vector<Road*> connections_;
 };
 
 #endif
