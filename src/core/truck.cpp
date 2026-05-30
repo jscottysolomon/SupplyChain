@@ -72,7 +72,6 @@ void Truck::Load() {
         load_plan_ = nullptr;
         docked_ = false;
         dock_ = nullptr;
-        intersection_ = nullptr;
         create_route = true;
     }
 }
