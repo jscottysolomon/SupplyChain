@@ -8,6 +8,10 @@
 #include "rules.hpp"
 #include "widget.hpp"
 
+
+////////////////////////////////////////////////////////
+//Strategy Base Class
+////////////////////////////////////////////////////////
 class Strategy {
 public:
     Strategy() {
@@ -16,6 +20,7 @@ public:
         whitelist_ = nullptr;
         blacklist_ = nullptr;
     }
+    ~Strategy() {}
     void SetReceiverInventory(Inventory* rec) {
         receiver_inventory_ = rec;
     }
@@ -45,6 +50,10 @@ protected:
     std::set<int>* blacklist_;
 };
 
+
+////////////////////////////////////////////////////////
+//Widget Strategy
+////////////////////////////////////////////////////////
 class WidgetStrategy : public Strategy {
 public: 
     WidgetStrategy(int amt) {
@@ -54,6 +63,9 @@ public:
 protected: 
     int amount_;
     int loaded_amount_;
+    bool Ready() {
+
+    }
 };
 
 class ExactQuantityStrategy : public WidgetStrategy {
@@ -88,23 +100,30 @@ public:
     }
 };
 
-// class LoadAtleast : WidgetStrategy {
-// public:
-//     LoadAtleast(int amount) {
-//         amount_ = amount;
-//         loaded_amount_ = 0;
-//     }
-//     bool LoadWidget(LoadPlan* plan, int id) override {
-//         plan->unloader_inventory->AddWidget(id,1);
-//         plan->receiver_inventory->RemoveWidget(id,1);
-//         loaded_amount_ += 1;
+class MinimumQuantityStrategy : public WidgetStrategy {
+public:
+    MinimumQuantityStrategy(int amount) : WidgetStrategy(amount) {}
+    virtual bool Run(int id) override {
+        if(unloader_inventory_ == nullptr 
+            || receiver_inventory_ == nullptr) {return false;}
+        
+        if(receiver_inventory_->GetAvailableCapacity() <= 0) 
+            return false;
 
-//         return loaded_amount_ >= amount_;
-//     }
-// private:
-//     int amount_;
-//     int loaded_amount_;
-// };
+        if(!receiver_inventory_->IsAllowed(id)) {return false;}
+
+        if(unloader_inventory_->RemoveWidget(id)) {
+            receiver_inventory_->AddWidget(id);
+        }
+        loaded_amount_ += 1;
+
+        if(loaded_amount_ >= amount_) {
+            return true;
+        }
+
+        return false;
+    }
+};
 
 // class LoadAtMax : WidgetStrategy {
 // public:
@@ -130,11 +149,86 @@ public:
 //     int loaded_amount_;
 // };
 
+class TertieryStrategy : public Strategy {};
+
+class LoadListStrategy : public TertieryStrategy {
+    virtual bool Run() override {
+        if(unloader_inventory_ == nullptr 
+            || receiver_inventory_ == nullptr) {return false;}
+
+        if(receiver_inventory_->IsFull()) {return false;}
+
+        bool loaded = false;
+        
+        if(whitelist_ != nullptr && !whitelist_->empty() ){
+            for(int id: *whitelist_) {
+                if(receiver_inventory_->IsAllowed(id) && 
+                    unloader_inventory_->RemoveWidget(id)) {
+                        receiver_inventory_->AddWidget(id);
+                        loaded = true;
+                        break;
+                }
+            }
+        } else if(blacklist_ != nullptr) {
+            for(std::pair<int,int> p  :unloader_inventory_->GetInventory()) {
+                if(!blacklist_->count(p.first) && unloader_inventory_->RemoveWidget(p.first)) {
+                    receiver_inventory_->AddWidget(p.first);
+                    loaded = true;
+                    break;
+                }
+            }
+        }
+
+        return false;
+
+        // return !loaded; //should this func ever return true? this is the last thing to load
+    }
+};
+
+////////////////////////////////////////////////////////
+//Finish Strategy
+////////////////////////////////////////////////////////
+
+class FinishStrategy : public Strategy{};
+
+class AtCapacityStrategy : public FinishStrategy {
+public:
+    virtual bool Run() override {
+        if(receiver_inventory_ == nullptr) return false;
+        return receiver_inventory_->IsFull();
+    }
+};
+
+class ToCapacityStrategy : public FinishStrategy {
+public: 
+    ToCapacityStrategy(int capacity) {
+        capacity_ = capacity;
+    }
+    virtual bool Run() override {
+        if(receiver_inventory_ == nullptr) return false;
+        return receiver_inventory_->GetAvailableCapacity() == capacity_;
+    }
+private:
+    int capacity_;
+};
+
 class LoadPlanner {
 public: 
     LoadPlanner() {
         finished_ = false;
         unloader_agreed_ = false;
+        tertiary_strategy_ = nullptr;
+        finish_strategy_ = nullptr;
+    }
+    ~LoadPlanner() {
+        // if(tertiary_strategy_ != nullptr) {
+        //     delete tertiary_strategy_;
+        //     tertiary_strategy_ = nullptr;
+        // }
+        // if(finish_strategy_ != nullptr) {
+        //     delete finish_strategy_;
+        //     finish_strategy_ = nullptr;
+        // }
     }
     //TODO deconstructor
     void SetReceiverInventory(Inventory* inv) {
@@ -169,6 +263,18 @@ public:
         widgets_.insert({id,strat});
     }
 
+    void AddTertieryStrategy(TertieryStrategy* strat) {
+        strat->SetInventory(receiver_inventory_,unloader_inventory_);
+        strat->SetLists(&whitelist_,&blacklist_);
+        tertiary_strategy_ = strat;
+    }
+
+    void AddFinisherStrategy(FinishStrategy* strat) {
+        strat->SetInventory(receiver_inventory_,unloader_inventory_);
+        strat->SetLists(&whitelist_,&blacklist_);
+        finish_strategy_ = strat;
+    }
+
     void Load();
 
 private:
@@ -177,8 +283,8 @@ private:
 	std::set<int> whitelist_;
 	std::set<int> blacklist_;
     std::unordered_map<int,WidgetStrategy*> widgets_;
-    LoadUntil* finish_plan_;
-    LoadTertiary* load_tertiary_;
+    FinishStrategy* finish_strategy_;
+    TertieryStrategy* tertiary_strategy_;
     bool finished_;
 	float speed_;	//how fast you can load widget
     clock_t last_load_;

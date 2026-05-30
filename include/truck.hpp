@@ -22,11 +22,37 @@ struct Dock;
 
 //TODO change stops to priority queue
 class Truck : public Entity {
+	public:
+		Truck(Vector2 vec, TrafficControl& controller) : controller_(controller){
+			SetPosition(vec);
+			docked_ = false;
+			speed_ = .25f;
+			intersection_ = nullptr;
+			dock_ = nullptr;
+			load_plan_ = nullptr;
+			unload_plan_ = nullptr;
+			create_route = false;
+		}
+		//General Functions
+		void OnTick() override;
+		void OnDock();
+		void Draw() override {
+			DrawRectangle(position_.x,position_.y,8,8,PINK);
+		}
+
+		//Getters & Setters
+		Road* GetCurrentRoad() {return current_road_;}
+		void SetCurrentRoad(Road* r) {current_road_ = r;}
+		int GetCapcity() {return inventory_.GetAvailableCapacity();}
+		void AddStop(Factory* factory);
+		void AddStop(std::vector<Factory*> factories);
+		void ClearStops(){stops_.clear();}
 	private:
 		//state
 		int capacity_;		//widgets capacity
 		float speed_;		//movement speed
 		bool docked_;		//docked at factory
+		bool create_route;
 
 		//References
 		Intersection* intersection_;	//current intersection
@@ -57,30 +83,6 @@ class Truck : public Entity {
 
 		//Functions
 		void Move();
-	public:
-		Truck(Vector2 vec, TrafficControl& controller) : controller_(controller){
-			SetPosition(vec);
-			docked_ = false;
-			speed_ = .25f;
-			intersection_ = nullptr;
-			dock_ = nullptr;
-			load_plan_ = nullptr;
-			unload_plan_ = nullptr;
-		}
-		//General Functions
-		void OnTick() override;
-		void OnDock();
-		void Draw() override {
-			DrawRectangle(position_.x,position_.y,8,8,PINK);
-		}
-
-		//Getters & Setters
-		Road* GetCurrentRoad() {return current_road_;}
-		void SetCurrentRoad(Road* r) {current_road_ = r;}
-		int GetCapcity() {return inventory_.GetAvailableCapacity();}
-		void AddStop(Factory* factory);
-		void AddStop(std::vector<Factory*> factories);
-		void ClearStops(){stops_.clear();}
 		
 };
 

@@ -89,9 +89,9 @@ private:
     int loaded_amount_;
 };
 
-class LoadAtleast : WidgetPlan {
+class LoadAtLeast : WidgetPlan {
 public:
-    LoadAtleast(int amount) {
+    LoadAtLeast(int amount) {
         amount_ = amount;
         loaded_amount_ = 0;
     }

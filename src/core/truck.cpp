@@ -40,12 +40,23 @@ void Truck::RequestLoad() {
     load_plan_ = new LoadPlanner;
     std::set<int> whitelist = {1,2,3};
 
+    inventory_.SetWhitelist(whitelist);
+
     load_plan_->SetReceiverInventory(&inventory_);
     stops_.at(0)->SetPlanInventory(load_plan_,false);
     load_plan_->SetWhitelist(whitelist);
 
     ExactQuantityStrategy* strat = new ExactQuantityStrategy(50);
     load_plan_->AddWidgetStrategy(strat,1);
+
+    MinimumQuantityStrategy* strat1 = new MinimumQuantityStrategy(20);
+    load_plan_->AddWidgetStrategy(strat1,2);   
+
+    ToCapacityStrategy* finish = new ToCapacityStrategy(390);
+    load_plan_->AddFinisherStrategy(finish);
+
+    LoadListStrategy* list = new LoadListStrategy();
+    load_plan_->AddTertieryStrategy(list);
 
     stops_.at(0)->UnloadRequest(this,load_plan_);
 }
@@ -57,8 +68,12 @@ void Truck::Load() {
 
     if(load_plan_->IsFinished()) {
         stops_.erase(stops_.begin());
+        delete load_plan_;
+        load_plan_ = nullptr;
         docked_ = false;
         dock_ = nullptr;
+        intersection_ = nullptr;
+        create_route = true;
     }
 }
 
@@ -70,8 +85,12 @@ void CheckUndock() {
 
 void Truck::Move() {
     if(stops_.empty()) return;
-    if(stops_.empty()) return;
     if(docked_) return;
+
+    if(create_route && !stops_.empty()) {
+        route_ = controller_.RequestRoute(intersection_,stops_.at(0)->GetIntersection());
+        create_route = false;
+    }
 
     if(intersection_ == nullptr && dock_ == nullptr) {
         intersection_ = route_.front();
