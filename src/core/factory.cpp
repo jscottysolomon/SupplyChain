@@ -20,6 +20,18 @@ void Factory::UnloadRequest(Truck* truck, LoadPlan* plan) {
     plan->UnloaderAgreed();
 }
 
+void Factory::Produce() {
+    if(organizer == nullptr) return;
+    for(ProductionLine line: production_lines_) {
+        if((GetGlobalTime() - line .last_production)  / CLOCKS_PER_SEC < organizer->GetProductionTime(line.id)) {
+            return;
+        }
+        if(organizer->ProduceWidget(&inventory_,line.id)) {
+            line.last_production = GetGlobalTime();
+        }
+    }
+}
+
 // LoadPlan Factory::LoadRequest(Truck* truck, LoadPlan plan) {
 
 //     return plan;

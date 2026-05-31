@@ -46,7 +46,7 @@ void Truck::RequestLoad() {
     stops_.at(0)->SetPlanInventory(load_plan_,false);
     load_plan_->SetWhitelist(whitelist);
 
-    ExactQuantityStrategy* strat = new ExactQuantityStrategy(20);
+    ExactQuantityStrategy* strat = new ExactQuantityStrategy(50);
     load_plan_->AddWidgetStrategy(strat,1);
 
     MinimumQuantityStrategy* strat1 = new MinimumQuantityStrategy(20);

@@ -8,15 +8,18 @@ map_element.hpp
 #include <raylib.h>
 
 //TODO implement global unique id system
+int NextId();
 
 class Entity {
 	public:
 		void SetPosition(Vector2 position) {
 			position_ = position;
+			id_ = NextId();
 		}
 		Vector2 GetPosition() {
 			return position_;
 		}
+		int GetId() {return id_;}
 		void Tick();
 		virtual void Draw() {
 			DrawRectangle(position_.x,position_.y,15,15,BLUE);
@@ -24,9 +27,10 @@ class Entity {
 		virtual void OnTick() {}
 	protected:
 		Vector2 position_;
+		int id_;
 };
 
 //Trying to obscure id.
-int NextId();
+
 
 #endif

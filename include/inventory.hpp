@@ -32,6 +32,10 @@ public:
         return true;
     }
 
+    bool Contains(int id) {
+        return !(map_.find(id) == map_.end());
+    }
+
     int AddWidget(int id, int quantity) {
         if(id < 0) return 0;
         if(quantity <= 0) return 0;
@@ -52,6 +56,7 @@ public:
 
     int RemoveWidget(int id, int quantity) {
         if(quantity <= 0) return 0;
+        if(!Contains(id)) return 0;
         int current_quantity = map_[id];
         if(current_quantity < quantity) {
             quantity = current_quantity;
@@ -66,6 +71,7 @@ public:
     }
 
     int GetWidgetQuantity(int id) {
+        if(!Contains(id)) return 0;
         return map_[id];
     }
 
@@ -174,6 +180,10 @@ public:
         //TODO logic of how much willing to accept
 
         return AddWidget(id,amt);
+    }
+
+    void OnTick() {
+
     }
     
     //Truck says here's what i have and factory decides what it wants and how much it takes per tick
