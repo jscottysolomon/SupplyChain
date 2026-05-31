@@ -30,14 +30,20 @@ void LoadPlan::Load() {
             loaded = true;
             remove_id = p.first;
             break;
+        } else {
+            continue;
         }
     }
 
     if(remove) {
         //TODO fix memory leak;
-        WidgetStrategy* strat = widgets_.at(remove_id);
-        widgets_.erase(remove_id);
-        delete strat;
+        if(widgets_.find(remove_id) != widgets_.end()) {
+            WidgetStrategy* strat = widgets_.at(remove_id);
+            widgets_.erase(remove_id);
+            delete strat;
+        } else {
+            return;
+        }
     }
 
     if(tertiary_strategy_ != nullptr && !loaded) {

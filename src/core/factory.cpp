@@ -20,7 +20,29 @@ void Factory::OnTick() {
 
 /**/
 void Factory::DispatchRequest(Truck* truck, LoadPlan* plan) {
-    if(plan == nullptr) return;
+    if(plan == nullptr || truck == nullptr) return;
+
+    for(Dock* d: docks_) {
+        if(d->truck == truck) {
+            d->dispatch_plan = plan;
+        }
+    }
+
+    std::vector<int> to_remove;
+
+    for(std::pair<int,WidgetStrategy*> p: *plan->GetWidgets()) {
+        if(inventory_.GetWidgetQuantity(p.first) <= 0) {
+            to_remove.push_back(p.first);
+        } else if (inventory_.GetWidgetQuantity(p.first) < p.second->GetAmount()) {
+            p.second->SetAmount(inventory_.GetWidgetQuantity(p.first));
+        }
+    }
+
+    for(int id: to_remove) {
+        plan->RemoveWidgetPlan(id);
+    }
+
+
     
     plan->UnloaderAgreed();
 }

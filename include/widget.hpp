@@ -13,6 +13,7 @@ widget.hpp
 #include "inventory.hpp"
 
 #define BASE_PRODUCTION_TIME 5
+#define FIRST_ID 1
 
 struct Widget {
 	int id;
@@ -26,7 +27,7 @@ struct Widget {
 class ReceipeOrganizer {
 public:
 	ReceipeOrganizer() {
-		next_id_ = 0;
+		next_id_ = FIRST_ID;
 		SetUp();
 	}
 

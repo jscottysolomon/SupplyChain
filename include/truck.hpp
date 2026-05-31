@@ -20,6 +20,13 @@ class Road;
 class Intersection;
 struct Dock;
 
+enum TruckState {
+	kDriving,
+	kReceiving,
+	kDispatching,
+	kStalling
+};
+
 //TODO change stops to priority queue
 class Truck : public Entity {
 	public:
@@ -32,10 +39,10 @@ class Truck : public Entity {
 			dispatch_plan_ = nullptr;
 			receiving_plan_ = nullptr;
 			create_route = false;
+			state_ = kDriving; //TODO: update
 		}
 		//General Functions
 		void OnTick() override;
-		void OnDock();
 		void Draw() override {
 			DrawRectangle(position_.x,position_.y,8,8,PINK);
 		}
@@ -68,6 +75,7 @@ class Truck : public Entity {
 		float speed_;		//movement speed
 		bool docked_;		//docked at factory
 		bool create_route;
+		TruckState state_;
 
 		//References
 		Intersection* intersection_;	//current intersection
@@ -88,10 +96,26 @@ class Truck : public Entity {
 		void Receive();
 		void RequestDispatch();
 		void Dispatch();
+		void Stall();
+
+		void SetState(TruckState state) {
+			state_ = state;
+			switch(state) {
+				case kDriving:
+					docked_ = false;
+					break;
+				case kDispatching:
+				case kReceiving:
+					docked_ = true;
+					break;
+				default:
+					break;
+			}
+		}
 		
 
 		//Functions
-		void Move();
+		void Drive();
 };
 
 #endif

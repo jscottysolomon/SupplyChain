@@ -72,7 +72,7 @@ public:
         loaded_amount_ = 0;
     }
     void SetAmount(int amt) {
-        amt = amount_;
+        amount_ = amt;
     }
     int GetAmount() {return amount_;}
 protected: 
@@ -94,8 +94,10 @@ public:
 
         if(unloader_inventory_->RemoveWidget(id)) {
             receiver_inventory_->AddWidget(id);
+            loaded_amount_++;
+        } else {
+            return true;
         }
-        loaded_amount_ += 1;
 
         if(loaded_amount_ >= amount_) {
             if(whitelist_ != nullptr && !whitelist_->empty() && whitelist_->count(id)) {
