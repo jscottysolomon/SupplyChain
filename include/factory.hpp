@@ -23,6 +23,8 @@ struct Dock {
 	Truck* truck;
 	bool assigned;
 	bool cargo_ready;
+	LoadPlan* dispatch_plan;
+	LoadPlan* receiving_plan;
 };
 
 struct ProductionLine {
@@ -47,7 +49,8 @@ class Factory : public Entity {
 		//Mediator functions
 		Dock* DockRequest(Truck* truck);
 		void Undock(Truck* t);
-		void UnloadRequest(Truck* truck, LoadPlan* plan);
+		void DispatchRequest(Truck* truck, LoadPlan* plan);
+		void RequestReceiving(Dock* d);
 		std::unordered_map<int,int> Unload(Truck* t);		
 
 		//Getter, Setters, Check State, Et cetera
@@ -78,7 +81,10 @@ class Factory : public Entity {
 
 			dock->position = pos;
 			dock->truck = t;
-			dock->assigned = (t != nullptr);
+			dock->assigned = t; //nullptr if t=nullptr
+			dock->receiving_plan = nullptr;
+			dock->dispatch_plan = nullptr;
+			dock->cargo_ready = false;
 
 			docks_.push_back(dock);
 		}
@@ -104,6 +110,21 @@ class Factory : public Entity {
 			}
 		}
 		void OnTick() override;
+		
+		std::vector<ProductionLine> GetProductionLines() {
+			return production_lines_;
+		}
+
+		std::set<int> GetRecipeIds() {
+			std::set<int> ret;
+			for(ProductionLine line: production_lines_) {
+				for(std::pair<int,int> p: organizer->GetRecipe(line.id)) {
+					ret.insert(p.first);
+				}
+			}
+
+			return ret;
+		}
 
 	private:
 		int dock_capcity_;
@@ -119,6 +140,7 @@ class Factory : public Entity {
 		ReceipeOrganizer* organizer;
 
 		void Produce();
+		void DockOnTick();
 };
 
 class FactoryBuilder {
@@ -149,6 +171,13 @@ public:
 
 	FactoryBuilder& WithLine (int id) {
 		factory->AddProductionLine(id);
+		return *this;
+	}
+
+	FactoryBuilder& WithLines (std::vector<int> ids) {
+		for(int id: ids) {
+			factory->AddProductionLine(id);
+		}
 		return *this;
 	}
 private:

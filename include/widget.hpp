@@ -57,6 +57,10 @@ public:
 		widgets_[id].inputs = recipe;
 	}
 
+	std::unordered_map<int,int> GetRecipe(int id) {
+		return widgets_[id].inputs;
+	}
+
 	float GetTotalProductionTime(int id, float total_time) {
 		int time = widgets_[id].production_time;
 		// for(std::pair<int, int> p: widgets_[id].inputs) {

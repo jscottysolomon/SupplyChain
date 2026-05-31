@@ -13,65 +13,91 @@
 
 void Truck::OnTick() {
     Move();
-    Load();
+    Receive();
+    Dispatch();   
 }
 
 void Truck::OnDock() {
 
 }
 
-void Truck::RequestUnload() {
-    if(stops_.empty()) return;
+void Truck::ReceivingRequest(LoadPlan* plan, Factory* f) {
+    if(plan == nullptr || f == nullptr) return;
 
-    
-}
+    receiving_plan_ = plan;
 
-void Truck::Unload() {
+    std::vector<int> to_remove;
 
-}
-
-void Truck::RequestLoad() {
-    if(stops_.empty()) return;
-
-    if(load_plan_ != nullptr) {
-        delete load_plan_;
+    for(std::pair<int,WidgetStrategy*> p: *receiving_plan_->GetWidgets()) {
+        if(inventory_.GetWidgetQuantity(p.first) <= 0) {
+            to_remove.push_back(p.first);
+        } else if (inventory_.GetWidgetQuantity(p.first) < p.second->GetAmount()) {
+            p.second->SetAmount(inventory_.GetWidgetQuantity(p.first));
+        }
     }
 
-    load_plan_ = new LoadPlan;
-    std::set<int> whitelist = {1,2,3};
+    for(int id: to_remove) {
+        plan->RemoveWidgetPlan(id);
+    }
 
-    inventory_.SetWhitelist(whitelist);
-
-    load_plan_->SetReceiverInventory(&inventory_);
-    stops_.at(0)->SetPlanInventory(load_plan_,false);
-    load_plan_->SetWhitelist(whitelist);
-
-    ExactQuantityStrategy* strat = new ExactQuantityStrategy(50);
-    load_plan_->AddWidgetStrategy(strat,1);
-
-    MinimumQuantityStrategy* strat1 = new MinimumQuantityStrategy(20);
-    load_plan_->AddWidgetStrategy(strat1,2);   
-
-    // ToCapacityStrategy* finish = new ToCapacityStrategy(390);
-    PrimaryStrategy* finish = new PrimaryStrategy();
-    load_plan_->AddFinisherStrategy(finish);
-
-    LoadListStrategy* list = new LoadListStrategy();
-    load_plan_->AddTertieryStrategy(list);
-
-    stops_.at(0)->UnloadRequest(this,load_plan_);
+    plan->UnloaderAgreed();
 }
 
-void Truck::Load() {
-    if(load_plan_ == nullptr) return;
+void Truck::Receive() {
+    if(receiving_plan_ == nullptr) return;
+    if(!dock_) return;
+
+    if(receiving_plan_->IsFinished() && dispatch_plan_ == nullptr) {
+        RequestDispatch(); //Requesting Dispatch after factory receiving
+    }
+
+}
+
+void Truck::RequestDispatch() {
+    if(stops_.empty()) return;
+
+    if(dispatch_plan_ != nullptr) {
+        delete dispatch_plan_;
+    }
+
+    dispatch_plan_ = new LoadPlan;
+    dispatch_plan_->SetReceiverInventory(&inventory_);
+    stops_.front()->SetPlanInventory(dispatch_plan_,false);
+
+    std::set<int> whitelist;
+
+    for(ProductionLine line: stops_.front()->GetProductionLines()) {
+        if(!whitelist.count(line.id)) {
+            whitelist.insert(line.id);
+            ExactQuantityStrategy* strat = new ExactQuantityStrategy(20);
+            dispatch_plan_->AddWidgetStrategy(strat,line.id);
+        }
+    }
+
+    inventory_.SetWhitelist(whitelist);
+    dispatch_plan_->SetWhitelist(whitelist);
+
+    PrimaryStrategy* finish = new PrimaryStrategy();
+    dispatch_plan_->AddFinisherStrategy(finish);
+
+    LoadListStrategy* list = new LoadListStrategy();
+    dispatch_plan_->AddTertieryStrategy(list);
+
+    stops_.front()->DispatchRequest(this,dispatch_plan_);
+}
+
+void Truck::Dispatch() {
+    if(dispatch_plan_ == nullptr) return;
     if(!docked_) return;
 
-    load_plan_->Load();
+    dispatch_plan_->Load();
 
-    if(load_plan_->IsFinished()) {
-        stops_.erase(stops_.begin());
-        delete load_plan_;
-        load_plan_ = nullptr;
+    if(dispatch_plan_->IsFinished()) {
+        stops_.front()->Undock(this);
+        stops_.pop();
+        delete dispatch_plan_;
+        dispatch_plan_ = nullptr;
+        receiving_plan_ = nullptr;
         docked_ = false;
         dock_ = nullptr;
         create_route = true;
@@ -89,7 +115,7 @@ void Truck::Move() {
     if(docked_) return;
 
     if(create_route && !stops_.empty()) {
-        route_ = controller_.RequestRoute(intersection_,stops_.at(0)->GetIntersection());
+        route_ = controller_.RequestRoute(intersection_,stops_.front()->GetIntersection());
         create_route = false;
     }
 
@@ -107,24 +133,25 @@ void Truck::Move() {
         position_ = target_;
         if(dock_ != nullptr) {
             docked_ = true;
-            RequestLoad();
+            dock_->cargo_ready = true;
+            // RequestDispatch();
         } else if(route_.size() > 0) {
             intersection_ = nullptr;
-        } else if(Vector2Distance(position_,stops_.at(0)->GetPosition()) <= 5) {
-            dock_ = controller_.RequestDock(stops_.at(0),this);
+        } else if(Vector2Distance(position_,stops_.front()->GetPosition()) <= 5) {
+            dock_ = controller_.RequestDock(stops_.front(),this);
             if(dock_ != nullptr) {
                 target_ = dock_->position;
             } else {
                 //TODO add default behavior if dock is full
                 //1. Wait 2. Add to end of list
-                stops_.erase(stops_.begin());
+                stops_.pop();
                 if(!stops_.empty() && intersection_ != nullptr) {
                     route_ = controller_.RequestRoute(intersection_, 
-                            stops_.at(0)->GetIntersection());
+                            stops_.front()->GetIntersection());
                 }
             }
         } else if(route_.size() == 0) {
-            target_ = stops_.at(0)->GetPosition();
+            target_ = stops_.front()->GetPosition();
         }
     }
 
@@ -149,5 +176,5 @@ void Truck::AddStop(Factory* factory) {
         route_ = controller_.RequestRoute(intersection_,factory->GetIntersection());
         intersection_ = nullptr;
     }
-    stops_.push_back(factory);
+    stops_.push(factory);
 }

@@ -110,6 +110,7 @@ void TrafficDispatch::SetUp() {
     .WithRoad(r6)
     .WithDock({430,345}, nullptr)
     .WithInventory(inv)
+    .WithLines({3,4})
     .Build();   // near center
 
   Factory* f3 = FactoryBuilder({460,220})
@@ -122,19 +123,22 @@ void TrafficDispatch::SetUp() {
     .Capacity(2)
     .WithRoad(r4)
     .WithDock({645,130}, nullptr)
-    .WithInventory(inv)
+    .WithInventory({{1,60}})
+    .WithLines({1,1})
     .Build();   // top-right corner
 
   Factory* f5 = FactoryBuilder({330,150})
     .WithRoad(r1)
     .WithDock({345,150}, nullptr)
     .WithInventory(inv)
+    .WithLines({5,6})
     .Build();   // left edge
 
   Factory* f6 = FactoryBuilder({530,120})
     .WithRoad(r8)
     .WithDock({530,135}, nullptr)
-    .WithInventory(inv)
+    .WithInventory({{1,40},{2,50}})
+    .WithLines({1,2})
     .Build();   // top edge
 
   r5->AddFactory(f1); // {340,420}

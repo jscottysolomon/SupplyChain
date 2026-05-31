@@ -6,18 +6,53 @@
 
 #include "factory.hpp"
 #include "intersection.hpp"
+#include "load_plan.hpp"
 #include "road.hpp"
+#include "truck.hpp"
 #include "widget.hpp"
 
 void Factory::OnTick() {
-    //Create Widget & Consume Resources
-    //Load/Unload docked trucks
+    Produce();
+    DockOnTick();
 }
 
-void Factory::UnloadRequest(Truck* truck, LoadPlan* plan) {
+
+
+/**/
+void Factory::DispatchRequest(Truck* truck, LoadPlan* plan) {
     if(plan == nullptr) return;
     
     plan->UnloaderAgreed();
+}
+
+void Factory::RequestReceiving(Dock* d) {
+    d->receiving_plan = new LoadPlan();
+    d->receiving_plan->SetReceiverInventory(&inventory_);
+    d->truck->SetUnloaderInventory(d->receiving_plan);
+
+    std::set<int> lst = GetRecipeIds();
+
+    d->receiving_plan->SetWhitelist(lst);
+
+    for(int id: lst) {
+        ExactQuantityStrategy* strat = new ExactQuantityStrategy(20);
+        d->receiving_plan->AddWidgetStrategy(strat,id);
+    }
+    
+    PrimaryStrategy* finish = new PrimaryStrategy();
+    d->receiving_plan->AddFinisherStrategy(finish);
+
+    d->truck->ReceivingRequest(d->receiving_plan,this);
+}
+
+void Factory::DockOnTick() {
+    for(Dock* d: docks_) {
+        if(d->cargo_ready && d->receiving_plan == nullptr && d->truck != nullptr) {
+            RequestReceiving(d);
+        } else if(d->receiving_plan != nullptr) {
+            d->receiving_plan->Load();
+        }
+    }
 }
 
 void Factory::Produce() {
@@ -28,6 +63,7 @@ void Factory::Produce() {
         }
         if(organizer->ProduceWidget(&inventory_,line.id)) {
             line.last_production = GetGlobalTime();
+            return;
         }
     }
 }
@@ -47,6 +83,21 @@ Dock* Factory::DockRequest(Truck* truck) {
     }
 
     return nullptr;
+}
+
+void Factory::Undock(Truck* truck) {
+    for(Dock* dock: docks_) {
+        if(dock->truck == truck) {
+            dock->dispatch_plan = nullptr;
+            if(dock->receiving_plan != nullptr) {
+                delete dock->receiving_plan;
+                dock->receiving_plan = nullptr;
+            }
+            dock->assigned = false;
+            dock->cargo_ready = false;
+            dock->truck = nullptr;
+        }
+    }
 }
 
 FactoryBuilder& FactoryBuilder::WithRoad(Road* road) {

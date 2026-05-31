@@ -71,6 +71,10 @@ public:
         amount_ = amt;
         loaded_amount_ = 0;
     }
+    void SetAmount(int amt) {
+        amt = amount_;
+    }
+    int GetAmount() {return amount_;}
 protected: 
     int amount_;
     int loaded_amount_;
@@ -268,6 +272,9 @@ public:
         unloader_agreed_ = false;
         tertiary_strategy_ = nullptr;
         finish_strategy_ = nullptr;
+        unloader_inventory_ = nullptr;
+        receiver_inventory_ = nullptr;
+        last_load_ = -1;
     }
     ~LoadPlan() {
         if(tertiary_strategy_ != nullptr) {
@@ -310,6 +317,16 @@ public:
     float GetSpeed(){return speed_;}
     void UnloaderAgreed() {unloader_agreed_ = true;}
     bool IsFinished() {return finished_;}
+
+    std::unordered_map<int,WidgetStrategy*>* GetWidgets() {
+        return &widgets_;
+    }
+
+    void RemoveWidgetPlan(int id) {
+        WidgetStrategy* p = widgets_[id];
+        widgets_.erase(id);
+        delete p;
+    }
 
     void AddWidgetStrategy(WidgetStrategy* strat, int id) {
         strat->SetInventory(receiver_inventory_,unloader_inventory_);
