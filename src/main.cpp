@@ -11,6 +11,8 @@
 #include "main.hpp"
 
 #include <stdlib.h>
+#include <imgui/rlImGui.h>
+#include <imgui/imgui.h>
 
 #include <vector>
 #include <iostream>
@@ -45,6 +47,17 @@ void segfault_handler(int signal);
 
 Color background = {56,24,35,225};
 
+// DPI scaling functions
+float ScaleToDPIF(float value)
+{
+    return GetWindowScaleDPI().x * value;
+}
+
+int ScaleToDPII(int value)
+{
+    return int(GetWindowScaleDPI().x * value);
+}
+
 /**
  * @brief Main game loop. Is in charge of managing all modules and 
  * interactions between modules.
@@ -53,15 +66,20 @@ Color background = {56,24,35,225};
 int main(void)
 {
     signal(SIGSEGV, segfault_handler);
+    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT | FLAG_WINDOW_RESIZABLE);
+
+
 
     /*Graphics*/
-    InitWindow(1920/2, 1080/2, "SupplyChain");
+    // InitWindow(1920/2, 1080/2, "SupplyChain");
+    InitWindow(1920, 1080, "SupplyChain");
     SetTargetFPS(TICK_RATE);
 
     TrafficDispatch traffic;
     //TODO: move traffic control here
 
     SetGlobalTime();
+    rlImGuiSetup(true);
 
     while (!WindowShouldClose())
     {
@@ -73,9 +91,28 @@ int main(void)
         BeginDrawing();
             ClearBackground(background);
             traffic.Draw();
+
+            rlImGuiBegin();
+
+            // show ImGui Content
+            bool open = true;
+            ImGui::ShowDemoWindow(&open);
+
+            open = true;
+            if (ImGui::Begin("Test Window", &open))
+            {
+                ImGui::TextUnformatted(ICON_FA_JEDI);
+
+            }
+            ImGui::End();
+
+            // end ImGui Content
+            rlImGuiEnd();
         EndDrawing();
         
     }
+
+    rlImGuiShutdown();
 
     CloseWindow();
 

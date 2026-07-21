@@ -11,6 +11,7 @@ file(GLOB SOURCES CONFIGURE_DEPENDS
 "src/core/*.cpp"
 "src/util/*.cpp"
 "src/mediators/*.cpp"
+"src/external/*.cpp"
 )
 
 add_executable(CHAIN ${SOURCES})
@@ -23,6 +24,7 @@ target_include_directories(CHAIN
     PRIVATE 
     ${CMAKE_SOURCE_DIR}/include/
     ${CMAKE_SOURCE_DIR}/external/
+    ${CMAKE_SOURCE_DIR}/external/imgui/
     ${CMAKE_SOURCE_DIR}/lib/
 )
 
