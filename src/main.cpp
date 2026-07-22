@@ -44,6 +44,7 @@ void clean_up();
  * @param signal 
  */
 void segfault_handler(int signal);
+void ui_handler();
 
 Color background = {56,24,35,225};
 
@@ -95,16 +96,19 @@ int main(void)
             rlImGuiBegin();
 
             // show ImGui Content
-            bool open = true;
-            ImGui::ShowDemoWindow(&open);
+            // bool open = true;
+            // ImGui::ShowDemoWindow(&open);
+            
 
-            open = true;
-            if (ImGui::Begin("Test Window", &open))
-            {
-                ImGui::TextUnformatted(ICON_FA_JEDI);
+            // open = true;
+            // if (ImGui::Begin("Test Window", &open))
+            // {
+            //     ImGui::TextUnformatted(ICON_FA_JEDI);
 
-            }
-            ImGui::End();
+            // }
+            // ImGui::End();
+
+            ui_handler();
 
             // end ImGui Content
             rlImGuiEnd();
@@ -121,4 +125,25 @@ int main(void)
 
 void segfault_handler(int signal) {
     exit(EXIT_FAILURE); 
+}
+
+void ui_handler() {
+    Vector2 vec = GetMousePosition();
+
+    ImVec2 screen_pos = ImGui::GetCursorScreenPos();
+    // Main body of the Demo window starts here.
+    ImGui::Begin("Hello, world!"); 
+    ImGui::Text("This is some useful text.");   
+    ImGui::SeparatorText("2-wide");
+    static float vec4f[4] = { 0.10f, 0.20f, 0.30f, 0.44f };
+        static int vec4i[4] = { 1, 5, 100, 255 };
+
+        static ImGuiSliderFlags flags = 0;
+        ImGui::InputFloat2("input float2", &screen_pos.x);
+        ImGui::InputFloat2("input float2", &screen_pos.y);
+        ImGui::DragFloat2("drag float2", &vec.x, 0.01f, 0.0f, 1.0f, NULL, flags);
+        ImGui::DragFloat2("drag float2", &vec.y, 1, 0, 255, NULL, flags);
+        ImGui::SliderFloat2("slider float2", vec4f, 0.0f, 1.0f, NULL, flags);
+        ImGui::SliderInt2("slider int2", vec4i, 0, 255, NULL, flags);
+    ImGui::End();
 }
