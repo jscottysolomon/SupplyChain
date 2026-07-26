@@ -11,7 +11,8 @@ file(GLOB SOURCES CONFIGURE_DEPENDS
 "src/core/*.cpp"
 "src/util/*.cpp"
 "src/mediators/*.cpp"
-"src/external/*.cpp"
+"src/ui/*.cpp"
+"external/imgui/*.cpp"
 )
 
 add_executable(CHAIN ${SOURCES})

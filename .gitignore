@@ -17,3 +17,4 @@ commands.txt
 tester-cppcheck-build-dir/
 *.cppcheck
 out/*
+*.ini
