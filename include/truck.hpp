@@ -33,13 +33,14 @@ class Truck : public Entity {
 		Truck(Vector2 vec, TrafficControl& controller) : controller_(controller){
 			SetPosition(vec);
 			docked_ = false;
-			speed_ = .25f;
+			speed_ = .025f;
 			intersection_ = nullptr;
 			dock_ = nullptr;
 			dispatch_plan_ = nullptr;
 			receiving_plan_ = nullptr;
 			create_route = false;
 			state_ = kDriving; //TODO: update
+			capacity_ = 500;
 		}
 		//General Functions
 		void OnTick() override;
@@ -51,7 +52,8 @@ class Truck : public Entity {
 		//Getters & Setters
 		Road* GetCurrentRoad() {return current_road_;}
 		void SetCurrentRoad(Road* r) {current_road_ = r;}
-		int GetCapcity() {return inventory_.GetAvailableCapacity();}
+		int GetTotalCapacity() {return capacity_;}
+		int GetAvailability() {return inventory_.GetAvailableCapacity();}
 		void AddStop(Factory* factory);
 		void AddStop(std::vector<Factory*> factories);
 		void ClearStops(){
@@ -112,10 +114,33 @@ class Truck : public Entity {
 					break;
 			}
 		}
-		
 
 		//Functions
 		void Drive();
+};
+
+class TruckBuilder {
+public:
+	TruckBuilder(Vector2 vec, TrafficControl& controller) {
+		truck_ = new Truck(vec, controller);
+	}
+
+	Truck* Build() {return truck_;}
+
+	TruckBuilder& Capacity(int capacity) {
+		return *this;
+	}
+
+	TruckBuilder& WithInventory (std::unordered_map<int,int> inv) {
+		truck_->SetInventory(inv);
+		return *this;
+	}
+
+	TruckBuilder& WithStop(Factory* factory);
+
+
+private:
+	Truck* truck_;
 };
 
 #endif

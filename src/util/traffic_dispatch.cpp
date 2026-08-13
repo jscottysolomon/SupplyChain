@@ -6,7 +6,7 @@
  * @date 12-Nov-25
  */
 
-#include "traffic_dispatch.hpp"
+#include "traffic_mediator.hpp"
 
 #include <raylib.h>
 #include <raymath.h>
@@ -20,7 +20,7 @@
 
 #define THRESHOLD 40
 
-void TrafficDispatch::SetUp() {
+void TrafficMediator::SetUp() {
   controller_ = new TrafficControl(intersections_);
 
   Road* r1 = new Road({{330,420},{330,120}});
@@ -158,7 +158,7 @@ void TrafficDispatch::SetUp() {
   factories_.push_back(f6);
 }
 
-TrafficDispatch::~TrafficDispatch() {
+TrafficMediator::~TrafficMediator() {
   for(std::size_t ii = 0; ii < roads_.size(); ii++) {
     delete roads_.at(ii);
   }
@@ -175,7 +175,7 @@ TrafficDispatch::~TrafficDispatch() {
   delete controller_;
 }
 
-void TrafficDispatch::OnTick() {
+void TrafficMediator::OnTick() {
   for(Factory* f: factories_) {
     f->OnTick();
   }
@@ -186,7 +186,7 @@ void TrafficDispatch::OnTick() {
 
 }
 
-void TrafficDispatch::Draw() {
+void TrafficMediator::Draw() {
   for(Road* r:roads_) {
     r->Draw();
   }

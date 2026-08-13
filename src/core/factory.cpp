@@ -41,8 +41,6 @@ void Factory::DispatchRequest(Truck* truck, LoadPlan* plan) {
     for(int id: to_remove) {
         plan->RemoveWidgetPlan(id);
     }
-
-
     
     plan->UnloaderAgreed();
 }

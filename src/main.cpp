@@ -21,7 +21,7 @@
 #include <vector>
 
 #include "road.hpp"
-#include "traffic_dispatch.hpp"
+#include "traffic_mediator.hpp"
 #include "util.hpp"
 #include "ui_handler.hpp"
 
@@ -75,7 +75,8 @@ int main(void)
     SetTargetFPS(TICK_RATE);
 
     SetGlobalTime();
-    TrafficDispatch traffic;
+    TrafficMediator traffic;
+    UiHandler uiHandler(traffic);
 
     rlImGuiSetup(true);
 
@@ -83,9 +84,6 @@ int main(void)
         ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     #endif
 
-    EnableCursor();
-    HideCursor();
-    // SetMouseOffset(0,10);
 
     while (!WindowShouldClose())
     {
@@ -99,14 +97,13 @@ int main(void)
             traffic.Draw();
 
             rlImGuiBegin();
-                RenderUi();
+                uiHandler.RenderUi();
             rlImGuiEnd();
-            DrawRectangle(GetMousePosition().x,GetMousePosition().y,5,5,WHITE);
+            // DrawRectangle(GetMousePosition().x,GetMousePosition().y,5,5,WHITE);
         EndDrawing();
     }
 
     rlImGuiShutdown();
-
     CloseWindow();
 
     return 0;

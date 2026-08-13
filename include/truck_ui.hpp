@@ -1,6 +1,8 @@
 #ifndef TRUCK_UI_HPP
 #define TRUCK_UI_HPP
+class Truck;
 
-void TruckWidget();
+#include <vector>
+
 
 #endif

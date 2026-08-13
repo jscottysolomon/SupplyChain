@@ -1,5 +1,5 @@
 /**
- * @file traffic_dispatch.hpp
+ * @file traffic_mediator.hpp
  * @brief 
  * @author J. Scotty Solomon
  * @date 11-Nov-25
@@ -18,18 +18,21 @@ class Intersection;
 class TrafficControl;
 //CANNOT depend on TRAFFIC_DISPATCH_HPP
 
-class TrafficDispatch {
+class TrafficMediator {
   public:
     std::vector<Intersection*> GetIntersections() {
       return intersections_;
     }
+    std::vector<Truck*> GetTrucks() {
+      return trucks_;
+    }
     void AddIntersection(Intersection* inter) {
       intersections_.push_back(inter);
     }
-    TrafficDispatch() {
+    TrafficMediator() {
       SetUp();
     }
-    ~TrafficDispatch();
+    ~TrafficMediator();
 
     void OnTick();
 
