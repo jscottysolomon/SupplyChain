@@ -53,8 +53,8 @@ void UiHandler::TruckWidget() {
             ImGui::EndTabItem();
         }
         if(ImGui::BeginTabItem("Inventory")) {            
-            for(std::pair<int,int> inv : truck_->GetInventory()) {
-                ImGui::Text("Id: %d /: %d\n", inv.first, inv.second);
+            for(std::pair<int,int> inv : truck_->GetInventoryMap()) {
+                ImGui::Text("%s[%d]: %d\n", organizer_->GetWidgetName(inv.first).c_str(), inv.first, inv.second);
             }
 
             ImGui::EndTabItem();

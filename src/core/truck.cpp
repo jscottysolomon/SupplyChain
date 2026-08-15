@@ -29,91 +29,93 @@ void Truck::ReceivingRequest(LoadPlan* plan, Factory* f) {
         {return;}
     if(state_ != kReceiving) return;
 
-    receiving_plan_ = plan;
+    // receiving_plan_ = plan;
 
-    std::vector<int> to_remove;
+    // std::vector<int> to_remove;
 
-    for(std::pair<int,WidgetStrategy*> p: *receiving_plan_->GetWidgets()) {
-        if(inventory_.GetWidgetQuantity(p.first) <= 0) {
-            to_remove.push_back(p.first);
-        } else if (inventory_.GetWidgetQuantity(p.first) < p.second->GetAmount()) {
-            p.second->SetAmount(inventory_.GetWidgetQuantity(p.first));
-        }
-    }
+    // for(std::pair<int,WidgetStrategy*> p: *receiving_plan_->GetWidgets()) {
+    //     if(inventory_.WidgetQuantity(p.first) <= 0) {
+    //         to_remove.push_back(p.first);
+    //     } else if (inventory_.WidgetQuantity(p.first) < p.second->GetAmount()) {
+    //         p.second->SetAmount(inventory_.WidgetQuantity(p.first));
+    //     }
+    // }
 
-    for(int id: to_remove) {
-        plan->RemoveWidgetPlan(id);
-    }
+    // for(int id: to_remove) {
+    //     plan->RemoveWidgetPlan(id);
+    // }
 
-    plan->UnloaderAgreed();
+    // plan->UnloaderAgreed();
 }
 
 void Truck::Receive() {
-    if(receiving_plan_ == nullptr) return;
+    // if(receiving_plan_ == nullptr) return;
     if(!dock_) return;
     if(state_ != kReceiving) return;
 
-    if(receiving_plan_->IsFinished() && dispatch_plan_ == nullptr) {
-        SetState(kDispatching);
-        RequestDispatch(); //Requesting Dispatch after factory receiving
-    }
+    SetState(kDispatching);
+
+    // if(receiving_plan_->IsFinished() && dispatch_plan_ == nullptr) {
+        
+    //     RequestDispatch(); //Requesting Dispatch after factory receiving
+    // }
 }
 
 void Truck::RequestDispatch() {
     if(stops_.empty()) return;
     if(state_ != kDispatching) return;
 
-    if(dispatch_plan_ != nullptr) {
-        delete dispatch_plan_;
-    }
+//     if(dispatch_plan_ != nullptr) {
+//         delete dispatch_plan_;
+//     }
 
-    dispatch_plan_ = new LoadPlan;
-    dispatch_plan_->SetReceiverInventory(&inventory_);
-    stops_.front()->SetPlanInventory(dispatch_plan_,false);
+//     dispatch_plan_ = new LoadPlan;
+//     dispatch_plan_->SetReceiverInventory(&inventory_);
+//     stops_.front()->SetPlanInventory(dispatch_plan_,false);
 
-    std::set<int> whitelist;
+//     std::set<int> whitelist;
 
-    for(ProductionLine line: stops_.front()->GetProductionLines()) {
-        if(!whitelist.count(line.id)) {
-            whitelist.insert(line.id);
-            ExactQuantityStrategy* strat = new ExactQuantityStrategy(20);
-            dispatch_plan_->AddWidgetStrategy(strat,line.id);
-        }
-    }
+//     for(ProductionLine line: stops_.front()->GetProductionLines()) {
+//         if(!whitelist.count(line.id)) {
+//             whitelist.insert(line.id);
+//             ExactQuantityStrategy* strat = new ExactQuantityStrategy(20);
+//             dispatch_plan_->AddWidgetStrategy(strat,line.id);
+//         }
+//     }
 
-    inventory_.SetWhitelist(whitelist);
-    dispatch_plan_->SetWhitelist(whitelist);
+//     inventory_.SetWhitelist(whitelist);
+//     dispatch_plan_->SetWhitelist(whitelist);
 
-    PrimaryStrategy* finish = new PrimaryStrategy();
-    dispatch_plan_->AddFinisherStrategy(finish);
+//     PrimaryStrategy* finish = new PrimaryStrategy();
+//     dispatch_plan_->AddFinisherStrategy(finish);
 
-    LoadListStrategy* list = new LoadListStrategy();
-    dispatch_plan_->AddTertieryStrategy(list);
+//     LoadListStrategy* list = new LoadListStrategy();
+//     dispatch_plan_->AddTertieryStrategy(list);
 
-    stops_.front()->DispatchRequest(this,dispatch_plan_);
+//     stops_.front()->DispatchRequest(this,dispatch_plan_);
 }
 
 void Truck::Dispatch() {
-    if(dispatch_plan_ == nullptr) return;
+//     if(dispatch_plan_ == nullptr) return;
     if(!docked_) return;
     if(state_ != kDispatching) return;
 
-    dispatch_plan_->Load();
+//     dispatch_plan_->Load();
 
-    if(dispatch_plan_->IsFinished()) {
-        stops_.front()->Undock(this);
-        stops_.pop();
-        delete dispatch_plan_;
-        dispatch_plan_ = nullptr;
-        receiving_plan_ = nullptr;
-        docked_ = false;
-        dock_ = nullptr;
-        create_route = true;
+//     if(dispatch_plan_->IsFinished()) {
+//         stops_.front()->Undock(this);
+//         stops_.pop();
+//         delete dispatch_plan_;
+//         dispatch_plan_ = nullptr;
+//         receiving_plan_ = nullptr;
+//         docked_ = false;
+//         dock_ = nullptr;
+//         create_route = true;
         SetState(kDriving);
-        if(stops_.empty()) {
-            SetState(kStalling);
-        }
-    }
+//         if(stops_.empty()) {
+//             SetState(kStalling);
+//         }
+//     }
 }
 
 void Truck::Drive() {
@@ -184,4 +186,11 @@ void Truck::AddStop(Factory* factory) {
         intersection_ = nullptr;
     }
     stops_.push(factory);
+
+    if(rules_.find(factory->GetId()) == rules_.end()) {
+        RuleContext context;
+        context.factory_inv = factory->GetInventory();
+        context.truck_inv = GetInventory();
+        rules_.insert({factory->GetId(),context});
+    }
 }

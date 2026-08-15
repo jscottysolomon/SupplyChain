@@ -37,6 +37,12 @@ void TrafficMediator::SetUp() {
   Truck* t3 = new Truck({530,220}, *controller_);
   Truck* t4 = new Truck({630,120}, *controller_);
 
+  std::unordered_map<int, int> trcuk_inv = {{1,10},{2,10},{3,10},{4,10}};
+  t1->SetInventory(trcuk_inv);
+  t2->SetInventory(trcuk_inv);
+  t3->SetInventory(trcuk_inv);
+  t4->SetInventory(trcuk_inv);
+
   trucks_.push_back(t1);
   trucks_.push_back(t2);
   trucks_.push_back(t3);
@@ -97,7 +103,7 @@ void TrafficMediator::SetUp() {
     }
   }
 
-  std::unordered_map<int, int> inv = {{1,90},{2,75},{3,80},{4,10}};
+  std::unordered_map<int, int> inv = {{1,50},{2,50},{3,50},{4,50}};
 
   Factory* f1 = FactoryBuilder({340,420})
     .Capacity(3)
@@ -123,7 +129,7 @@ void TrafficMediator::SetUp() {
     .Capacity(2)
     .WithRoad(r4)
     .WithDock({645,130}, nullptr)
-    .WithInventory({{1,60}})
+    .WithInventory(inv)
     .WithLines({1,1})
     .Build();   // top-right corner
 
@@ -137,7 +143,7 @@ void TrafficMediator::SetUp() {
   Factory* f6 = FactoryBuilder({530,120})
     .WithRoad(r8)
     .WithDock({530,135}, nullptr)
-    .WithInventory({{1,40},{2,50}})
+    .WithInventory(inv)
     .WithLines({1,2})
     .Build();   // top edge
 

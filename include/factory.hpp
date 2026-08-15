@@ -61,10 +61,15 @@ class Factory : public Entity {
 		Road* GetRoad() {return road_;}
 		void SetIntersection(Intersection* i) {intersection_ = i;}
 		Intersection* GetIntersection() {return intersection_;}
-		std::unordered_map<int,int> GetInventory()
-			{return inventory_.GetInventory();}
+		std::unordered_map<int,int> GetInventoryMap()
+			{return inventory_.GetInventoryMap();}
+		Inventory* GetInventory() {
+			return &inventory_;
+		}
 		void SetInventory(std::unordered_map<int,int> inv) 
-			{inventory_.SetInventory(inv);}
+			{
+				inventory_.SetInventory(inv);
+			}
 		bool HasEmptyDock();
 
 		Dock* GetDock(Truck* t) {

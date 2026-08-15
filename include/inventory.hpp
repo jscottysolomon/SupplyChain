@@ -17,8 +17,8 @@
 class Inventory {
 public:
     Inventory() {
-        total_capacity_ = 500;
-        widget_quantity_ = 0;
+        max_capacity_ = 500;
+        used_capacity_ = 0;
     }
 
     //whitelist is default behavior
@@ -36,33 +36,65 @@ public:
         return !(map_.find(id) == map_.end());
     }
 
+    /**
+     * @brief Adds quantity of specified widget id to inventory. 
+     * Adds less than requested if space is unavailable
+     * 
+     * @param id 
+     * @param quantity 
+     * @return amount added
+     */
     int AddWidget(int id, int quantity) {
         if(id < 0) return 0;
         if(quantity <= 0) return 0;
-        if(widget_quantity_ == total_capacity_) return 0;
+        if(used_capacity_ == max_capacity_) return 0;
         if(!IsAllowed(id)) return 0;
 
-        if(total_capacity_ < widget_quantity_ + quantity)  {
-            quantity = (total_capacity_-widget_quantity_);	
+        if(max_capacity_ < used_capacity_ + quantity)  {
+            quantity = max_capacity_ - used_capacity_;
         }
+
+        //Is this necessary?
+        if(map_.find(id) == map_.end()) {
+            map_[id] = 0;
+        }
+
         map_[id] += quantity;
-        widget_quantity_ += quantity;
+        used_capacity_ += quantity;
+
         return quantity;
     }
 
+    /**
+     * @brief Adds 1 widget of specifed ID to inventory
+     * 
+     * @param id 
+     * @return true Was able to add 1
+     * @return false Could not add 1
+     */
     bool AddWidget(int id) {
         return AddWidget(id, 1);
     }
 
+    /**
+     * @brief Removes requested amount of specified widget from inventory.
+     * Return less than requested if there are not enough widgets in inventory.
+     * 
+     * @param id 
+     * @param quantity 
+     * @return total amount of specified widgets removed from inventory
+     */
     int RemoveWidget(int id, int quantity) {
         if(quantity <= 0) return 0;
         if(!Contains(id)) return 0;
-        int current_quantity = map_[id];
-        if(current_quantity < quantity) {
-            quantity = current_quantity;
+        if(map_.find(id) == map_.end()) {
+            return false;
+        }
+        if(quantity > map_[id]) {
+            quantity = map_[id] - quantity;
         }
         map_[id] -= quantity;
-        widget_quantity_ += quantity;
+        used_capacity_ -= quantity;
         return quantity;
     }
 
@@ -70,53 +102,9 @@ public:
         return RemoveWidget(id,1);
     }
 
-    int GetWidgetQuantity(int id) {
+    int WidgetQuantity(int id) {
         if(!Contains(id)) return 0;
         return map_[id];
-    }
-
-    int GetNextWidget() {
-        for(std::pair<int,int> p: map_) {
-            if(RemoveWidget(p.first)) {
-                return p.first;
-            }
-        }
-
-        return -1;
-    }
-
-    int GetNextWhitelist(std::set<int> whitelist) {
-        for(std::pair<int,int> p: map_) {
-            if(whitelist.count(p.first) && RemoveWidget(p.first)) {
-                return p.first;
-            }
-        }
-
-        return -1;
-    }
-
-    int GetNextBlacklist(std::set<int> lst) {
-        for(std::pair<int,int> p: map_) {
-            if(!lst.count(p.first) && RemoveWidget(p.first)) {
-                return p.first;
-            }
-        }
-
-        return -1;
-    }
-
-    std::set<int> GetWhitelist() {
-        return whitelist_;
-    }
-
-    std::set<int> GetBlacklist() {
-        return blacklist_;
-    }
-
-    void AddBlacklist(int id) {
-        if(whitelist_.size() > 0) return;
-
-        blacklist_.insert(id);
     }
 
     void SetWhitelist(std::set<int> lst) {
@@ -131,8 +119,22 @@ public:
         ClearWhitelist();
     }
 
-    void AddWhitelist(int id) {
+    void Blacklist(int id) {
+        if(whitelist_.size() > 0) return;
+
+        blacklist_.insert(id);
+    }
+
+    void Whitelist(int id) {
         whitelist_.insert(id);
+    }
+
+    std::set<int> GetWhitelist() {
+        return whitelist_;
+    }
+
+    std::set<int> GetBlacklist() {
+        return blacklist_;
     }
 
     void ClearWhitelist() {
@@ -143,43 +145,35 @@ public:
         blacklist_.clear();
     }
 
-    void ClearAllowable() {
-        ClearWhitelist();
-        ClearBlacklist();
+    bool HasWhitelist() {
+        return whitelist_.size() <= 0;
     }
 
-    bool UsesWhitelist() {
-        return blacklist_.size() <= 0;
+    bool HasBlacklist() {
+        return blacklist_.size() >= 0 || !HasWhitelist();
     }
 
     bool IsFull() {
-        return total_capacity_ == widget_quantity_;
+        return max_capacity_ == used_capacity_;
     }
 
     int GetAvailableCapacity() {
-        return total_capacity_ - widget_quantity_;
+        return max_capacity_ - used_capacity_;
     }
 
     void SetInventory(std::unordered_map<int, int> inv) {
+        used_capacity_ = 0;
+        map_.clear();
+        
+        for(std::pair<int,int> p: inv) {
+            used_capacity_ += p.second;
+        }
+
         map_ = inv;
     }
 
-    std::unordered_map<int, int> GetInventory() {
+    std::unordered_map<int, int> GetInventoryMap() {
         return map_;
-    }
-
-    int RequestWidget(int id, int amt) {
-        if(amt <= 0) return 0;
-
-        //TODO logic of how much to request (i.e reservations)
-
-        return RemoveWidget(id,amt);
-    }
-
-    int RequestGiveWidget(int id, int amt) {
-        //TODO logic of how much willing to accept
-
-        return AddWidget(id,amt);
     }
 
     void OnTick() {
@@ -191,8 +185,8 @@ private:
     std::unordered_map<int, int> map_; //id,quantity
     std::set<int> whitelist_; //whitelist is default
     std::set<int> blacklist_;
-    int total_capacity_;
-    int widget_quantity_;
+    int max_capacity_;
+    int used_capacity_;
 };
 
 #endif

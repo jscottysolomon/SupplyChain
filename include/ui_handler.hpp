@@ -14,6 +14,7 @@ class UiHandler {
             factory_(nullptr), factory_id_(-1) {
                 trucks_ = traffic.GetTrucks();
                 truck_index_ = 0;
+                organizer_ = ReceipeOrganizer::GetInstance();
         }
         void RenderUi();
         void TruckWidget();
@@ -25,6 +26,7 @@ class UiHandler {
         int factory_id_;
         int truck_index_;
         std::vector<Truck*> trucks_;
+        ReceipeOrganizer* organizer_;
 };
 
 #endif

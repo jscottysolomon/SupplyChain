@@ -86,12 +86,23 @@ public:
         return obj;
     }
 
+	std::string GetWidgetName(int id) {
+		Widget w = widgets_.at(id);
+		return w.name;
+	}
+
+	// static std::string GetNameStatic(int id) {
+	// 	if (obj == nullptr)
+    //         obj = new ReceipeOrganizer();
+	// 	return obj->GetWidgetName(id);
+	// }
+
 	bool ProduceWidget(Inventory* inv, int id) {
 		bool satisfied = true;
 		
 		//Checking inventory has required amount for widgets
 		for(std::pair<int, int> p: widgets_[id].inputs) {
-			if(inv->GetWidgetQuantity(p.first) < p.second) {
+			if(inv->WidgetQuantity(p.first) < p.second) {
 				satisfied = false;
 			}
 		}
@@ -109,17 +120,19 @@ public:
 
 private:
     static ReceipeOrganizer* obj;
+	std::unordered_map<int,Widget> widgets_;
+	int next_id_;
 	void SetUp() {
-		int id_1 = CreateWidget("Widget A");
-		int id_2 = CreateWidget("Widget B");
-		CreateWidget("Widget C",{{id_1,2}},BASE_PRODUCTION_TIME*1.1);
-		CreateWidget("Widget D",{{id_2,2}},BASE_PRODUCTION_TIME*1.2);
-		CreateWidget("Widget E",{{id_1,1},{id_2,1}},BASE_PRODUCTION_TIME*1.3);
-		CreateWidget("Widget F",{{id_1,1},{id_2,2}},BASE_PRODUCTION_TIME*1.3);
+		// int id_1 = CreateWidget("Widget A");
+		// int id_2 = CreateWidget("Widget B");
+		// CreateWidget("Widget C",{{id_1,2}},BASE_PRODUCTION_TIME*1.1);
+		// CreateWidget("Widget D",{{id_2,2}},BASE_PRODUCTION_TIME*1.2);
+		// CreateWidget("Widget E",{{id_1,1},{id_2,1}},BASE_PRODUCTION_TIME*1.3);
+		// CreateWidget("Widget F",{{id_1,1},{id_2,2}},BASE_PRODUCTION_TIME*1.3);
 
 		/*Mining*/
-		int iron_ore = CreateWidget("Iron");
-		int copper_ore = CreateWidget("Copper");
+		// int iron_ore = CreateWidget("Iron Ore");
+		int copper_ore = CreateWidget("Copper Ore");
 		int coal = CreateWidget("Coal");
 
 		/*Metal Processing*/
@@ -149,8 +162,6 @@ private:
 		int comfortable_chair = CreateWidget("Comfortable Chair",{{cotton_fabric, 1}, {adhesive,1}, 
 			{wooden_plank, 3}, {screws, 4}}, BASE_PRODUCTION_TIME*10);
 	}
-	std::unordered_map<int,Widget> widgets_;
-	int next_id_;
 };
 
 #endif

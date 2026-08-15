@@ -31,10 +31,10 @@ void Factory::DispatchRequest(Truck* truck, LoadPlan* plan) {
     std::vector<int> to_remove;
 
     for(std::pair<int,WidgetStrategy*> p: *plan->GetWidgets()) {
-        if(inventory_.GetWidgetQuantity(p.first) <= 0) {
+        if(inventory_.WidgetQuantity(p.first) <= 0) {
             to_remove.push_back(p.first);
-        } else if (inventory_.GetWidgetQuantity(p.first) < p.second->GetAmount()) {
-            p.second->SetAmount(inventory_.GetWidgetQuantity(p.first));
+        } else if (inventory_.WidgetQuantity(p.first) < p.second->GetAmount()) {
+            p.second->SetAmount(inventory_.WidgetQuantity(p.first));
         }
     }
 
@@ -46,23 +46,23 @@ void Factory::DispatchRequest(Truck* truck, LoadPlan* plan) {
 }
 
 void Factory::RequestReceiving(Dock* d) {
-    d->receiving_plan = new LoadPlan();
-    d->receiving_plan->SetReceiverInventory(&inventory_);
-    d->truck->SetUnloaderInventory(d->receiving_plan);
+    // d->receiving_plan = new LoadPlan();
+    // d->receiving_plan->SetReceiverInventory(&inventory_);
+    // d->truck->SetUnloaderInventory(d->receiving_plan);
 
-    std::set<int> lst = GetRecipeIds();
+    // std::set<int> lst = GetRecipeIds();
 
-    d->receiving_plan->SetWhitelist(lst);
+    // d->receiving_plan->SetWhitelist(lst);
 
-    for(int id: lst) {
-        ExactQuantityStrategy* strat = new ExactQuantityStrategy(20);
-        d->receiving_plan->AddWidgetStrategy(strat,id);
-    }
+    // for(int id: lst) {
+    //     ExactQuantityStrategy* strat = new ExactQuantityStrategy(20);
+    //     d->receiving_plan->AddWidgetStrategy(strat,id);
+    // }
     
-    PrimaryStrategy* finish = new PrimaryStrategy();
-    d->receiving_plan->AddFinisherStrategy(finish);
+    // PrimaryStrategy* finish = new PrimaryStrategy();
+    // d->receiving_plan->AddFinisherStrategy(finish);
 
-    d->truck->ReceivingRequest(d->receiving_plan,this);
+    // d->truck->ReceivingRequest(d->receiving_plan,this);
 }
 
 void Factory::DockOnTick() {

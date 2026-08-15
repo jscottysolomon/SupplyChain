@@ -184,7 +184,7 @@ class LoadListStrategy : public TertieryStrategy {
                 }
             }
         } else if(blacklist_ != nullptr) {
-            for(std::pair<int,int> p  :unloader_inventory_->GetInventory()) {
+            for(std::pair<int,int> p  :unloader_inventory_->GetInventoryMap()) {
                 if(!blacklist_->count(p.first) && unloader_inventory_->RemoveWidget(p.first)) {
                     receiver_inventory_->AddWidget(p.first);
                     loaded = true;
@@ -298,13 +298,13 @@ public:
         receiver_inventory_ = inv;
     }
     std::unordered_map<int,int> GetReceiverInventory() {
-        return receiver_inventory_->GetInventory();
+        return receiver_inventory_->GetInventoryMap();
     }
     void SetUnloaderInventory(Inventory* inv) {
         unloader_inventory_ = inv;
     }
     std::unordered_map<int,int> GetUnloaderInventory() {
-        return unloader_inventory_->GetInventory();
+        return unloader_inventory_->GetInventoryMap();
     }
     void SetWhitelist(std::set<int> lst) {
         whitelist_ = lst;

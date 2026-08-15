@@ -12,6 +12,7 @@
 #include "entity.hpp"
 #include "inventory.hpp"
 #include "load_plan.hpp"
+#include "rules.hpp"
 #include "traffic_control.hpp"
 #include "widget.hpp"
 
@@ -64,8 +65,14 @@ class Truck : public Entity {
 		void SetInventory(std::unordered_map<int,int> inv) {
 			inventory_.SetInventory(inv);
 		}
-		std::unordered_map<int,int> GetInventory() {
-			return inventory_.GetInventory();
+		std::unordered_map<int,int> GetInventoryMap() {
+			return inventory_.GetInventoryMap();
+		}
+		Inventory* GetInventory() {
+			return &inventory_;
+		}
+		bool IsState(TruckState state) {
+			return state_ == state;
 		}
 
 		void SetUnloaderInventory(LoadPlan* plan) {
@@ -95,6 +102,7 @@ class Truck : public Entity {
 		Inventory inventory_;
 		LoadPlan* receiving_plan_;	//Received from truck to factory
 		LoadPlan* dispatch_plan_;	//Dispatched from factory to truck
+		std::unordered_map<int,RuleContext> rules_; //id, context
 		void Receive();
 		void RequestDispatch();
 		void Dispatch();
