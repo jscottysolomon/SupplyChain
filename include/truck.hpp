@@ -59,7 +59,7 @@ class Truck : public Entity {
 		void AddStop(std::vector<Factory*> factories);
 		void ClearStops(){
 			while(!stops_.empty()) {
-				stops_.pop();
+				stops_.erase(stops_.begin());
 			}
 		}
 		void SetInventory(std::unordered_map<int,int> inv) {
@@ -78,6 +78,25 @@ class Truck : public Entity {
 		void SetUnloaderInventory(LoadPlan* plan) {
 			plan->SetUnloaderInventory(&inventory_);
 		}
+
+		std::vector<Factory*> GetStops() {
+			return stops_;
+		}
+		Plan* GetPlan(int id) {
+			if(plans_.find(id) != plans_.end()) {
+				return plans_.at(id);
+			}
+
+			return nullptr;
+		}
+
+		int GetWidgetAmount(int id) {
+			return inventory_.WidgetQuantity(id);
+		}
+
+		RuleContext& GetContext(int id) {
+			return contexts_.at(id);
+		}
 	private:
 		//state
 		int capacity_;		//widgets capacity
@@ -95,14 +114,15 @@ class Truck : public Entity {
 
 		//logic
 		std::vector<Widget*> widgets_;	//widgets on board
-		std::queue<Factory*> stops_; 	//list of factories to go to
+		std::vector<Factory*> stops_; 	//list of factories to go to
 		std::queue<Intersection*> route_;	//route to current target factory
 
 		//Cargo Managmeent
 		Inventory inventory_;
 		LoadPlan* receiving_plan_;	//Received from truck to factory
 		LoadPlan* dispatch_plan_;	//Dispatched from factory to truck
-		std::unordered_map<int,RuleContext> rules_; //id, context
+		std::unordered_map<int,RuleContext> contexts_; //id, context
+		std::unordered_map<int, Plan*> plans_;
 		void Receive();
 		void RequestDispatch();
 		void Dispatch();

@@ -106,7 +106,7 @@ public:
         }
 
         return context.factory_inv->WidgetQuantity(widget_id_)
-               >= amount_;
+               > amount_;
     }
 
 private:
@@ -126,7 +126,7 @@ public:
         }
 
         return context.truck_inv->WidgetQuantity(widget_id_)
-               >= amount_;
+               > amount_;
     }
 private:
     int widget_id_;
@@ -270,6 +270,10 @@ Are there more targets?
 class Target {
 public:
     Target(Rule* r, Action* a): rule_(r), action_(a) {}
+    ~Target() {
+        delete rule_;
+        delete action_;
+    }
     
     bool RuleMet(const RuleContext& context) {
         return rule_->Evaluate(context);
@@ -308,6 +312,8 @@ public:
     }
 
     bool IsDone() {
+        if(targets_.empty()) return false;
+
         for(Rule* rule: rules_) {
             if(rule->Evaluate(context_)) {
                 return true;
@@ -320,6 +326,7 @@ public:
             }
         }
 
+        return true;
     }
 
 private:

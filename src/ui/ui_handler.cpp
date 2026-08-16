@@ -26,30 +26,42 @@ void UiHandler::TruckWidget() {
     ImGui::Begin("Truck", &open, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoResize 
         | ImGuiWindowFlags_NoCollapse);
 
-    if (ImGui::BeginPopupContextItem("my popup"))
-    {
-        if (ImGui::Selectable("Unload until empty")) {
-
-        }
-        if (ImGui::Selectable("Unload Quantity")) {
-
-        }
-        if (ImGui::Selectable("Wait Until")) {
-
-        }
-        ImGui::EndPopup();
-    }
-
     ImGui::Text("ID: %d", truck_->GetId());
     ImGui::Text("Capacity: %d/%d", truck_->GetAvailability(), truck_->GetTotalCapacity());
 
     if(ImGui::BeginTabBar("Tabs")) {
         if (ImGui::BeginTabItem("Schedule"))
         {
-            ImGui::Text("This shows and lets you edit the truck");
-            if (ImGui::Button("Add")) {
-                ImGui::OpenPopup("my popup");
+            int i = 0;
+            for(Factory* f: truck_->GetStops()) {
+                if(f == nullptr) continue;
+                ImGui::Text("Factory ID: %d", f->GetId());
+                ImGui::PushID(i);
+                if (ImGui::Button("Add")) {
+                    ImGui::OpenPopup("my popup");
+                }
+                if (ImGui::BeginPopup("my popup")) {
+                    if (ImGui::Selectable("Unload Item")) {
+                        Plan* p = truck_->GetPlan(f->GetId());
+                        if(p != nullptr) {
+                            RuleContext& context = truck_->GetContext(f->GetId());
+                            p->AddTarget(new TruckWidgetAtLeast(1, truck_->GetWidgetAmount(1) + 10), new TruckLoadWidget(1));
+                        }
+                    }
+                    if (ImGui::Selectable("Load Item")) {
+
+                    }
+                    if (ImGui::Selectable("Wait Until")) {
+
+                    }
+                    ImGui::EndPopup();
+                }
+                ImGui::PopID();
+                ImGui::Separator();
+                i++;
             }
+            ImGui::Text("This shows and lets you edit the truck");
+            
             ImGui::EndTabItem();
         }
         if(ImGui::BeginTabItem("Inventory")) {            
