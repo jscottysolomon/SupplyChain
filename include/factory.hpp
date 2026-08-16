@@ -8,7 +8,6 @@ Factory.hpp
 
 #include "entity.hpp"
 #include "inventory.hpp"
-#include "load_plan.hpp"
 #include "widget.hpp"
 
 #ifndef FACTORY_HPP
@@ -23,8 +22,6 @@ struct Dock {
 	Truck* truck;
 	bool assigned;
 	bool cargo_ready;
-	LoadPlan* dispatch_plan;
-	LoadPlan* receiving_plan;
 };
 
 struct ProductionLine {
@@ -49,14 +46,11 @@ class Factory : public Entity {
 		//Mediator functions
 		Dock* DockRequest(Truck* truck);
 		void Undock(Truck* t);
-		void DispatchRequest(Truck* truck, LoadPlan* plan);
-		void RequestReceiving(Dock* d);
-		std::unordered_map<int,int> Unload(Truck* t);		
 
 		//Getter, Setters, Check State, Et cetera
 		std::vector<Dock*> GetDocks() {return docks_;}
 		void IncreaseDockCapacity() {dock_capcity_++;}
-		void SetCapacity(int capacity) {dock_capcity_ = capacity;}
+		void SetDockQuantity(int capacity) {dock_capcity_ = capacity;}
 		void SetRoad(Road* r) {road_ = r;}
 		Road* GetRoad() {return road_;}
 		void SetIntersection(Intersection* i) {intersection_ = i;}
@@ -67,10 +61,9 @@ class Factory : public Entity {
 			return &inventory_;
 		}
 		void SetInventory(std::unordered_map<int,int> inv) 
-			{
-				inventory_.SetInventory(inv);
-			}
-		bool HasEmptyDock();
+		{
+			inventory_.SetInventory(inv);
+		}
 
 		Dock* GetDock(Truck* t) {
 			for(Dock* dock: docks_) {
@@ -87,8 +80,6 @@ class Factory : public Entity {
 			dock->position = pos;
 			dock->truck = t;
 			dock->assigned = t; //nullptr if t=nullptr
-			dock->receiving_plan = nullptr;
-			dock->dispatch_plan = nullptr;
 			dock->cargo_ready = false;
 
 			docks_.push_back(dock);
@@ -96,14 +87,6 @@ class Factory : public Entity {
 
 		void AddProductionLine(int id) {
 			production_lines_.push_back({-1,id});
-		}
-		
-		void SetPlanInventory(LoadPlan* plan, bool receiver) {
-			if(receiver) {
-				plan->SetReceiverInventory(&inventory_);
-			} else {
-				plan->SetUnloaderInventory(&inventory_);
-			}
 		}
 
 		//Entity Functions
@@ -152,13 +135,13 @@ class FactoryBuilder {
 public:
 	FactoryBuilder(Vector2 vec) {
 		factory = new Factory(vec);
-		factory->SetCapacity(1);
+		factory->SetDockQuantity(1);
 	}
 
 	Factory* Build() {return factory;}
 
 	FactoryBuilder& Capacity(int capcity) {
-		factory->SetCapacity(capcity);
+		factory->SetDockQuantity(capcity);
 		return *this;
 	}
 

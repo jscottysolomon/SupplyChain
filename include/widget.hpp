@@ -87,8 +87,11 @@ public:
     }
 
 	std::string GetWidgetName(int id) {
-		Widget w = widgets_.at(id);
-		return w.name;
+		if(widgets_.find(id) != widgets_.end()) {
+			return widgets_.at(id).name;
+		}
+		
+		return "Invalid";
 	}
 
 	// static std::string GetNameStatic(int id) {

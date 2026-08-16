@@ -24,32 +24,7 @@ void Truck::Stall() {
     // return;
 }
 
-void Truck::ReceivingRequest(LoadPlan* plan, Factory* f) {
-    if(plan == nullptr || f == nullptr) 
-        {return;}
-    if(state_ != kReceiving) return;
-
-    // receiving_plan_ = plan;
-
-    // std::vector<int> to_remove;
-
-    // for(std::pair<int,WidgetStrategy*> p: *receiving_plan_->GetWidgets()) {
-    //     if(inventory_.WidgetQuantity(p.first) <= 0) {
-    //         to_remove.push_back(p.first);
-    //     } else if (inventory_.WidgetQuantity(p.first) < p.second->GetAmount()) {
-    //         p.second->SetAmount(inventory_.WidgetQuantity(p.first));
-    //     }
-    // }
-
-    // for(int id: to_remove) {
-    //     plan->RemoveWidgetPlan(id);
-    // }
-
-    // plan->UnloaderAgreed();
-}
-
 void Truck::Receive() {
-    // if(receiving_plan_ == nullptr) return;
     if(!dock_) return;
     if(state_ != kReceiving) return;
 
@@ -61,40 +36,6 @@ void Truck::Receive() {
             SetState(kDispatching);
         }
     }
-}
-
-void Truck::RequestDispatch() {
-    if(stops_.empty()) return;
-    if(state_ != kDispatching) return;
-
-//     if(dispatch_plan_ != nullptr) {
-//         delete dispatch_plan_;
-//     }
-
-//     dispatch_plan_ = new LoadPlan;
-//     dispatch_plan_->SetReceiverInventory(&inventory_);
-//     stops_.front()->SetPlanInventory(dispatch_plan_,false);
-
-//     std::set<int> whitelist;
-
-//     for(ProductionLine line: stops_.front()->GetProductionLines()) {
-//         if(!whitelist.count(line.id)) {
-//             whitelist.insert(line.id);
-//             ExactQuantityStrategy* strat = new ExactQuantityStrategy(20);
-//             dispatch_plan_->AddWidgetStrategy(strat,line.id);
-//         }
-//     }
-
-//     inventory_.SetWhitelist(whitelist);
-//     dispatch_plan_->SetWhitelist(whitelist);
-
-//     PrimaryStrategy* finish = new PrimaryStrategy();
-//     dispatch_plan_->AddFinisherStrategy(finish);
-
-//     LoadListStrategy* list = new LoadListStrategy();
-//     dispatch_plan_->AddTertieryStrategy(list);
-
-//     stops_.front()->DispatchRequest(this,dispatch_plan_);
 }
 
 void Truck::Dispatch() {
@@ -143,13 +84,15 @@ void Truck::Drive() {
             if(dock_ != nullptr) {
                 target_ = dock_->position;
             } else {
+                //Default behavior is to stall on road and wait for dock
+                //to be free.
                 //TODO add default behavior if dock is full
                 //1. Wait 2. Add to end of list
-                stops_.erase(stops_.begin());
-                if(!stops_.empty() && intersection_ != nullptr) {
-                    route_ = controller_.RequestRoute(intersection_, 
-                            stops_.front()->GetIntersection());
-                }
+                // stops_.erase(stops_.begin());
+                // if(!stops_.empty() && intersection_ != nullptr) {
+                //     route_ = controller_.RequestRoute(intersection_, 
+                //             stops_.front()->GetIntersection());
+                // }
             }
         } else if(route_.size() == 0) {
             target_ = stops_.front()->GetPosition();
@@ -178,6 +121,7 @@ void Truck::AddStop(Factory* factory) {
         intersection_ = nullptr;
     }
     stops_.push_back(factory);
+    schedule_.push_back(factory);
 
     if(contexts_.find(factory->GetId()) == contexts_.end()) {
         RuleContext context;

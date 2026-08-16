@@ -15,6 +15,18 @@ void UiHandler::RenderUi() {
     ImGui::ShowIDStackToolWindow();
 }
 
+bool Style(Rule* rule, Truck* truck, Factory* factory) {
+    if(rule->Evaluate(truck->GetContext(factory->GetId()))) {
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
+        return true;
+    }
+    return false;
+}
+
+void StyleEnd(bool style) {
+    if(style) ImGui::PopFont();
+}
+
 void UiHandler::TruckWidget() {
     if(truck_ == nullptr) return;
 
@@ -27,35 +39,70 @@ void UiHandler::TruckWidget() {
         | ImGuiWindowFlags_NoCollapse);
 
     ImGui::Text("ID: %d", truck_->GetId());
-    ImGui::Text("Capacity: %d/%d", truck_->GetAvailability(), truck_->GetTotalCapacity());
+    ImGui::Text("Capacity: %d/%d", truck_->GetAvailableCapacity(), truck_->GetMaxCapacity());
 
     if(ImGui::BeginTabBar("Tabs")) {
         if (ImGui::BeginTabItem("Schedule"))
         {
             int i = 0;
-            for(Factory* f: truck_->GetStops()) {
+            for(Factory* f: truck_->GetSchedule()) {
                 if(f == nullptr) continue;
+
+                Plan* p = truck_->GetPlan(f->GetId());
+                bool style = false;
+
                 ImGui::Text("Factory ID: %d", f->GetId());
                 ImGui::PushID(i);
                 if (ImGui::Button("Add")) {
                     ImGui::OpenPopup("my popup");
                 }
+
                 if (ImGui::BeginPopup("my popup")) {
-                    if (ImGui::Selectable("Unload Item")) {
-                        Plan* p = truck_->GetPlan(f->GetId());
+                    if (ImGui::Selectable("Load to Truck")) {
                         if(p != nullptr) {
+                            int id = 1;
                             RuleContext& context = truck_->GetContext(f->GetId());
-                            p->AddTarget(new TruckWidgetAtLeast(1, truck_->GetWidgetAmount(1) + 10), new TruckLoadWidget(1));
+                            p->AddTarget(new TruckWidgetAtLeast(id, 10, truck_->GetWidgetAmount(id)), 
+                                new TruckLoadWidget(id));
                         }
                     }
                     if (ImGui::Selectable("Load Item")) {
-
+                        if(p != nullptr) {
+                            int id = 2;
+                            RuleContext& context = truck_->GetContext(f->GetId());
+                            p->AddTarget(new FactoryWidgetAtLeast(id, 3, truck_->GetWidgetAmount(id)), 
+                                new TruckUnLoadWidget(id));
+                        }
                     }
                     if (ImGui::Selectable("Wait Until")) {
 
-                    }
+                    }   
                     ImGui::EndPopup();
                 }
+
+                if(p!= nullptr) {
+                    for(Target* t: p->GetTargets()) {
+                        Rule* r = t->GetRule();
+                        if (auto* rule = dynamic_cast<AmountRule*>(r)) {
+                            // amount_rule->GetAmount(50);
+                        }
+                        if (auto* rule = dynamic_cast<TruckWidgetAtLeast*>(r)) {
+                            style = Style(r,truck_,f);
+                            ImGui::TextWrapped("Loading atleast %d %s to Truck", rule->GetAmount(),
+                                organizer_->GetWidgetName(rule->GetWidgetId()).c_str());
+                            StyleEnd(style);
+                            
+                        } else if (auto* rule = dynamic_cast<FactoryWidgetAtLeast*>(r)) {
+                            style = Style(r,truck_,f);
+                            ImGui::TextWrapped("Loading atleast %d %s to Factory", rule->GetAmount(),
+                                organizer_->GetWidgetName(rule->GetWidgetId()).c_str());
+                            StyleEnd(style);
+                        }
+                        
+                    }
+                }
+                // ImGui::ProgressBar(-1.0f * (float)ImGui::GetTime(), ImVec2(0.0f, 0.0f)
+
                 ImGui::PopID();
                 ImGui::Separator();
                 i++;

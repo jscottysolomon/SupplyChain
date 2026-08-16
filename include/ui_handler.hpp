@@ -24,7 +24,7 @@ class UiHandler {
         int truck_id_;
         Factory* factory_;
         int factory_id_;
-        int truck_index_;
+        std::size_t truck_index_;
         std::vector<Truck*> trucks_;
         ReceipeOrganizer* organizer_;
 };

@@ -11,7 +11,6 @@
 
 #include "entity.hpp"
 #include "inventory.hpp"
-#include "load_plan.hpp"
 #include "rules.hpp"
 #include "traffic_control.hpp"
 #include "widget.hpp"
@@ -37,8 +36,6 @@ class Truck : public Entity {
 			speed_ = .025f;
 			intersection_ = nullptr;
 			dock_ = nullptr;
-			dispatch_plan_ = nullptr;
-			receiving_plan_ = nullptr;
 			create_route = false;
 			state_ = kDriving; //TODO: update
 			capacity_ = 500;
@@ -48,40 +45,46 @@ class Truck : public Entity {
 		void Draw() override {
 			DrawRectangle(position_.x,position_.y,8,8,PINK);
 		}
-		void ReceivingRequest(LoadPlan* plan, Factory* f);
-
 		//Getters & Setters
-		Road* GetCurrentRoad() {return current_road_;}
-		void SetCurrentRoad(Road* r) {current_road_ = r;}
-		int GetTotalCapacity() {return capacity_;}
-		int GetAvailability() {return inventory_.GetAvailableCapacity();}
+		Road* GetCurrentRoad() 
+			{return current_road_;}
+		void SetCurrentRoad(Road* r) 
+			{current_road_ = r;}
+
+		int GetMaxCapacity() 
+			{return inventory_.GetMaxCapacity();}
+		int GetAvailableCapacity() 
+			{return inventory_.GetAvailableCapacity();}
+		std::vector<Factory*> GetStops() 
+			{return stops_;}
+		std::vector<Factory*> GetSchedule() 
+			{return schedule_;}
+		
 		void AddStop(Factory* factory);
 		void AddStop(std::vector<Factory*> factories);
+
 		void ClearStops(){
 			while(!stops_.empty()) {
 				stops_.erase(stops_.begin());
 			}
 		}
+
 		void SetInventory(std::unordered_map<int,int> inv) {
 			inventory_.SetInventory(inv);
 		}
+
 		std::unordered_map<int,int> GetInventoryMap() {
 			return inventory_.GetInventoryMap();
 		}
+
 		Inventory* GetInventory() {
 			return &inventory_;
 		}
+
 		bool IsState(TruckState state) {
 			return state_ == state;
 		}
 
-		void SetUnloaderInventory(LoadPlan* plan) {
-			plan->SetUnloaderInventory(&inventory_);
-		}
-
-		std::vector<Factory*> GetStops() {
-			return stops_;
-		}
 		Plan* GetPlan(int id) {
 			if(plans_.find(id) != plans_.end()) {
 				return plans_.at(id);
@@ -98,36 +101,13 @@ class Truck : public Entity {
 			return contexts_.at(id);
 		}
 	private:
-		//state
+		/*Internal State*/
 		int capacity_;		//widgets capacity
 		float speed_;		//movement speed
 		bool docked_;		//docked at factory
 		bool create_route;
 		TruckState state_;
-
-		//References
-		Intersection* intersection_;	//current intersection
-		TrafficControl& controller_;	//traffic control mediator
-		Vector2 target_;				//target position
-		Road* current_road_;
-		Dock* dock_;
-
-		//logic
-		std::vector<Widget*> widgets_;	//widgets on board
-		std::vector<Factory*> stops_; 	//list of factories to go to
-		std::queue<Intersection*> route_;	//route to current target factory
-
-		//Cargo Managmeent
-		Inventory inventory_;
-		LoadPlan* receiving_plan_;	//Received from truck to factory
-		LoadPlan* dispatch_plan_;	//Dispatched from factory to truck
-		std::unordered_map<int,RuleContext> contexts_; //id, context
-		std::unordered_map<int, Plan*> plans_;
-		void Receive();
-		void RequestDispatch();
-		void Dispatch();
-		void Stall();
-
+		
 		void SetState(TruckState state) {
 			state_ = state;
 			switch(state) {
@@ -143,8 +123,30 @@ class Truck : public Entity {
 			}
 		}
 
-		//Functions
+		/*Road Relations*/
+		Intersection* intersection_;	//current intersection
+		TrafficControl& controller_;	//traffic control mediator
+		Vector2 target_;				//target position
+		Road* current_road_;
+		Dock* dock_;
+
+		/*Schedules and Routes*/
+		std::vector<Factory*> stops_; 		//dynamic list of stops
+		std::vector<Factory*> schedule_; 	//fixed schedule
+		std::queue<Intersection*> route_;	//route to current target factory
+
+		/*Cargo Management*/
+		Inventory inventory_;
+		std::unordered_map<int,RuleContext> contexts_; //id, context
+		std::unordered_map<int, Plan*> plans_;
+		void Receive();
+		void Dispatch();
+		void Stall();
 		void Drive();
+
+		
+
+		//Functions
 };
 
 class TruckBuilder {

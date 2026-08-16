@@ -161,6 +161,14 @@ public:
         return max_capacity_ - used_capacity_;
     }
 
+    int GetUsedCapacity() {
+        return used_capacity_;
+    }
+
+    int GetMaxCapacity() {
+        return max_capacity_;
+    }
+
     void SetInventory(std::unordered_map<int, int> inv) {
         used_capacity_ = 0;
         map_.clear();

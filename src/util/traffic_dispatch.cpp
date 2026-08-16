@@ -37,7 +37,7 @@ void TrafficMediator::SetUp() {
   Truck* t3 = new Truck({530,220}, *controller_);
   Truck* t4 = new Truck({630,120}, *controller_);
 
-  std::unordered_map<int, int> trcuk_inv = {{1,10},{2,10},{3,10},{4,10}};
+  std::unordered_map<int, int> trcuk_inv = {{1,20},{2,20},{3,20},{4,20}};
   t1->SetInventory(trcuk_inv);
   t2->SetInventory(trcuk_inv);
   t3->SetInventory(trcuk_inv);
@@ -109,12 +109,14 @@ void TrafficMediator::SetUp() {
     .Capacity(3)
     .WithRoad(r5)
     .WithDock({340,435}, nullptr)
+    .WithDock({340,440}, nullptr)
     .WithInventory(inv)
     .Build();   // bottom-left edge
 
   Factory* f2 = FactoryBuilder({430,330})
     .WithRoad(r6)
     .WithDock({430,345}, nullptr)
+    .WithDock({430,350}, nullptr)
     .WithInventory(inv)
     .WithLines({3,4})
     .Build();   // near center
@@ -122,6 +124,7 @@ void TrafficMediator::SetUp() {
   Factory* f3 = FactoryBuilder({460,220})
     .WithRoad(r7)
     .WithDock({460,235}, nullptr)
+    .WithDock({460,240}, nullptr)
     .WithInventory(inv)
     .Build();   // right edge
 
@@ -129,6 +132,7 @@ void TrafficMediator::SetUp() {
     .Capacity(2)
     .WithRoad(r4)
     .WithDock({645,130}, nullptr)
+    .WithDock({645,135}, nullptr)
     .WithInventory(inv)
     .WithLines({1,1})
     .Build();   // top-right corner
@@ -136,6 +140,7 @@ void TrafficMediator::SetUp() {
   Factory* f5 = FactoryBuilder({330,150})
     .WithRoad(r1)
     .WithDock({345,150}, nullptr)
+    .WithDock({330,160}, nullptr)
     .WithInventory(inv)
     .WithLines({5,6})
     .Build();   // left edge
@@ -143,6 +148,7 @@ void TrafficMediator::SetUp() {
   Factory* f6 = FactoryBuilder({530,120})
     .WithRoad(r8)
     .WithDock({530,135}, nullptr)
+    .WithDock({530,110}, nullptr)
     .WithInventory(inv)
     .WithLines({1,2})
     .Build();   // top edge
@@ -155,6 +161,9 @@ void TrafficMediator::SetUp() {
   r8->AddFactory(f6); // {530,120}
 
   t1->AddStop({f4,f6,f2,f5});
+  t2->AddStop({f3,f1,f4,f6});
+  t3->AddStop({f6,f5,f4,f3});
+  t4->AddStop({f2,f4,f3,f4});
 
   factories_.push_back(f1);
   factories_.push_back(f2);

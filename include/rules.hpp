@@ -27,67 +27,27 @@ class Rule {
 public:
     virtual ~Rule() = default;
 
-    virtual bool Evaluate(const RuleContext& context) const = 0;
+    virtual bool Evaluate(const RuleContext& context) = 0;
 };
 
-////////////////////////////////////////////////////////
-// AND
-////////////////////////////////////////////////////////
-
-class AndRule : public Rule {
+class AmountRule: public Rule {
 public:
-    AndRule() = default;
-
-    AndRule(std::vector<Rule*> rules)
-        : rules_(rules) {
+    void SetAmount(int amount) {
+        amount_ = amount;
     }
 
-    void Add(Rule* rule) {
-        rules_.push_back(rule);
+    int GetWidgetId() {
+        return widget_id_;
     }
 
-    bool Evaluate(const RuleContext& context) const override {
-        for (const auto& rule : rules_) {
-            if (!rule->Evaluate(context)) {
-                return false;
-            }
-        }
-
-        return true;
+    int GetAmount() {
+        return amount_;
     }
-
-private:
-    std::vector<Rule*> rules_;
-};
-
-////////////////////////////////////////////////////////
-// OR
-////////////////////////////////////////////////////////
-
-class OrRule : public Rule {
-public:
-    OrRule() = default;
-
-    OrRule(std::vector<Rule*> rules)
-        : rules_(rules) {
-    }
-
-    void Add(std::vector<Rule*> rule) {
-        rules_.insert(rules_.end(), rule.begin(), rule.end());
-    }
-
-    bool Evaluate(const RuleContext& context) const override {
-        for (const auto& rule : rules_) {
-            if (rule->Evaluate(context)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-private:
-    std::vector<Rule*> rules_;
+protected:
+    int amount_;
+    int widget_id_;
+    int initial_;
+    bool started_;
 };
 
 ////////////////////////////////////////////////////////
@@ -95,47 +55,58 @@ private:
 ////////////////////////////////////////////////////////
 
 // fill till x amount of W in factory inv
-class FactoryWidgetAtLeast : public Rule {
+class FactoryWidgetAtLeast : public AmountRule {
 public:
-    FactoryWidgetAtLeast(int widget_id, int amount)
-    : widget_id_(widget_id), amount_(amount) {}
+    FactoryWidgetAtLeast(int widget_id, int amount, int init) {
+        amount_ = amount;
+        widget_id_ = widget_id;
+        initial_ = init;
+        started_ = false;
+    }
 
-    bool Evaluate(const RuleContext& context) const override {
+    bool Evaluate(const RuleContext& context) override {
         if(context.factory_inv == nullptr) {
             return false;
         }
 
-        return context.factory_inv->WidgetQuantity(widget_id_)
-               > amount_;
-    }
+        if(!started_) {
+            initial_ = context.factory_inv->WidgetQuantity(widget_id_);
+            started_ = true;
+        }
 
-private:
-    int widget_id_;
-    int amount_;
+        return context.factory_inv->WidgetQuantity(widget_id_)
+            >= (initial_ + amount_);
+    }
 };
 
 // fill till x amount of W in truck inv
-class TruckWidgetAtLeast : public Rule {
+class TruckWidgetAtLeast : public AmountRule {
 public:
-    TruckWidgetAtLeast(int widget_id, int amount)
-        : widget_id_(widget_id), amount_(amount) {}
+    TruckWidgetAtLeast(int widget_id, int amount, int init) {
+            widget_id_ = widget_id;
+            amount_ = amount;
+            initial_ = init; //This is based on when the rule was created, not when it starts
+            started_ = false;
+        }
 
-    bool Evaluate(const RuleContext& context) const override {
+    bool Evaluate(const RuleContext& context) override {
         if(context.truck_inv == nullptr) {
             return false;
         }
 
+        if(!started_) {
+            initial_ = context.truck_inv->WidgetQuantity(widget_id_);
+            started_ = true;
+        }
+
         return context.truck_inv->WidgetQuantity(widget_id_)
-               > amount_;
+            >= (initial_ + amount_);
     }
-private:
-    int widget_id_;
-    int amount_;
 };
 
 class TruckIsFull : public Rule {
 public:
-    bool Evaluate(const RuleContext& context) const override {
+    bool Evaluate(const RuleContext& context) override {
         if(context.truck_inv == nullptr)
             return false;
         
@@ -145,7 +116,7 @@ public:
 
 class FactoryIsFull : public Rule {
 public:
-    bool Evaluate(const RuleContext& context) const override {
+    bool Evaluate(const RuleContext& context) override {
         if(context.factory_inv == nullptr)
             return false;
         
@@ -168,6 +139,7 @@ class UntilFactoryUnloadsAmt: public Rule {
 class Action {
 public:
     virtual ~Action() = default;
+    // virtual void GetProgress();
 
     virtual bool Execute(const RuleContext& context) = 0;
 };
@@ -199,6 +171,8 @@ public:
     bool Execute(const RuleContext& context) override {
         if(context.truck_inv->RemoveWidget(widget_id_)) {
             return context.factory_inv->AddWidget(widget_id_); //No Check
+        } else {
+            return false;
         }
 
         return false;
@@ -234,39 +208,6 @@ public:
     }
 };
 
-/*
-Start plan
-   |
-   v
-Has a global stop condition been met?
-   | yes
-   +----------> Leave
-   |
-   no
-   |
-   v
-Execute current target
-   |
-   v
-Is current target finished?
-   | no
-   +----------> continue
-   |
-   yes
-   |
-   v
-Move to next target
-   |
-   v
-Are there more targets?
-   | no
-   +----------> Leave
-   |
-   yes
-   |
-   +----------> next target
-*/
-
 class Target {
 public:
     Target(Rule* r, Action* a): rule_(r), action_(a) {}
@@ -276,11 +217,18 @@ public:
     }
     
     bool RuleMet(const RuleContext& context) {
+        if(rule_ == nullptr) return false;
+
         return rule_->Evaluate(context);
     }
 
     bool PerformAction(RuleContext& context) {
+        if(action_ == nullptr) return false;
         return action_->Execute(context);
+    }
+
+    Rule* GetRule() {
+        return rule_;
     }
 private:
     Rule* rule_;
@@ -329,6 +277,10 @@ public:
         return true;
     }
 
+    std::vector<Target*> GetTargets() {
+        return targets_;
+    }
+
 private:
     std::vector<Target*> targets_;
     std::vector<Rule*> rules_;
@@ -336,3 +288,37 @@ private:
 };
 
 #endif
+
+
+/*
+Start plan
+   |
+   v
+Has a global stop condition been met?
+   | yes
+   +----------> Leave
+   |
+   no
+   |
+   v
+Execute current target
+   |
+   v
+Is current target finished?
+   | no
+   +----------> continue
+   |
+   yes
+   |
+   v
+Move to next target
+   |
+   v
+Are there more targets?
+   | no
+   +----------> Leave
+   |
+   yes
+   |
+   +----------> next target
+*/
