@@ -30,7 +30,7 @@ enum TruckState {
 //TODO change stops to priority queue
 class Truck : public Entity {
 	public:
-		Truck(Vector2 vec, TrafficControl& controller) : controller_(controller){
+		Truck(Vector2 vec, TrafficControl& controller) : controller_(controller) {
 			SetPosition(vec);
 			docked_ = false;
 			speed_ = .025f;
@@ -55,8 +55,8 @@ class Truck : public Entity {
 		void AddStop(Factory* factory);
 		void AddStop(std::vector<Factory*> factories);
 
-		void ClearStops(){
-			while(!stops_.empty()) {
+		void ClearStops() {
+			while (!stops_.empty()) {
 				stops_.erase(stops_.begin());
 			}
 		}
@@ -72,7 +72,7 @@ class Truck : public Entity {
 		bool IsState(TruckState state) { return state_ == state; }
 
 		Plan* GetPlan(int id) {
-			if(plans_.find(id) != plans_.end()) {
+			if (plans_.find(id) != plans_.end()) {
 				return plans_.at(id);
 			}
 
@@ -90,7 +90,7 @@ class Truck : public Entity {
 		
 		void SetState(TruckState state) {
 			state_ = state;
-			switch(state) {
+			switch (state) {
 				case kDriving:
 					docked_ = false;
 					break;

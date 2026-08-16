@@ -8,11 +8,11 @@
 #include "rules.hpp"
 
 void UiHandler::RenderUi() {
-  if(truck_ == nullptr && !trucks_.empty()) {
+  if (truck_ == nullptr && !trucks_.empty()) {
     truck_ = trucks_.at(truck_index_);
     truck_id_ = truck_->GetId();
   }
-  if(factory_ == nullptr && !factories_.empty()) {
+  if (factory_ == nullptr && !factories_.empty()) {
     factory_ = factories_.at(factory_index_);
     factory_id_ = factory_->GetId();
   }
@@ -23,7 +23,7 @@ void UiHandler::RenderUi() {
 }
 
 bool Style(Rule* rule, Truck* truck, Factory* factory) {
-  if(rule->Evaluate(truck->GetContext(factory->GetId()))) {
+  if (rule->Evaluate(truck->GetContext(factory->GetId()))) {
     ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
     return true;
   }
@@ -31,11 +31,11 @@ bool Style(Rule* rule, Truck* truck, Factory* factory) {
 }
 
 void StyleEnd(bool style) {
-  if(style) ImGui::PopStyleColor();
+  if (style) ImGui::PopStyleColor();
 }
 
 void UiHandler::FactoryWidget() {
-  if(factory_ == nullptr) return;
+  if (factory_ == nullptr) return;
 
   bool open = true;
   ImVec2 displaySize = ImGui::GetIO().DisplaySize;
@@ -53,7 +53,7 @@ void UiHandler::FactoryWidget() {
 }
 
 void UiHandler::TruckWidget() {
-  if(truck_ == nullptr) return;
+  if (truck_ == nullptr) return;
 
   bool open = true;
   ImVec2 displaySize = ImGui::GetIO().DisplaySize;
@@ -67,12 +67,12 @@ void UiHandler::TruckWidget() {
   ImGui::Text("ID: %d", truck_->GetId());
   ImGui::Text("Capacity: %d/%d", truck_->GetAvailableCapacity(), truck_->GetMaxCapacity());
 
-  if(ImGui::BeginTabBar("Tabs")) {
+  if (ImGui::BeginTabBar("Tabs")) {
     if (ImGui::BeginTabItem("Schedule"))
     {
       int i = 0;
-      for(Factory* f: truck_->GetSchedule()) {
-        if(f == nullptr) continue;
+      for (Factory* f: truck_->GetSchedule()) {
+        if (f == nullptr) continue;
 
         Plan* p = truck_->GetPlan(f->GetId());
         bool style = false;
@@ -85,20 +85,18 @@ void UiHandler::TruckWidget() {
 
         if (ImGui::BeginPopup("my popup")) {
           if (ImGui::Selectable("Dispatch Item")) {
-            if(p != nullptr) {
+            if (p != nullptr) {
               int id = 1;
               RuleContext& context = truck_->GetContext(f->GetId());
               p->AddTarget(new DispatchQuantity(id, 10, truck_->GetWidgetQuantity(id)), 
                 new DispatchWidget(id));
             }
           }
-          if (ImGui::Selectable("Receive Item")) {
-            if(p != nullptr) {
-              int id = 2;
-              RuleContext& context = truck_->GetContext(f->GetId());
-              p->AddTarget(new ReceiveQuantity(id, 3, truck_->GetWidgetQuantity(id)), 
-                new ReceiveWidgets(id));
-            }
+          if (ImGui::Selectable("Receive Item") && p != nullptr) {
+            int id = 2;
+            RuleContext& context = truck_->GetContext(f->GetId());
+            p->AddTarget(new ReceiveQuantity(id, 3, truck_->GetWidgetQuantity(id)), 
+              new ReceiveWidgets(id));
           }
           if (ImGui::Selectable("Wait Until")) {
 
@@ -106,8 +104,8 @@ void UiHandler::TruckWidget() {
           ImGui::EndPopup();
         }
 
-        if(p!= nullptr) {
-          for(Target* t: p->GetTargets()) {
+        if (p!= nullptr) {
+          for (Target* t: p->GetTargets()) {
             Rule* r = t->GetRule();
             if (auto* rule = dynamic_cast<AmountRule*>(r)) {
               // amount_rule->GetAmount(50);
@@ -135,14 +133,14 @@ void UiHandler::TruckWidget() {
       }      
       ImGui::EndTabItem();
     }
-    if(ImGui::BeginTabItem("Inventory")) {      
-      for(std::pair<int,int> inv : truck_->GetInventoryMap()) {
+    if (ImGui::BeginTabItem("Inventory")) {      
+      for (std::pair<int,int> inv : truck_->GetInventoryMap()) {
         ImGui::Text("%s[%d]: %d\n", organizer_->GetWidgetName(inv.first).c_str(), inv.first, inv.second);
       }
 
       if (ImGui::Button("Next")) {
         truck_index_++;
-        if(truck_index_ >= trucks_.size()) {
+        if (truck_index_ >= trucks_.size()) {
           truck_index_ = 0;
         }
         truck_ = trucks_.at(truck_index_);
@@ -150,7 +148,7 @@ void UiHandler::TruckWidget() {
 
       ImGui::EndTabItem();
     }
-    if(ImGui::BeginTabItem("Whitelist")) {
+    if (ImGui::BeginTabItem("Whitelist")) {
       if (ImGui::BeginTable("Inventory", 3))
       {
         for (int row = 0; row < 4; row++)

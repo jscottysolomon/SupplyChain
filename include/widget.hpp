@@ -69,7 +69,7 @@ public:
 
 	float GetTotalProductionTime(int id, float total_time) {
 		int time = widgets_[id].production_time;
-		// for(std::pair<int, int> p: widgets_[id].inputs) {
+		// for (std::pair<int, int> p: widgets_[id].inputs) {
 		// 	// time += 
 		// }
 
@@ -87,7 +87,7 @@ public:
   }
 
 	std::string GetWidgetName(int id) {
-		if(widgets_.find(id) != widgets_.end()) {
+		if (widgets_.find(id) != widgets_.end()) {
 			return widgets_.at(id).name;
 		}
 		
@@ -104,15 +104,15 @@ public:
 		// bool satisfied = true;
 		
 		// //Checking inventory has required amount for widgets
-		// for(std::pair<int, int> p: widgets_[id].inputs) {
-		// 	if(inv->GetWidgetQuantity(p.first) < p.second) {
+		// for (std::pair<int, int> p: widgets_[id].inputs) {
+		// 	if (inv->GetWidgetQuantity(p.first) < p.second) {
 		// 		satisfied = false;
 		// 	}
 		// }
 
-		// if(!satisfied) return satisfied;
+		// if (!satisfied) return satisfied;
 
-		// for(std::pair<int, int> p: widgets_[id].inputs) {
+		// for (std::pair<int, int> p: widgets_[id].inputs) {
 		// 	inv->RemoveWidget(p.first,p.second);
 		// }
 

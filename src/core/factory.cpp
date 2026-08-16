@@ -21,12 +21,12 @@ void Factory::DockOnTick() {
 }
 
 void Factory::Produce() {
-  if(organizer == nullptr) return;
-  for(ProductionLine line: production_lines_) {
-    if((GetGlobalTime() - line .last_production)  / CLOCKS_PER_SEC < organizer->GetProductionTime(line.id)) {
+  if (organizer == nullptr) return;
+  for (ProductionLine line: production_lines_) {
+    if ((GetGlobalTime() - line .last_production)  / CLOCKS_PER_SEC < organizer->GetProductionTime(line.id)) {
       return;
     }
-    if(organizer->ProduceWidget(&inventory_,line.id)) {
+    if (organizer->ProduceWidget(&inventory_,line.id)) {
       line.last_production = GetGlobalTime();
       return;
     }
@@ -34,8 +34,8 @@ void Factory::Produce() {
 }
 
 Dock* Factory::DockRequest(Truck* truck) {
-  for(Dock* d: docks_) {
-    if(!d->assigned) {
+  for (Dock* d: docks_) {
+    if (!d->assigned) {
       d->assigned = true;
       d->truck = truck;
       return d;
@@ -46,8 +46,8 @@ Dock* Factory::DockRequest(Truck* truck) {
 }
 
 void Factory::Undock(Truck* truck) {
-  for(Dock* dock: docks_) {
-    if(dock->truck == truck) {
+  for (Dock* dock: docks_) {
+    if (dock->truck == truck) {
       dock->assigned = false;
       dock->cargo_ready = false;
       dock->truck = nullptr;
@@ -58,11 +58,11 @@ void Factory::Undock(Truck* truck) {
 FactoryBuilder& FactoryBuilder::WithRoad(Road* road) {
   factory->SetRoad(road);
 
-  for(Intersection* inter: road->GetIntersections()) {
-    if(inter->HasRoad(road)) {
-      if(factory->GetIntersection() == nullptr) {
+  for (Intersection* inter: road->GetIntersections()) {
+    if (inter->HasRoad(road)) {
+      if (factory->GetIntersection() == nullptr) {
         factory->SetIntersection(inter);
-      } else if(Vector2Distance(factory->GetPosition(), inter->GetPosition())
+      } else if (Vector2Distance(factory->GetPosition(), inter->GetPosition())
         < Vector2Distance(factory->GetIntersection()->GetPosition(),factory->GetPosition())) {
           factory->SetIntersection(inter);
         }

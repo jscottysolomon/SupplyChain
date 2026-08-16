@@ -48,7 +48,7 @@ void SetUpStyle();
 Color background = {56,24,35,225};
 
 // DPI scaling functions
-float ScaleToDPIF(float value)
+float ScaleToDPif (float value)
 {
   return GetWindowScaleDPI().x * value;
 }
@@ -71,7 +71,7 @@ int main(void)
   /*Graphics*/
   InitWindow(1200, 800, "SupplyChain");
 
-  // if(!IsWindowFullscreen()) ToggleFullscreen();
+  // if (!IsWindowFullscreen()) ToggleFullscreen();
   SetTargetFPS(TICK_RATE);
 
   SetGlobalTime();
@@ -87,7 +87,7 @@ int main(void)
 
   while (!WindowShouldClose())
   {
-    if(IsWindowResized()) {
+    if (IsWindowResized()) {
 
     }
     traffic.OnTick();

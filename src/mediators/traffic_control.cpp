@@ -20,12 +20,12 @@ std::queue<Intersection*> TrafficControl::RequestRoute(Intersection* src, Inters
 
   Vertex* v = GetVertex(vertices,dest);
 
-  while(v != nullptr) {
+  while (v != nullptr) {
     route.push_back(v->inter);
     v = v->prev;
   }
 
-  for(Vertex* v: vertices) {
+  for (Vertex* v: vertices) {
     delete v;
   }
 
@@ -46,13 +46,13 @@ std::vector<Vertex*> TrafficControl::Dijkstra(Intersection* src)
 
   int sizee = intersections_.size();
 
-  for(Intersection* inter: intersections_) {
+  for (Intersection* inter: intersections_) {
     struct Vertex* v = new Vertex;
     v->inter = inter;
     v->dist = FLT_MAX;
     v->prev = nullptr;
     
-    if(inter == src) {
+    if (inter == src) {
       v->dist = 0;
     }
 
@@ -60,12 +60,12 @@ std::vector<Vertex*> TrafficControl::Dijkstra(Intersection* src)
     unvisited.push_back(v);
   }
 
-  while(!unvisited.empty()) {
+  while (!unvisited.empty()) {
     //finding lowest distance of unvisited Vertex
     int rmv = 0;
     Vertex* u = unvisited[0];
-    for(std::size_t ii = 0; ii < unvisited.size(); ii++) {
-      if(unvisited.at(ii)->dist < u->dist) {
+    for (std::size_t ii = 0; ii < unvisited.size(); ii++) {
+      if (unvisited.at(ii)->dist < u->dist) {
         u = unvisited.at(ii);
         rmv = ii;
       }
@@ -76,14 +76,14 @@ std::vector<Vertex*> TrafficControl::Dijkstra(Intersection* src)
     unvisited.pop_back();
 
     //Updating u's neighbors
-    for(Intersection* inter: u->inter->GetIntersections()) {
+    for (Intersection* inter: u->inter->GetIntersections()) {
       Vertex* neighbor = GetVertex(vertices,inter);
 
-      if(neighbor != nullptr) {
+      if (neighbor != nullptr) {
         float alt = u->dist + Vector2Distance(u->inter->GetPosition(), 
           neighbor->inter->GetPosition());
 
-        if(alt < neighbor->dist) {
+        if (alt < neighbor->dist) {
           neighbor->dist = alt;
           neighbor->prev = u;
         }
@@ -95,8 +95,8 @@ std::vector<Vertex*> TrafficControl::Dijkstra(Intersection* src)
 }
 
 Vertex* GetVertex(std::vector<Vertex*> vertices, Intersection* intersection) {
-  for(Vertex* v: vertices) {
-    if(v->inter == intersection) {
+  for (Vertex* v: vertices) {
+    if (v->inter == intersection) {
       return v;
     }
   }

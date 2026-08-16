@@ -30,7 +30,7 @@ target_include_directories(CHAIN
 )
 
 
-if(MSVC)
+if (MSVC)
   target_link_libraries(CHAIN PRIVATE
     "${CMAKE_SOURCE_DIR}/lib/raylib.lib"
     opengl32
@@ -49,10 +49,10 @@ if(MSVC)
   target_link_options(CHAIN PRIVATE
     /fsanitize=address
   )
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   target_link_libraries(CHAIN PRIVATE "${CMAKE_SOURCE_DIR}/lib/raylib.lib" OpenGL32 Gdi32 WinMM kernel32 shell32 User32)
   add_compile_options (-fcolor-diagnostics)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   target_compile_options(CHAIN PRIVATE
     -g
     -O0
@@ -69,4 +69,4 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   add_compile_options (-fdiagnostics-color=always)
 else()
   message(WARNING "Unsupported compiler. No specific libraries will be linked.")
-endif()
+endif ()

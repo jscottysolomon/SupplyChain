@@ -57,11 +57,11 @@ void TrafficMediator::SetUp() {
   roads_.push_back(r7);
   roads_.push_back(r8);
 
-  for(std::size_t xx = 0; xx < roads_.size(); ++xx) {
-  for(std::size_t yy = xx + 1; yy < roads_.size(); ++yy) {
+  for (std::size_t xx = 0; xx < roads_.size(); ++xx) {
+  for (std::size_t yy = xx + 1; yy < roads_.size(); ++yy) {
     Vector2 col = {};
 
-    if(CheckCollisionLines(roads_[xx]->GetStart(), roads_[xx]->GetEnd(), roads_[yy]->GetStart(), roads_[yy]->GetEnd(), &col)) {
+    if (CheckCollisionLines(roads_[xx]->GetStart(), roads_[xx]->GetEnd(), roads_[yy]->GetStart(), roads_[yy]->GetEnd(), &col)) {
     roads_[xx]->AddRoad(roads_[yy]);
     roads_[yy]->AddRoad(roads_[xx]);
     Intersection* inter = new Intersection(col,roads_[xx],roads_[yy]);
@@ -71,33 +71,33 @@ void TrafficMediator::SetUp() {
     }
   }
 
-  for(Truck* t:trucks_) {
+  for (Truck* t:trucks_) {
     Point p1 = {roads_[xx]->GetStart().x, roads_[xx]->GetStart().y};
     Point p2 = {roads_[xx]->GetEnd().x, roads_[xx]->GetEnd().y};
     Point p3 = {t->GetPosition().x, t->GetPosition().y};
 
-    if(DoIntersect(p1,p2,p3,p3)) {
+    if (DoIntersect(p1,p2,p3,p3)) {
     t->SetCurrentRoad(roads_[xx]);
     }
   }
   }
 
-  for(Road* r: roads_) {
+  for (Road* r: roads_) {
   std::vector<Intersection*> r_ints = r->GetIntersections();
 
   std::vector <InterComp> vec;
 
-  for(Intersection* inter: r_ints) {
+  for (Intersection* inter: r_ints) {
     vec.push_back(InterComp(inter, r->IsHorizontal()));
   }
 
   std::sort(vec.begin(), vec.end(), less_than_key());
 
-  for(std::size_t ii = 0; ii < r_ints.size(); ii++) {
-    if(ii > 0) {
+  for (std::size_t ii = 0; ii < r_ints.size(); ii++) {
+    if (ii > 0) {
     r_ints.at(ii)->AddIntersection(r_ints.at(ii-1));
     } 
-    if(ii < r_ints.size() - 1) {
+    if (ii < r_ints.size() - 1) {
     r_ints.at(ii)->AddIntersection(r_ints.at(ii+1));
     }
   }
@@ -174,16 +174,16 @@ void TrafficMediator::SetUp() {
 }
 
 TrafficMediator::~TrafficMediator() {
-  for(std::size_t ii = 0; ii < roads_.size(); ii++) {
+  for (std::size_t ii = 0; ii < roads_.size(); ii++) {
   delete roads_.at(ii);
   }
-  for(std::size_t i = 0; i < factories_.size(); i++) {
+  for (std::size_t i = 0; i < factories_.size(); i++) {
   delete factories_.at(i);
   }
-  for(Truck* t:trucks_) {
+  for (Truck* t:trucks_) {
   delete t;
   }
-  for(Intersection* inter: intersections_) {
+  for (Intersection* inter: intersections_) {
   delete inter;
   }
 
@@ -191,10 +191,10 @@ TrafficMediator::~TrafficMediator() {
 }
 
 void TrafficMediator::OnTick() {
-  for(Factory* f: factories_) {
+  for (Factory* f: factories_) {
   f->OnTick();
   }
-  for(Truck* t: trucks_) {
+  for (Truck* t: trucks_) {
   t->OnTick();
   }
 
@@ -202,13 +202,13 @@ void TrafficMediator::OnTick() {
 }
 
 void TrafficMediator::Draw() {
-  for(Road* r:roads_) {
+  for (Road* r:roads_) {
   r->Draw();
   }
-  for(Factory* f:factories_) {
+  for (Factory* f:factories_) {
   f->Draw();
   }
-  for(Truck* t: trucks_) {
+  for (Truck* t: trucks_) {
   t->Draw();
   }
 }

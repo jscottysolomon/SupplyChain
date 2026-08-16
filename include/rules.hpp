@@ -69,11 +69,11 @@ public:
   }
 
   bool Evaluate(const RuleContext& context) override {
-    if(context.factory_inv == nullptr) {
+    if (context.factory_inv == nullptr) {
       return false;
     }
 
-    if(!started_) {
+    if (!started_) {
       initial_ = context.factory_inv->GetWidgetQuantity(widget_id_);
       started_ = true;
     }
@@ -94,11 +94,11 @@ public:
     }
 
   bool Evaluate(const RuleContext& context) override {
-    if(context.truck_inv == nullptr) {
+    if (context.truck_inv == nullptr) {
       return false;
     }
 
-    if(!started_) {
+    if (!started_) {
       initial_ = context.truck_inv->GetWidgetQuantity(widget_id_);
       started_ = true;
     }
@@ -111,7 +111,7 @@ public:
 class TruckIsFull : public Rule {
 public:
   bool Evaluate(const RuleContext& context) override {
-    if(context.truck_inv == nullptr)
+    if (context.truck_inv == nullptr)
       return false;
     
     return context.truck_inv->IsFull();
@@ -121,7 +121,7 @@ public:
 class FactoryIsFull : public Rule {
 public:
   bool Evaluate(const RuleContext& context) override {
-    if(context.factory_inv == nullptr)
+    if (context.factory_inv == nullptr)
       return false;
     
     return context.factory_inv->IsFull();
@@ -156,7 +156,7 @@ public:
   }
 
   bool Execute(const RuleContext& context) override {
-    if(context.factory_inv->RemoveWidget(widget_id_)) {
+    if (context.factory_inv->RemoveWidget(widget_id_)) {
       return context.truck_inv->AddWidget(widget_id_); //No Check
     }
     return false;
@@ -173,7 +173,7 @@ public:
   }
 
   bool Execute(const RuleContext& context) override {
-    if(context.truck_inv->RemoveWidget(widget_id_)) {
+    if (context.truck_inv->RemoveWidget(widget_id_)) {
       return context.factory_inv->AddWidget(widget_id_); //No Check
     } else {
       return false;
@@ -221,13 +221,13 @@ public:
   }
   
   bool RuleMet(const RuleContext& context) {
-    if(rule_ == nullptr) return false;
+    if (rule_ == nullptr) return false;
 
     return rule_->Evaluate(context);
   }
 
   bool PerformAction(RuleContext& context) {
-    if(action_ == nullptr) return false;
+    if (action_ == nullptr) return false;
     return action_->Execute(context);
   }
 
@@ -255,25 +255,25 @@ public:
 
   void NextAction() {
     bool successful = false;
-    for(Target* t: targets_) {
-      if(!t->RuleMet(context_)) {
+    for (Target* t: targets_) {
+      if (!t->RuleMet(context_)) {
         successful = t->PerformAction(context_);
       }
-      if(successful) break;
+      if (successful) break;
     }
   }
 
   bool IsDone() {
-    if(targets_.empty()) return false;
+    if (targets_.empty()) return false;
 
-    for(Rule* rule: rules_) {
-      if(rule->Evaluate(context_)) {
+    for (Rule* rule: rules_) {
+      if (rule->Evaluate(context_)) {
         return true;
       }
     }
 
-    for(Target* t: targets_) {
-      if(!t->RuleMet(context_)) {
+    for (Target* t: targets_) {
+      if (!t->RuleMet(context_)) {
         return false;
       }
     }

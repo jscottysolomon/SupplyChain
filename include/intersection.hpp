@@ -27,7 +27,7 @@ class Intersection {
   public:
     Intersection(Vector2 position, Road* r1, Road*r2) {
       position_ = position;
-      if(r1->GetStart().x == r1->GetEnd().x) {
+      if (r1->GetStart().x == r1->GetEnd().x) {
         v_road_ = r1;
         h_road_ = r2;
       } else {
@@ -51,7 +51,7 @@ class Intersection {
     }
 
     Vector2 GetPosition() {return position_;}
-    std::vector<Intersection*> GetIntersections(){return intersections_;}
+    std::vector<Intersection*> GetIntersections() {return intersections_;}
     bool HasRoad(Road* r) {return (h_road_ == r) || (v_road_ == r);}
 
     void OnTick();
@@ -77,10 +77,10 @@ struct less_than_key
 {
   inline bool operator() (const InterComp& struct1, const InterComp& struct2)
   {
-    if(struct1.hor != struct2.hor) {
+    if (struct1.hor != struct2.hor) {
       return true;
     } else {
-      if(struct1.hor) {
+      if (struct1.hor) {
         return(struct1.inter->GetPosition().x < struct2.inter->GetPosition().x);
       } else {
         return(struct1.inter->GetPosition().y < struct2.inter->GetPosition().y);

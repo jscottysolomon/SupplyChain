@@ -38,7 +38,7 @@ class Factory : public Entity {
 			organizer = ReceipeOrganizer::GetInstance();
 		}
 		~Factory() {
-			for(Dock* dock: docks_) {
+			for (Dock* dock: docks_) {
 				delete dock;
 			}
 		}
@@ -66,8 +66,8 @@ class Factory : public Entity {
 		int GetMaxCapacity() { return inventory_.GetMaxCapacity(); }
 
 		Dock* GetDock(Truck* t) {
-			for(Dock* dock: docks_) {
-				if(dock->truck == t) {
+			for (Dock* dock: docks_) {
+				if (dock->truck == t) {
 					return dock;
 				}
 			}
@@ -93,7 +93,7 @@ class Factory : public Entity {
 		void Draw() override {
 			DrawRectangle(position_.x,position_.y,15,15,BLUE);
 
-			for(Dock* d: docks_) {
+			for (Dock* d: docks_) {
 				DrawRectangle(position_.x,position_.y,10,10,RED);
 			}
 		}
@@ -105,8 +105,8 @@ class Factory : public Entity {
 
 		std::set<int> GetRecipeIds() {
 			std::set<int> ret;
-			for(ProductionLine line: production_lines_) {
-				for(std::pair<int,int> p: organizer->GetRecipe(line.id)) {
+			for (ProductionLine line: production_lines_) {
+				for (std::pair<int,int> p: organizer->GetRecipe(line.id)) {
 					ret.insert(p.first);
 				}
 			}
@@ -163,7 +163,7 @@ public:
 	}
 
 	FactoryBuilder& WithLines (std::vector<int> ids) {
-		for(int id: ids) {
+		for (int id: ids) {
 			factory->AddProductionLine(id);
 		}
 		return *this;

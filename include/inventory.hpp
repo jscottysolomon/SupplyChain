@@ -23,9 +23,9 @@ public:
 
   //whitelist is default behavior
   bool IsAllowed(int id) {
-    if(!whitelist_.empty()) {
+    if (!whitelist_.empty()) {
       return whitelist_.count(id) > 0;
-    } else if(!blacklist_.empty()) {
+    } else if (!blacklist_.empty()) {
       return blacklist_.count(id) <= 0;
     }
 
@@ -45,17 +45,17 @@ public:
    * @return amount added
    */
   int AddWidget(int id, int quantity) {
-    if(id < 0) return 0;
-    if(quantity <= 0) return 0;
-    if(used_capacity_ == max_capacity_) return 0;
-    if(!IsAllowed(id)) return 0;
+    if (id < 0) return 0;
+    if (quantity <= 0) return 0;
+    if (used_capacity_ == max_capacity_) return 0;
+    if (!IsAllowed(id)) return 0;
 
-    if(max_capacity_ < used_capacity_ + quantity)  {
+    if (max_capacity_ < used_capacity_ + quantity)  {
       quantity = max_capacity_ - used_capacity_;
     }
 
     //Is this necessary?
-    if(map_.find(id) == map_.end()) {
+    if (map_.find(id) == map_.end()) {
       map_[id] = 0;
     }
 
@@ -85,12 +85,12 @@ public:
    * @return total amount of specified widgets removed from inventory
    */
   int RemoveWidget(int id, int quantity) {
-    if(quantity <= 0) return 0;
-    if(!Contains(id)) return 0;
-    if(map_.find(id) == map_.end()) {
+    if (quantity <= 0) return 0;
+    if (!Contains(id)) return 0;
+    if (map_.find(id) == map_.end()) {
       return false;
     }
-    if(quantity > map_[id]) {
+    if (quantity > map_[id]) {
       quantity = map_[id] - quantity;
     }
     map_[id] -= quantity;
@@ -103,7 +103,7 @@ public:
   }
 
   int GetWidgetQuantity(int id) {
-    if(!Contains(id)) return 0;
+    if (!Contains(id)) return 0;
     return map_[id];
   }
 
@@ -120,7 +120,7 @@ public:
   }
 
   void Blacklist(int id) {
-    if(whitelist_.size() > 0) return;
+    if (whitelist_.size() > 0) return;
 
     blacklist_.insert(id);
   }
@@ -173,7 +173,7 @@ public:
     used_capacity_ = 0;
     map_.clear();
     
-    for(std::pair<int,int> p: inv) {
+    for (std::pair<int,int> p: inv) {
       used_capacity_ += p.second;
     }
 
