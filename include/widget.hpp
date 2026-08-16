@@ -81,10 +81,10 @@ public:
 	}
 
 	static ReceipeOrganizer* GetInstance() {
-        if (obj == nullptr)
-            obj = new ReceipeOrganizer();
-        return obj;
-    }
+    if (obj == nullptr)
+      obj = new ReceipeOrganizer();
+    return obj;
+  }
 
 	std::string GetWidgetName(int id) {
 		if(widgets_.find(id) != widgets_.end()) {
@@ -96,7 +96,7 @@ public:
 
 	// static std::string GetNameStatic(int id) {
 	// 	if (obj == nullptr)
-    //         obj = new ReceipeOrganizer();
+  //     obj = new ReceipeOrganizer();
 	// 	return obj->GetWidgetName(id);
 	// }
 
@@ -122,7 +122,7 @@ public:
 	}
 
 private:
-    static ReceipeOrganizer* obj;
+  static ReceipeOrganizer* obj;
 	std::unordered_map<int,Widget> widgets_;
 	int next_id_;
 	void SetUp() {

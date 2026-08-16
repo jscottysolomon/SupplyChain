@@ -20,30 +20,30 @@ class TrafficControl;
 
 class TrafficMediator {
   public:
-    std::vector<Intersection*> GetIntersections() {
-      return intersections_;
-    }
-    std::vector<Truck*> GetTrucks() {
-      return trucks_;
-    }
-    void AddIntersection(Intersection* inter) {
-      intersections_.push_back(inter);
-    }
-    TrafficMediator() {
-      SetUp();
-    }
-    ~TrafficMediator();
+  std::vector<Intersection*> GetIntersections() {
+    return intersections_;
+  }
+  std::vector<Truck*> GetTrucks() {
+    return trucks_;
+  }
+  void AddIntersection(Intersection* inter) {
+    intersections_.push_back(inter);
+  }
+  TrafficMediator() {
+    SetUp();
+  }
+  ~TrafficMediator();
 
-    void OnTick();
+  void OnTick();
 
-    void Draw();
+  void Draw();
   private:
-    void SetUp();
-    std::vector<Intersection*> intersections_;
-    std::vector<Road*> roads_;
-    std::vector<Factory*> factories_;
-    std::vector<Truck*> trucks_;
-    TrafficControl* controller_;
+  void SetUp();
+  std::vector<Intersection*> intersections_;
+  std::vector<Road*> roads_;
+  std::vector<Factory*> factories_;
+  std::vector<Truck*> trucks_;
+  TrafficControl* controller_;
 };
 
 #endif

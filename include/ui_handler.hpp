@@ -8,25 +8,25 @@
 #include "traffic_mediator.hpp"
 
 class UiHandler {
-    public:
-    UiHandler(TrafficMediator& traffic)
-        : controller_(traffic), truck_(nullptr), truck_id_(-1),
-            factory_(nullptr), factory_id_(-1) {
-                trucks_ = traffic.GetTrucks();
-                truck_index_ = 0;
-                organizer_ = ReceipeOrganizer::GetInstance();
-        }
-        void RenderUi();
-        void TruckWidget();
-    private:
-        TrafficMediator& controller_;
-        Truck* truck_;
-        int truck_id_;
-        Factory* factory_;
-        int factory_id_;
-        std::size_t truck_index_;
-        std::vector<Truck*> trucks_;
-        ReceipeOrganizer* organizer_;
+  public:
+  UiHandler(TrafficMediator& traffic)
+    : controller_(traffic), truck_(nullptr), truck_id_(-1),
+      factory_(nullptr), factory_id_(-1) {
+        trucks_ = traffic.GetTrucks();
+        truck_index_ = 0;
+        organizer_ = ReceipeOrganizer::GetInstance();
+    }
+    void RenderUi();
+    void TruckWidget();
+  private:
+    TrafficMediator& controller_;
+    Truck* truck_;
+    int truck_id_;
+    Factory* factory_;
+    int factory_id_;
+    std::size_t truck_index_;
+    std::vector<Truck*> trucks_;
+    ReceipeOrganizer* organizer_;
 };
 
 #endif

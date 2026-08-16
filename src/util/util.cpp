@@ -6,7 +6,7 @@
 clock_t current_time;
 
 void SetGlobalTime() {
-    current_time = clock();
+  current_time = clock();
 }
 
 /**
@@ -14,7 +14,7 @@ void SetGlobalTime() {
  * @return global tick time
  */
 clock_t GetGlobalTime() {
-    return current_time;
+  return current_time;
 }
 
 // Given three colinear points p, q, r, the function checks if 

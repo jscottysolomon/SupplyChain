@@ -15,95 +15,95 @@
 Vertex* GetVertex(std::vector<Vertex*> vertices, Intersection* intersection);
 
 std::queue<Intersection*> TrafficControl::RequestRoute(Intersection* src, Intersection* dest) {
-    std::vector<Vertex*> vertices = Dijkstra(src);
-    std::vector<Intersection*> route;
+  std::vector<Vertex*> vertices = Dijkstra(src);
+  std::vector<Intersection*> route;
 
-    Vertex* v = GetVertex(vertices,dest);
+  Vertex* v = GetVertex(vertices,dest);
 
-    while(v != nullptr) {
-        route.push_back(v->inter);
-        v = v->prev;
-    }
+  while(v != nullptr) {
+    route.push_back(v->inter);
+    v = v->prev;
+  }
 
-    for(Vertex* v: vertices) {
-        delete v;
-    }
+  for(Vertex* v: vertices) {
+    delete v;
+  }
 
-    std::queue<Intersection*> ret;
+  std::queue<Intersection*> ret;
 
-    for (auto it = route.rbegin(); it != route.rend(); ++it) {
-        ret.push(*it);
-    }
+  for (auto it = route.rbegin(); it != route.rend(); ++it) {
+    ret.push(*it);
+  }
 
-    return ret;
+  return ret;
 }
 
 std::vector<Vertex*> TrafficControl::Dijkstra(Intersection* src)
 {
 
-    std::vector<Vertex*> vertices;
-    std::vector<Vertex*> unvisited;
+  std::vector<Vertex*> vertices;
+  std::vector<Vertex*> unvisited;
 
-    int sizee = intersections_.size();
+  int sizee = intersections_.size();
 
-    for(Intersection* inter: intersections_) {
-        struct Vertex* v = new Vertex;
-        v->inter = inter;
-        v->dist = FLT_MAX;
-        v->prev = nullptr;
-        
-        if(inter == src) {
-            v->dist = 0;
-        }
-
-        vertices.push_back(v);
-        unvisited.push_back(v);
+  for(Intersection* inter: intersections_) {
+    struct Vertex* v = new Vertex;
+    v->inter = inter;
+    v->dist = FLT_MAX;
+    v->prev = nullptr;
+    
+    if(inter == src) {
+      v->dist = 0;
     }
 
-    while(!unvisited.empty()) {
-        //finding lowest distance of unvisited Vertex
-        int rmv = 0;
-        Vertex* u = unvisited[0];
-        for(std::size_t ii = 0; ii < unvisited.size(); ii++) {
-            if(unvisited.at(ii)->dist < u->dist) {
-                u = unvisited.at(ii);
-                rmv = ii;
-            }
-        }
+    vertices.push_back(v);
+    unvisited.push_back(v);
+  }
 
-        //swap and pop
-        unvisited[rmv] = unvisited.back();
-        unvisited.pop_back();
-
-        //Updating u's neighbors
-        for(Intersection* inter: u->inter->GetIntersections()) {
-            Vertex* neighbor = GetVertex(vertices,inter);
-
-            if(neighbor != nullptr) {
-                float alt = u->dist + Vector2Distance(u->inter->GetPosition(), 
-                    neighbor->inter->GetPosition());
-
-                if(alt < neighbor->dist) {
-                    neighbor->dist = alt;
-                    neighbor->prev = u;
-                }
-            }
-        }
+  while(!unvisited.empty()) {
+    //finding lowest distance of unvisited Vertex
+    int rmv = 0;
+    Vertex* u = unvisited[0];
+    for(std::size_t ii = 0; ii < unvisited.size(); ii++) {
+      if(unvisited.at(ii)->dist < u->dist) {
+        u = unvisited.at(ii);
+        rmv = ii;
+      }
     }
 
-    return vertices;
+    //swap and pop
+    unvisited[rmv] = unvisited.back();
+    unvisited.pop_back();
+
+    //Updating u's neighbors
+    for(Intersection* inter: u->inter->GetIntersections()) {
+      Vertex* neighbor = GetVertex(vertices,inter);
+
+      if(neighbor != nullptr) {
+        float alt = u->dist + Vector2Distance(u->inter->GetPosition(), 
+          neighbor->inter->GetPosition());
+
+        if(alt < neighbor->dist) {
+          neighbor->dist = alt;
+          neighbor->prev = u;
+        }
+      }
+    }
+  }
+
+  return vertices;
 }
 
 Vertex* GetVertex(std::vector<Vertex*> vertices, Intersection* intersection) {
-    for(Vertex* v: vertices) {
-        if(v->inter == intersection) {
-            return v;
-        }
+  for(Vertex* v: vertices) {
+    if(v->inter == intersection) {
+      return v;
     }
+  }
 
-    return nullptr;
+  return nullptr;
 }
 
 Dock* TrafficControl::RequestDock(Factory* factory, Truck* truck) {
-    return factory->DockRequest(truck);
+  return factory->DockRequest(truck);
 }

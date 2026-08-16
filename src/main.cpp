@@ -50,12 +50,12 @@ Color background = {56,24,35,225};
 // DPI scaling functions
 float ScaleToDPIF(float value)
 {
-    return GetWindowScaleDPI().x * value;
+  return GetWindowScaleDPI().x * value;
 }
 
 int ScaleToDPII(int value)
 {
-    return int(GetWindowScaleDPI().x * value);
+  return int(GetWindowScaleDPI().x * value);
 }
 
 /**
@@ -65,50 +65,50 @@ int ScaleToDPII(int value)
  */
 int main(void)
 {
-    signal(SIGSEGV, segfault_handler);
-    SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT | FLAG_WINDOW_RESIZABLE);
+  signal(SIGSEGV, segfault_handler);
+  SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT | FLAG_WINDOW_RESIZABLE);
 
-    /*Graphics*/
-    InitWindow(1200, 800, "SupplyChain");
+  /*Graphics*/
+  InitWindow(1200, 800, "SupplyChain");
 
-    // if(!IsWindowFullscreen()) ToggleFullscreen();
-    SetTargetFPS(TICK_RATE);
+  // if(!IsWindowFullscreen()) ToggleFullscreen();
+  SetTargetFPS(TICK_RATE);
 
-    SetGlobalTime();
-    TrafficMediator traffic;
-    UiHandler uiHandler(traffic);
+  SetGlobalTime();
+  TrafficMediator traffic;
+  UiHandler uiHandler(traffic);
 
-    rlImGuiSetup(true);
+  rlImGuiSetup(true);
 
-    #ifdef IMGUI_HAS_DOCK
-        ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    #endif
+  #ifdef IMGUI_HAS_DOCK
+    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+  #endif
 
 
-    while (!WindowShouldClose())
-    {
-        if(IsWindowResized()) {
+  while (!WindowShouldClose())
+  {
+    if(IsWindowResized()) {
 
-        }
-        traffic.OnTick();
-
-        BeginDrawing();
-            ClearBackground(background);
-            traffic.Draw();
-
-            rlImGuiBegin();
-                uiHandler.RenderUi();
-            rlImGuiEnd();
-            // DrawRectangle(GetMousePosition().x,GetMousePosition().y,5,5,WHITE);
-        EndDrawing();
     }
+    traffic.OnTick();
 
-    rlImGuiShutdown();
-    CloseWindow();
+    BeginDrawing();
+      ClearBackground(background);
+      traffic.Draw();
 
-    return 0;
+      rlImGuiBegin();
+        uiHandler.RenderUi();
+      rlImGuiEnd();
+      // DrawRectangle(GetMousePosition().x,GetMousePosition().y,5,5,WHITE);
+    EndDrawing();
+  }
+
+  rlImGuiShutdown();
+  CloseWindow();
+
+  return 0;
 }
 
 void segfault_handler(int signal) {
-    exit(EXIT_FAILURE); 
+  exit(EXIT_FAILURE); 
 }
