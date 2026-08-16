@@ -57,13 +57,13 @@ class Factory : public Entity {
 		Intersection* GetIntersection() {return intersection_;}
 		std::unordered_map<int,int> GetInventoryMap()
 			{return inventory_.GetInventoryMap();}
-		Inventory* GetInventory() {
-			return &inventory_;
-		}
-		void SetInventory(std::unordered_map<int,int> inv) 
-		{
-			inventory_.SetInventory(inv);
-		}
+
+		/*Inventory Wrapper*/
+		Inventory* GetInventory() { return &inventory_; }
+		void SetInventory(std::unordered_map<int,int> inv) { inventory_.SetInventory(inv); }
+		int GetAvailableCapacity() { return inventory_.GetAvailableCapacity(); }
+		int GetWidgetQuantity(int id) { return inventory_.GetWidgetQuantity(id); }
+		int GetMaxCapacity() { return inventory_.GetMaxCapacity(); }
 
 		Dock* GetDock(Truck* t) {
 			for(Dock* dock: docks_) {
@@ -74,7 +74,7 @@ class Factory : public Entity {
 			return nullptr;
 		}
 
-		void AddDock(Vector2 pos, Truck* t){
+		void AddDock(Vector2 pos, Truck* t) {
 			struct Dock* dock = new Dock;
 
 			dock->position = pos;

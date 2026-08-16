@@ -101,24 +101,25 @@ public:
 	// }
 
 	bool ProduceWidget(Inventory* inv, int id) {
-		bool satisfied = true;
+		// bool satisfied = true;
 		
-		//Checking inventory has required amount for widgets
-		for(std::pair<int, int> p: widgets_[id].inputs) {
-			if(inv->WidgetQuantity(p.first) < p.second) {
-				satisfied = false;
-			}
-		}
+		// //Checking inventory has required amount for widgets
+		// for(std::pair<int, int> p: widgets_[id].inputs) {
+		// 	if(inv->GetWidgetQuantity(p.first) < p.second) {
+		// 		satisfied = false;
+		// 	}
+		// }
 
-		if(!satisfied) return satisfied;
+		// if(!satisfied) return satisfied;
 
-		for(std::pair<int, int> p: widgets_[id].inputs) {
-			inv->RemoveWidget(p.first,p.second);
-		}
+		// for(std::pair<int, int> p: widgets_[id].inputs) {
+		// 	inv->RemoveWidget(p.first,p.second);
+		// }
 
-		inv->AddWidget(id,widgets_[id].output_amount);
+		// inv->AddWidget(id,widgets_[id].output_amount);
 
-		return satisfied;
+		// return satisfied;
+		return false;
 	}
 
 private:

@@ -27,6 +27,10 @@ class Rule {
 public:
   virtual ~Rule() = default;
 
+  virtual int GetProgress() {
+    return 0;
+  }
+
   virtual bool Evaluate(const RuleContext& context) = 0;
 };
 
@@ -55,9 +59,9 @@ protected:
 ////////////////////////////////////////////////////////
 
 // fill till x amount of W in factory inv
-class FactoryWidgetAtLeast : public AmountRule {
+class ReceiveQuantity : public AmountRule {
 public:
-  FactoryWidgetAtLeast(int widget_id, int amount, int init) {
+  ReceiveQuantity(int widget_id, int amount, int init) {
     amount_ = amount;
     widget_id_ = widget_id;
     initial_ = init;
@@ -70,19 +74,19 @@ public:
     }
 
     if(!started_) {
-      initial_ = context.factory_inv->WidgetQuantity(widget_id_);
+      initial_ = context.factory_inv->GetWidgetQuantity(widget_id_);
       started_ = true;
     }
 
-    return context.factory_inv->WidgetQuantity(widget_id_)
+    return context.factory_inv->GetWidgetQuantity(widget_id_)
       >= (initial_ + amount_);
   }
 };
 
 // fill till x amount of W in truck inv
-class TruckWidgetAtLeast : public AmountRule {
+class DispatchQuantity : public AmountRule {
 public:
-  TruckWidgetAtLeast(int widget_id, int amount, int init) {
+  DispatchQuantity(int widget_id, int amount, int init) {
       widget_id_ = widget_id;
       amount_ = amount;
       initial_ = init; //This is based on when the rule was created, not when it starts
@@ -95,11 +99,11 @@ public:
     }
 
     if(!started_) {
-      initial_ = context.truck_inv->WidgetQuantity(widget_id_);
+      initial_ = context.truck_inv->GetWidgetQuantity(widget_id_);
       started_ = true;
     }
 
-    return context.truck_inv->WidgetQuantity(widget_id_)
+    return context.truck_inv->GetWidgetQuantity(widget_id_)
       >= (initial_ + amount_);
   }
 };
@@ -139,15 +143,15 @@ class UntilFactoryUnloadsAmt: public Rule {
 class Action {
 public:
   virtual ~Action() = default;
-  // virtual void GetProgress();
+  // virtual int GetProgress() = 0;
 
   virtual bool Execute(const RuleContext& context) = 0;
 };
 
 
-class TruckLoadWidget : public Action {
+class DispatchWidget : public Action {
 public:
-  TruckLoadWidget(int widget_id)
+  DispatchWidget(int widget_id)
     : widget_id_(widget_id) {
   }
 
@@ -162,9 +166,9 @@ private:
   int widget_id_;
 };
 
-class TruckUnLoadWidget : public Action {
+class ReceiveWidgets : public Action {
 public:
-  TruckUnLoadWidget(int widget_id)
+  ReceiveWidgets(int widget_id)
     : widget_id_(widget_id) {
   }
 

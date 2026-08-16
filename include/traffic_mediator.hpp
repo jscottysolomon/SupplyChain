@@ -26,6 +26,10 @@ class TrafficMediator {
   std::vector<Truck*> GetTrucks() {
     return trucks_;
   }
+  std::vector<Factory*> GetFactories() {
+    return factories_;
+  }
+
   void AddIntersection(Intersection* inter) {
     intersections_.push_back(inter);
   }

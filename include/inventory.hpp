@@ -102,7 +102,7 @@ public:
     return RemoveWidget(id,1);
   }
 
-  int WidgetQuantity(int id) {
+  int GetWidgetQuantity(int id) {
     if(!Contains(id)) return 0;
     return map_[id];
   }

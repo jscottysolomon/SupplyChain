@@ -46,19 +46,11 @@ class Truck : public Entity {
 			DrawRectangle(position_.x,position_.y,8,8,PINK);
 		}
 		//Getters & Setters
-		Road* GetCurrentRoad() 
-			{return current_road_;}
-		void SetCurrentRoad(Road* r) 
-			{current_road_ = r;}
+		Road* GetCurrentRoad() { return current_road_; }
+		void SetCurrentRoad(Road* r) { current_road_ = r; }
 
-		int GetMaxCapacity() 
-			{return inventory_.GetMaxCapacity();}
-		int GetAvailableCapacity() 
-			{return inventory_.GetAvailableCapacity();}
-		std::vector<Factory*> GetStops() 
-			{return stops_;}
-		std::vector<Factory*> GetSchedule() 
-			{return schedule_;}
+		std::vector<Factory*> GetStops() { return stops_; }
+		std::vector<Factory*> GetSchedule() { return schedule_;}
 		
 		void AddStop(Factory* factory);
 		void AddStop(std::vector<Factory*> factories);
@@ -69,21 +61,15 @@ class Truck : public Entity {
 			}
 		}
 
-		void SetInventory(std::unordered_map<int,int> inv) {
-			inventory_.SetInventory(inv);
-		}
+		/*Inventory Wrapper*/
+		void SetInventory(std::unordered_map<int,int> inv) { inventory_.SetInventory(inv); }
+		std::unordered_map<int,int> GetInventoryMap() { return inventory_.GetInventoryMap(); }
+		Inventory* GetInventory() { return &inventory_; }
+		int GetWidgetQuantity(int id) { return inventory_.GetWidgetQuantity(id); }
+		int GetMaxCapacity() {return inventory_.GetMaxCapacity(); }
+		int GetAvailableCapacity() { return inventory_.GetAvailableCapacity(); }
 
-		std::unordered_map<int,int> GetInventoryMap() {
-			return inventory_.GetInventoryMap();
-		}
-
-		Inventory* GetInventory() {
-			return &inventory_;
-		}
-
-		bool IsState(TruckState state) {
-			return state_ == state;
-		}
+		bool IsState(TruckState state) { return state_ == state; }
 
 		Plan* GetPlan(int id) {
 			if(plans_.find(id) != plans_.end()) {
@@ -93,13 +79,7 @@ class Truck : public Entity {
 			return nullptr;
 		}
 
-		int GetWidgetAmount(int id) {
-			return inventory_.WidgetQuantity(id);
-		}
-
-		RuleContext& GetContext(int id) {
-			return contexts_.at(id);
-		}
+		RuleContext& GetContext(int id) { return contexts_.at(id); }
 	private:
 		/*Internal State*/
 		int capacity_;		//widgets capacity
@@ -142,9 +122,7 @@ class Truck : public Entity {
 		void Receive();
 		void Dispatch();
 		void Stall();
-		void Drive();
-
-		
+		void Drive();		
 
 		//Functions
 };

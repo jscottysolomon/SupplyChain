@@ -13,19 +13,27 @@ class UiHandler {
     : controller_(traffic), truck_(nullptr), truck_id_(-1),
       factory_(nullptr), factory_id_(-1) {
         trucks_ = traffic.GetTrucks();
+        factories_ = traffic.GetFactories();
         truck_index_ = 0;
+        factory_index_ = 0;
         organizer_ = ReceipeOrganizer::GetInstance();
     }
     void RenderUi();
     void TruckWidget();
+    void FactoryWidget();
   private:
     TrafficMediator& controller_;
-    Truck* truck_;
-    int truck_id_;
-    Factory* factory_;
-    int factory_id_;
-    std::size_t truck_index_;
+
     std::vector<Truck*> trucks_;
+    Truck* truck_;
+    std::size_t truck_index_;
+    int truck_id_;
+
+    std::vector<Factory*> factories_;
+    Factory* factory_;
+    std::size_t factory_index_;
+    int factory_id_;
+    
     ReceipeOrganizer* organizer_;
 };
 
