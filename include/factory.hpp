@@ -25,7 +25,9 @@ struct Dock {
 };
 
 struct ProductionLine {
-	clock_t last_production;
+	double last_production;		//last time something was procduced
+	double production_start; 	//when productino of item started
+	float efficienty = 1.0;
 	int id;
 };
 
@@ -86,7 +88,7 @@ class Factory : public Entity {
 		}
 
 		void AddProductionLine(int id) {
-			production_lines_.push_back({-1,id});
+			production_lines_.push_back({-1,-1,1.0,id});
 		}
 
 		//Entity Functions

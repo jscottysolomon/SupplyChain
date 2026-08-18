@@ -1,8 +1,9 @@
 #ifndef RULES_HPP
 #define RULES_HPP
 
-#include <vector>
+#include <algorithm>
 #include <set>
+#include <vector>
 
 #include "widget.hpp"
 #include "inventory.hpp"
@@ -36,8 +37,21 @@ public:
 
 class AmountRule: public Rule {
 public:
+  AmountRule() {
+    step_ = 5;
+  }
+
   void SetAmount(int amount) {
     amount_ = amount;
+  }
+
+  virtual void DecreaseAmount() {
+    amount_ = (amount_ - step_ > 0) 
+        ? amount_ - step_
+        : 0;
+  }
+  virtual void IncreaseAmount() {
+    amount_ += step_;
   }
 
   int GetWidgetId() {
@@ -51,6 +65,7 @@ protected:
   int amount_;
   int widget_id_;
   int initial_;
+  int step_;
   bool started_;
 };
 
@@ -61,10 +76,10 @@ protected:
 // fill till x amount of W in factory inv
 class ReceiveQuantity : public AmountRule {
 public:
-  ReceiveQuantity(int widget_id, int amount, int init) {
+  ReceiveQuantity(int widget_id, int amount) {
     amount_ = amount;
     widget_id_ = widget_id;
-    initial_ = init;
+    initial_ = -1;
     started_ = false;
   }
 
@@ -86,10 +101,10 @@ public:
 // fill till x amount of W in truck inv
 class DispatchQuantity : public AmountRule {
 public:
-  DispatchQuantity(int widget_id, int amount, int init) {
+  DispatchQuantity(int widget_id, int amount) {
       widget_id_ = widget_id;
       amount_ = amount;
-      initial_ = init; //This is based on when the rule was created, not when it starts
+      initial_ = -1; //This is based on when the rule was created, not when it starts
       started_ = false;
     }
 
@@ -166,9 +181,9 @@ private:
   int widget_id_;
 };
 
-class ReceiveWidgets : public Action {
+class ReceiveWidget : public Action {
 public:
-  ReceiveWidgets(int widget_id)
+  ReceiveWidget(int widget_id)
     : widget_id_(widget_id) {
   }
 
@@ -251,6 +266,11 @@ public:
   void AddTarget(Rule* rule, Action* action) {
     Target* t = new Target(rule,action);
     targets_.push_back(t);
+  }
+
+  void RemoveTarget(Target* t) {
+    if(t == nullptr) return;
+    targets_.erase(std::find(targets_.begin(), targets_.end(), t));
   }
 
   void NextAction() {

@@ -80,6 +80,11 @@ class Truck : public Entity {
 		}
 
 		RuleContext& GetContext(int id) { return contexts_.at(id); }
+		void RemoveTarget(Target* t, int factory_id) {
+			Plan* p = plans_.at(factory_id);
+			
+			p->RemoveTarget(t);
+		}
 	private:
 		/*Internal State*/
 		int capacity_;		//widgets capacity

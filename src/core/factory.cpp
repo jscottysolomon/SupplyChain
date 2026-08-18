@@ -22,13 +22,16 @@ void Factory::DockOnTick() {
 
 void Factory::Produce() {
   if (organizer == nullptr) return;
-  for (ProductionLine line: production_lines_) {
-    if ((GetGlobalTime() - line .last_production)  / CLOCKS_PER_SEC < organizer->GetProductionTime(line.id)) {
-      return;
-    }
-    if (organizer->ProduceWidget(&inventory_,line.id)) {
-      line.last_production = GetGlobalTime();
-      return;
+
+  for (ProductionLine& line: production_lines_) {
+    if(line.id < 0) { continue; }
+
+    if (line.last_production < 0) {
+      line.last_production = line.production_start = GetGlobalTime();
+    } else if (organizer->ProduceWidget(line.id,&inventory_, 
+        line.production_start, line.last_production)) {
+          line.last_production = GetGlobalTime();
+          line.production_start = GetGlobalTime();
     }
   }
 }

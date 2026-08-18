@@ -74,7 +74,7 @@ int main(void)
   // if (!IsWindowFullscreen()) ToggleFullscreen();
   SetTargetFPS(TICK_RATE);
 
-  SetGlobalTime();
+  // SetGlobalTime();
   TrafficMediator traffic;
   UiHandler uiHandler(traffic);
 

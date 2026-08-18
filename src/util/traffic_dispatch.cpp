@@ -134,7 +134,7 @@ void TrafficMediator::SetUp() {
   .WithDock({645,130}, nullptr)
   .WithDock({645,135}, nullptr)
   .WithInventory(inv)
-  .WithLines({1,1})
+  .WithLines({3,4})
   .Build();   // top-right corner
 
   Factory* f5 = FactoryBuilder({330,150})
@@ -142,7 +142,7 @@ void TrafficMediator::SetUp() {
   .WithDock({345,150}, nullptr)
   .WithDock({330,160}, nullptr)
   .WithInventory(inv)
-  .WithLines({5,6})
+  .WithLines({3,4})
   .Build();   // left edge
 
   Factory* f6 = FactoryBuilder({530,120})

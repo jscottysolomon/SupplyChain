@@ -12,19 +12,12 @@
 #include <algorithm>
 #include <time.h>
 
-// static clock_t current_time; /*Global system time during current tick*/
-extern clock_t current_time;
+double GetGlobalTime();
 
-/** +
- * Global current time for each tick
- */
-void SetGlobalTime();
+void PauseGlobalTime();
+void ResumeGlobalTime();
 
-/**
- * @brief returns global tick time
- * @return global tick time
- */
-clock_t GetGlobalTime();
+bool IsGlobalTimePaused();
 
 struct Point 
 { 

@@ -3,18 +3,51 @@
 #include <algorithm>
 #include <time.h>
 
-clock_t current_time;
+#include <chrono>
 
-void SetGlobalTime() {
-  current_time = clock();
+using Clock = std::chrono::steady_clock;
+
+static Clock::time_point global_start_time = Clock::now();
+static Clock::time_point pause_time;
+
+static Clock::duration paused_duration{0};
+
+static bool global_paused = false;
+
+
+double GetGlobalTime() {
+    auto now = global_paused
+        ? pause_time
+        : Clock::now();
+
+    return std::chrono::duration<double>(
+        now - global_start_time - paused_duration
+    ).count();
 }
 
-/**
- * @brief returns global tick time
- * @return global tick time
- */
-clock_t GetGlobalTime() {
-  return current_time;
+
+void PauseGlobalTime() {
+    if (global_paused) {
+        return;
+    }
+
+    pause_time = Clock::now();
+    global_paused = true;
+}
+
+
+void ResumeGlobalTime() {
+    if (!global_paused) {
+        return;
+    }
+
+    paused_duration += Clock::now() - pause_time;
+    global_paused = false;
+}
+
+
+bool IsGlobalTimePaused() {
+    return global_paused;
 }
 
 // Given three colinear points p, q, r, the function checks if 

@@ -10,9 +10,12 @@ widget.hpp
 #include <vector>
 #include <set>
 
-#include "inventory.hpp"
+#include <raylib.h>
 
-#define BASE_PRODUCTION_TIME 100
+#include "inventory.hpp"
+#include <util.hpp>
+
+#define BASE_PRODUCTION_TIME 5
 #define FIRST_ID 1
 
 struct Widget {
@@ -20,8 +23,9 @@ struct Widget {
 	int capacity_unit = 1;
 	std::string name;
 	std::unordered_map<int, int> inputs; //id,quantity
+	int input_amount;
 	int output_amount;
-	float production_time;
+	double production_time;
 };
 
 class ReceipeOrganizer {
@@ -35,22 +39,28 @@ public:
 		return CreateWidget(name, {}, 1, BASE_PRODUCTION_TIME);
 	}
 
-	int CreateWidget(std::string name, std::unordered_map<int,int> inputs, int output, float time) {
-		Widget w = {next_id_++,1,name,inputs,output,time};
+	int CreateWidget(std::string name, std::unordered_map<int,int> inputs, int output, double time) {
+		int input_amt = 0;
+		for(std::pair<int,int> p: inputs) {
+			input_amt += p.second;
+		}
+
+		Widget w = {next_id_++,1,name,inputs,input_amt,output,time};
 		widgets_[w.id] = w;
+
 		return w.id;
 	}
 
-	int CreateWidget(std::string name, std::unordered_map<int,int> inputs, float time) {
+	int CreateWidget(std::string name, std::unordered_map<int,int> inputs, double time) {
 		return CreateWidget(name, inputs, 1, time);
 	}
 
-	int CreateWidget(std::string name, int id, float time) {
+	int CreateWidget(std::string name, int id, double time) {
 		std::unordered_map<int,int> inputs = {{id,1}};
 		return CreateWidget(name, inputs, 1, time);
 	}
 
-	int CreateWidget(std::string name, float time) {
+	int CreateWidget(std::string name, double time) {
 		return CreateWidget(name, {}, 1, time);
 	}
 
@@ -76,7 +86,7 @@ public:
 		return 0;
 	}
 
-	float GetProductionTime(int id) {
+	double GetProductionTime(int id) {
 		return widgets_[id].production_time;
 	}
 
@@ -92,6 +102,40 @@ public:
 		}
 		
 		return "Invalid";
+	}
+
+	bool ProduceWidget(int id, Inventory* inv, double start_time, double last_production) {
+		if(widgets_.find(id) == widgets_.end()) { return false; }
+		if (start_time < 0) { return false; }
+
+		Widget w = widgets_.at(id);
+		double elapsed = GetGlobalTime() - last_production;
+    if (elapsed < w.production_time) {
+        return false;
+    }
+
+		if ((inv->GetAvailableCapacity() + w.input_amount - 
+			w.output_amount) < 0) {
+			return false;
+		}
+
+		for (std::pair<int, int> p: w.inputs) {
+			if (inv->GetWidgetQuantity(p.first) < p.second) {
+				return false;
+			}
+		}
+
+		for (std::pair<int, int> p: w.inputs) {
+			if (inv->RemoveWidget(p.first, p.second) != p.second) {
+				TraceLog(LOG_WARNING, "Tried to remove too many widgets!");
+			}
+		}
+
+		if(w.output_amount != inv->AddWidget(id, w.output_amount)) {
+			TraceLog(LOG_WARNING, "Correct amt of widgets not made!");
+		}
+
+		return true;
 	}
 
 	// static std::string GetNameStatic(int id) {
@@ -141,10 +185,10 @@ private:
 
 		/*Metal Processing*/
 		int iron_plate = CreateWidget("Iron Plate");
-		int steel_coil = CreateWidget("Steel Coil",{{iron_plate,2}, {coal,1}},500);
-		int steel_bar = CreateWidget("Steel Bar",{{iron_plate,2}, {coal,1}},200);
-		int bolts = CreateWidget("Bolts",{{iron_plate,2}},50);
-		int screws = CreateWidget("Screws",{{iron_plate,2}},50);
+		int steel_coil = CreateWidget("Steel Coil",{{iron_plate,2}, {coal,1}},2);
+		int steel_bar = CreateWidget("Steel Bar",{{iron_plate,2}, {coal,1}},2);
+		int bolts = CreateWidget("Bolts",{{iron_plate,2}},3);
+		int screws = CreateWidget("Screws",{{iron_plate,2}},3);
 		int copper_plating = CreateWidget("Copper Plating",{{copper_ore,1}}, BASE_PRODUCTION_TIME*10);
 
 		/*Chemicals */

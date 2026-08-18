@@ -30,6 +30,13 @@ bool Style(Rule* rule, Truck* truck, Factory* factory) {
   return false;
 }
 
+std::string CreateUniqueId(std::string name, Truck* t, Factory* f, int id) {
+  std::string str = name + "##" + "T" + std::to_string(t->GetId()) +  
+      "F" + std::to_string(f->GetId()) + "W" + std::to_string(id);
+
+  return str;
+}
+
 void StyleEnd(bool style) {
   if (style) ImGui::PopStyleColor();
 }
@@ -48,6 +55,18 @@ void UiHandler::FactoryWidget() {
       ImGuiWindowFlags_NoCollapse);
   ImGui::Text("ID: %d", factory_->GetId());
   ImGui::Text("Capacity: %d/%d", factory_->GetAvailableCapacity(), factory_->GetMaxCapacity());
+
+  for (std::pair<int,int> inv : factory_->GetInventoryMap()) {
+    ImGui::Text("%s[%d]: %d\n", organizer_->GetWidgetName(inv.first).c_str(), inv.first, inv.second);
+  }
+
+  if (ImGui::Button("Next")) {
+    factory_index_++;
+    if (factory_index_ >= factories_.size()) {
+      factory_index_ = 0;
+    }
+    factory_ = factories_.at(factory_index_);
+  }
   
   ImGui::End();
 }
@@ -67,15 +86,18 @@ void UiHandler::TruckWidget() {
   ImGui::Text("ID: %d", truck_->GetId());
   ImGui::Text("Capacity: %d/%d", truck_->GetAvailableCapacity(), truck_->GetMaxCapacity());
 
+  //TODO: use table for displaying targets & functions to reduce redundancy
   if (ImGui::BeginTabBar("Tabs")) {
-    if (ImGui::BeginTabItem("Schedule"))
-    {
+    if (ImGui::BeginTabItem("Schedule")) {
       int i = 0;
       for (Factory* f: truck_->GetSchedule()) {
         if (f == nullptr) continue;
 
         Plan* p = truck_->GetPlan(f->GetId());
+        RuleContext& context = truck_->GetContext(f->GetId());
         bool style = false;
+        std::string str = "";
+        std::vector<Target*> removals_;
 
         ImGui::Text("Factory ID: %d", f->GetId());
         ImGui::PushID(i);
@@ -84,19 +106,27 @@ void UiHandler::TruckWidget() {
         }
 
         if (ImGui::BeginPopup("my popup")) {
-          if (ImGui::Selectable("Dispatch Item")) {
-            if (p != nullptr) {
-              int id = 1;
-              RuleContext& context = truck_->GetContext(f->GetId());
-              p->AddTarget(new DispatchQuantity(id, 10, truck_->GetWidgetQuantity(id)), 
-                new DispatchWidget(id));
-            }
+          if (ImGui::BeginMenu("Receive") && p != nullptr) {
+              for (std::pair<int,int> pair: f->GetInventoryMap()) {
+                std::string name = organizer_->GetWidgetName(pair.first) + "##" +
+                  std::to_string(pair.first);
+                if (ImGui::MenuItem(name.c_str())) {
+                  p->AddTarget(new ReceiveQuantity(pair.first, 5), new ReceiveWidget(pair.first));
+                  break;
+                }
+              }
+              ImGui::EndMenu();
           }
-          if (ImGui::Selectable("Receive Item") && p != nullptr) {
-            int id = 2;
-            RuleContext& context = truck_->GetContext(f->GetId());
-            p->AddTarget(new ReceiveQuantity(id, 3, truck_->GetWidgetQuantity(id)), 
-              new ReceiveWidgets(id));
+          if (ImGui::BeginMenu("Dispatch") && p != nullptr) {
+              for (std::pair<int,int> pair: truck_->GetInventoryMap()) {
+                std::string name = organizer_->GetWidgetName(pair.first) + "##" +
+                  std::to_string(pair.first);
+                if (ImGui::MenuItem(name.c_str())) {
+                  p->AddTarget(new DispatchQuantity(pair.first, 5), new DispatchWidget(pair.first));
+                  break;
+                }
+              }
+              ImGui::EndMenu();
           }
           if (ImGui::Selectable("Wait Until")) {
 
@@ -111,18 +141,69 @@ void UiHandler::TruckWidget() {
               // amount_rule->GetAmount(50);
             }
             if (auto* rule = dynamic_cast<DispatchQuantity*>(r)) {
-              style = Style(r,truck_,f);
-              ImGui::TextWrapped("Loading atleast %d %s to Truck", rule->GetAmount(),
-                organizer_->GetWidgetName(rule->GetWidgetId()).c_str());
-              StyleEnd(style);
+              // style = Style(r,truck_,f);
+              // ImGui::TextWrapped("Dispatching %d %s", rule->GetAmount(),
+              //   organizer_->GetWidgetName(rule->GetWidgetId()).c_str());
+              // StyleEnd(style);
+
+
+              ImGui::BeginGroup();
+              ImGui::Text("Dispatch");
+              ImGui::SameLine();
+              str = CreateUniqueId("-", truck_, f, rule->GetWidgetId());
+              if (ImGui::Button(str.c_str()))
+              {
+                rule->DecreaseAmount();
+              }
+              ImGui::SameLine();
+              ImGui::Text("%d", rule->GetAmount());
+              ImGui::SameLine();
+              str = CreateUniqueId("+", truck_, f, rule->GetWidgetId());
+              if (ImGui::Button(str.c_str())) {
+                rule->IncreaseAmount();
+              }
+              ImGui::SameLine();
+              ImGui::Text("%s", organizer_->GetWidgetName(rule->GetWidgetId()).c_str());
+              ImGui::SameLine();
+              str = CreateUniqueId("X", truck_, f, rule->GetWidgetId());
+              if (ImGui::SmallButton(str.c_str())) {
+                removals_.push_back(t);
+              }
+              ImGui::SameLine();
+              ImGui::EndGroup();
               
             } else if (auto* rule = dynamic_cast<ReceiveQuantity*>(r)) {
-              style = Style(r,truck_,f);
-              ImGui::TextWrapped("Loading atleast %d %s to Factory", rule->GetAmount(),
-                organizer_->GetWidgetName(rule->GetWidgetId()).c_str());
-              StyleEnd(style);
+              ImGui::BeginGroup();
+              ImGui::Text("Release");
+              ImGui::SameLine();
+              str = CreateUniqueId("-", truck_, f, rule->GetWidgetId());
+              if (ImGui::Button(str.c_str()))
+              {
+                rule->DecreaseAmount();
+              }
+              ImGui::SameLine();
+              ImGui::Text("%d", rule->GetAmount());
+              ImGui::SameLine();
+              str = CreateUniqueId("+", truck_, f, rule->GetWidgetId());
+              if (ImGui::Button(str.c_str())) {
+                rule->IncreaseAmount();
+              }
+              ImGui::SameLine();
+              ImGui::Text("%s", organizer_->GetWidgetName(rule->GetWidgetId()).c_str());
+              ImGui::SameLine();
+              str = CreateUniqueId("X", truck_, f, rule->GetWidgetId());
+              if (ImGui::SmallButton(str.c_str())) {
+                removals_.push_back(t);
+              }
+              ImGui::SameLine();
+              ImGui::EndGroup();
             }
             
+          }
+
+          //removals
+          for (Target* t: removals_) {
+            truck_->RemoveTarget(t,f->GetId());
           }
         }
         // ImGui::ProgressBar(-1.0f * (float)ImGui::GetTime(), ImVec2(0.0f, 0.0f)
