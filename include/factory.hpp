@@ -10,8 +10,11 @@ Factory.hpp
 #include "inventory.hpp"
 #include "widget.hpp"
 
-#ifndef FACTORY_HPP
+#ifndef FACTORY_HPP 
 #define FACTORY_HPP
+
+#define FACTORY_WIDTH 15
+#define DOCK_WIDTH 10
 
 class Truck; //avoiding circular dependency
 class Road;
@@ -93,10 +96,10 @@ class Factory : public Entity {
 
 		//Entity Functions
 		void Draw() override {
-			DrawRectangle(position_.x,position_.y,15,15,BLUE);
+			DrawRectangle(position_.x,position_.y,FACTORY_WIDTH,FACTORY_WIDTH,BLUE);
 
 			for (Dock* d: docks_) {
-				DrawRectangle(position_.x,position_.y,10,10,RED);
+				DrawRectangle(position_.x,position_.y,DOCK_WIDTH,DOCK_WIDTH,RED);
 			}
 		}
 		void OnTick() override;

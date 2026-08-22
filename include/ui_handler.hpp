@@ -19,8 +19,6 @@ class UiHandler {
         organizer_ = ReceipeOrganizer::GetInstance();
     }
     void RenderUi();
-    void TruckWidget();
-    void FactoryWidget();
   private:
     TrafficMediator& controller_;
 
@@ -35,6 +33,10 @@ class UiHandler {
     int factory_id_;
     
     ReceipeOrganizer* organizer_;
+
+    void TruckWidget();
+    void FactoryWidget();
+    void BaseLayer();
 };
 
 #endif

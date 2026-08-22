@@ -15,6 +15,8 @@
 #include "traffic_control.hpp"
 #include "widget.hpp"
 
+#define TRUCK_WIDTH 10
+
 class Factory; //avoiding circular dependency
 class Road;
 class Intersection;
@@ -43,7 +45,7 @@ class Truck : public Entity {
 		//General Functions
 		void OnTick() override;
 		void Draw() override {
-			DrawRectangle(position_.x,position_.y,8,8,PINK);
+			DrawRectangle(position_.x,position_.y,TRUCK_WIDTH,TRUCK_WIDTH,PINK);
 		}
 		//Getters & Setters
 		Road* GetCurrentRoad() { return current_road_; }
