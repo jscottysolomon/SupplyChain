@@ -7,6 +7,12 @@
 #include "factory.hpp"
 #include "traffic_mediator.hpp"
 
+bool Style(Rule* rule, Truck* truck, Factory* factory);
+std::string CreateUniqueId(std::string name, Truck* t, Factory* f, int id);
+std::string CreateUniqueId(std::string name, int id);
+std::string CreateUniqueId(std::string name, int id);
+void StyleEnd(bool style);
+
 class UiHandler {
   public:
   UiHandler(TrafficMediator& traffic)
@@ -35,6 +41,14 @@ class UiHandler {
     ReceipeOrganizer* organizer_;
 
     void TruckWidget();
+    void TruckScheduleFactorySection(Factory* factory, Plan* p);
+    void TruckScheduleTab();
+    void TargetTableRow(Target* target,Factory* factory,
+        std::vector<Target*>& removals);
+    void QuantityTargetTableRow(std::string str, DispatchQuantity* rule, Target* target, 
+        Factory* factory, std::vector<Target*>& removals);
+    void UiHandler::QuantityTargetTableRow(std::string str, ReceiveQuantity* rule, Target* t, 
+        Factory* f, std::vector<Target*>& removals);
     void FactoryWidget();
     void BaseLayer();
 };

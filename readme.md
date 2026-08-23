@@ -11,13 +11,30 @@ Dependencies:
 - Raylib
 
 Todo:
-- Unload contents of truck to factory
-- Load contents of factory to truck
+- Create Warehouse & Wholeseller objects (factory wrapper)
+- Select truck and create lines to show the route/stops they're gonna take on the map. 
+- Sell to Warehouses/Wholesellers
 - reservatin of resoures of factory to trucks
+- Remove redundancies in routing (going on the same road twice)
+- Make roads one lane each
+- Add turn segment for trucks to enter/exit factory turn ins
+- Add four way stops
+- Add roundabouts
+- Add traffic lights
+- Ability to pause/unpause time/traffic or do a speed increase/decrease
+- Raylib camera object
 
-Truck Unload
-- Unload x of widget A, y of widget B
-- Unload until truck inventory is empty
+Bottlenecks (Increasable)
+- Truck can only hold 20-40 amount of widgets
+- Truck can only hold 1-2 type of widgets
+- Factories can only produce 1-3 types of widgets
+- Factories only have 1-2 docks (What should the truck do? Wait, skip, reroute?)
+- Warehouses/Wholesellers will by X widget types, but only has Y docking stations
+- Warehouse will by widget X for Y price, but widget A (made from widget X) can be sold for more
+
+Potential Features
+- Production costs X amount for Y widget
+
 
 Truck Reload
 Rules

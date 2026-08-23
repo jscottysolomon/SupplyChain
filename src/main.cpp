@@ -23,7 +23,7 @@
 #include "road.hpp"
 #include "traffic_mediator.hpp"
 #include "util.hpp"
-#include "ui_handler.hpp"
+#include "ui_core.hpp"
 
 #define TICK_RATE 60
 
