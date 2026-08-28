@@ -5,7 +5,7 @@
 
 #include "truck.hpp"
 #include "factory.hpp"
-#include "traffic_mediator.hpp"
+#include "traffic.hpp"
 
 bool Style(Rule* rule, Truck* truck, Factory* factory);
 std::string CreateUniqueId(std::string name, Truck* t, Factory* f, int id);
@@ -13,10 +13,10 @@ std::string CreateUniqueId(std::string name, int id);
 std::string CreateUniqueId(std::string name, int id);
 void StyleEnd(bool style);
 
-class UiHandler {
+class GameUi {
   public:
-  UiHandler(TrafficMediator& traffic)
-    : controller_(traffic), truck_(nullptr), truck_id_(-1),
+  GameUi(TrafficCommand& traffic)
+    : mediator_(traffic), truck_(nullptr), truck_id_(-1),
       factory_(nullptr), factory_id_(-1) {
         trucks_ = traffic.GetTrucks();
         factories_ = traffic.GetFactories();
@@ -26,7 +26,7 @@ class UiHandler {
     }
     void RenderUi();
   private:
-    TrafficMediator& controller_;
+    TrafficCommand& mediator_;
 
     std::vector<Truck*> trucks_;
     Truck* truck_;
@@ -47,7 +47,7 @@ class UiHandler {
         std::vector<Target*>& removals);
     void QuantityTargetTableRow(std::string str, DispatchQuantity* rule, Target* target, 
         Factory* factory, std::vector<Target*>& removals);
-    void UiHandler::QuantityTargetTableRow(std::string str, ReceiveQuantity* rule, Target* t, 
+    void QuantityTargetTableRow(std::string str, ReceiveQuantity* rule, Target* t, 
         Factory* f, std::vector<Target*>& removals);
     void FactoryWidget();
     void BaseLayer();

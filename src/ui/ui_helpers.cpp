@@ -4,7 +4,7 @@
 #include <imgui/rlImGui.h>
 #include <imgui/imgui.h>
 
-#include "traffic_mediator.hpp"
+#include "traffic.hpp"
 #include "rules.hpp"
 
 bool Style(Rule* rule, Truck* truck, Factory* factory) {

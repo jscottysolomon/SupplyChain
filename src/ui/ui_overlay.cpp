@@ -4,10 +4,10 @@
 #include <imgui/rlImGui.h>
 #include <imgui/imgui.h>
 
-#include "traffic_mediator.hpp"
+#include "traffic.hpp"
 #include "rules.hpp"
 
-void UiHandler::BaseLayer() {
+void GameUi::BaseLayer() {
   ImGui::SetNextWindowPos(ImVec2(0, 0));
   ImGui::SetNextWindowSize(ImVec2((float)GetScreenWidth(), (float)GetScreenHeight()));
 

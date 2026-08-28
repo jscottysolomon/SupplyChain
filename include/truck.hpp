@@ -9,13 +9,13 @@
 #include <vector>
 #include <queue>
 
+#include "common.hpp"
 #include "entity.hpp"
 #include "inventory.hpp"
 #include "rules.hpp"
-#include "traffic_control.hpp"
+#include "traffic.hpp"
+#include "traffic.hpp"
 #include "widget.hpp"
-
-#define TRUCK_WIDTH 10
 
 class Factory; //avoiding circular dependency
 class Road;
@@ -30,9 +30,9 @@ enum TruckState {
 };
 
 //TODO change stops to priority queue
-class Truck : public Entity {
+class Truck : public MapObject {
 	public:
-		Truck(Vector2 vec, TrafficControl& controller) : controller_(controller) {
+		Truck(Vector2 vec, TrafficMediator& controller) : MapObject(vec), mediator_(controller) {
 			SetPosition(vec);
 			docked_ = false;
 			speed_ = .025f;
@@ -112,7 +112,8 @@ class Truck : public Entity {
 
 		/*Road Relations*/
 		Intersection* intersection_;	//current intersection
-		TrafficControl& controller_;	//traffic control mediator
+		TrafficMediator& mediator_;	//traffic control mediator
+		RoadSegment* segment_;
 		Vector2 target_;				//target position
 		Road* current_road_;
 		Dock* dock_;
@@ -136,7 +137,7 @@ class Truck : public Entity {
 
 class TruckBuilder {
 public:
-	TruckBuilder(Vector2 vec, TrafficControl& controller) {
+	TruckBuilder(Vector2 vec, TrafficMediator& controller) {
 		truck_ = new Truck(vec, controller);
 	}
 

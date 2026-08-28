@@ -6,22 +6,29 @@
  * @date 12-Nov-25
  */
 
-#include "traffic_mediator.hpp"
+#include "traffic.hpp"
+
+#include <cassert>
+#include <unordered_map>
 
 #include <raylib.h>
 #include <raymath.h>
-#include <unordered_map>
+#include <graaflib/algorithm/shortest_path/dijkstra_shortest_path.h>
+#include <graaflib/algorithm/shortest_path/bfs_shortest_path.h>
 
 #include "factory.hpp"
 #include "intersection.hpp"
 #include "util.hpp"
-#include "traffic_control.hpp"
+#include "traffic.hpp"
+#include "traffic.hpp"
 #include "truck.hpp"
 
 #define THRESHOLD 40
 
-void TrafficMediator::SetUp() {
-  controller_ = new TrafficControl(intersections_);
+void TrafficCommand::SetUp() {
+  mediator_ = new TrafficMediator(intersections_,roads_,factories_,
+    trucks_,junctions_,segments_,graph_,vertecies_);
+
 
   Road* r1 = new Road({{330,420},{330,120}});
   Road* r2 = new Road({{430,420},{430,120}});
@@ -32,10 +39,10 @@ void TrafficMediator::SetUp() {
   Road* r7 = new Road({{330,220},{630,220}});
   Road* r8 = new Road({{330,120},{630,120}});
 
-  Truck* t1 = new Truck({330,420}, *controller_);
-  Truck* t2 = new Truck({430,320}, *controller_);
-  Truck* t3 = new Truck({530,220}, *controller_);
-  Truck* t4 = new Truck({630,120}, *controller_);
+  Truck* t1 = new Truck({330,420}, *mediator_);
+  Truck* t2 = new Truck({430,320}, *mediator_);
+  Truck* t3 = new Truck({530,220}, *mediator_);
+  Truck* t4 = new Truck({630,120}, *mediator_);
 
   std::unordered_map<int, int> trcuk_inv = {{1,20},{2,20},{3,20},{4,20}};
   t1->SetInventory(trcuk_inv);
@@ -163,7 +170,7 @@ void TrafficMediator::SetUp() {
   t1->AddStop({f4,f6,f2,f5});
   t2->AddStop({f3,f1,f4,f6});
   t3->AddStop({f6,f5,f4,f3});
-  t4->AddStop({f2,f4,f3,f4});
+  t4->AddStop({f2,f4,f3,f1});
 
   factories_.push_back(f1);
   factories_.push_back(f2);
@@ -171,9 +178,37 @@ void TrafficMediator::SetUp() {
   factories_.push_back(f4);
   factories_.push_back(f5);
   factories_.push_back(f6);
+
+  Junction* j1 = AddFourWayJunction({340, 600});
+  Junction* j2 = AddFourWayJunction({500, 600});
+  Junction* j3 = AddFourWayJunction({340, 750});
+  Junction* j4 = AddFourWayJunction({500, 750});
+
+  Factory* f7 = FactoryBuilder({j1->GetPosition().x,j1->GetPosition().y-FACTORY_WIDTH - 100})
+  // .WithDock({530,135}, nullptr)
+  // .WithDock({530,110}, nullptr)
+  // .WithInventory(inv)
+  // .WithLines({1,2})
+  .Build();
+  factories_.push_back(f7);
+
+  Junction* j5 = AddFactoryJunction(f7);
+
+  AddRoadSegment(j1, j2);
+  AddRoadSegment(j1, j3);
+  AddRoadSegment(j4, j2);
+  AddRoadSegment(j4, j3);
+  AddRoadSegment(j1, j5);
+
+  // graph_.add_vertex(j1);
+  // graph_.add_vertex(j2);
+  // graph_.add_vertex(j3);
+  // graph_.add_vertex(j4);
+
+  std::vector<Junction*> path = mediator_->RequestRoute(j1,j3);
 }
 
-TrafficMediator::~TrafficMediator() {
+TrafficCommand::~TrafficCommand() {
   for (std::size_t ii = 0; ii < roads_.size(); ii++) {
   delete roads_.at(ii);
   }
@@ -187,28 +222,61 @@ TrafficMediator::~TrafficMediator() {
   delete inter;
   }
 
-  delete controller_;
+  delete mediator_;
 }
 
-void TrafficMediator::OnTick() {
+void TrafficCommand::OnTick() {
   for (Factory* f: factories_) {
   f->OnTick();
   }
   for (Truck* t: trucks_) {
   t->OnTick();
   }
-
-
+  for (Junction* j: junctions_) {
+    j->OnTick();
+  }
 }
 
-void TrafficMediator::Draw() {
+void TrafficCommand::Draw() {
   for (Road* r:roads_) {
   r->Draw();
   }
-  for (Factory* f:factories_) {
-  f->Draw();
+  // for (Factory* f:factories_) {
+  // f->Draw();
+  // }
+  for (Junction* j: junctions_) {
+    j->Draw();
   }
   for (Truck* t: trucks_) {
   t->Draw();
   }
+  for(RoadSegment* s: segments_) {
+    s->Draw();
+  }
+}
+
+Junction* TrafficCommand::AddFourWayJunction(Vector2 position) {
+    FourWayStop* stop = new FourWayStop(position);
+    Junction* junction = new Junction(stop, JunctionType::FourWayStop);
+    junctions_.push_back(junction);
+    vertecies_.insert({junction->GetId(), graph_.add_vertex(junction)});
+    graph_.add_vertex(junction);
+    return junction;
+}
+
+Junction* TrafficCommand::AddFactoryJunction(Factory* factory) {
+  Junction* junction = new Junction(factory, JunctionType::Factory);
+  junctions_.push_back(junction);
+  vertecies_.insert({junction->GetId(), graph_.add_vertex(junction)});
+  factory->SetJunctionId(junction->GetId());
+  graph_.add_vertex(junction);
+  return junction;
+}
+
+RoadSegment* TrafficCommand::AddRoadSegment(Junction* a, Junction* b) {
+    RoadSegment* segment = new RoadSegment({ a->GetPosition(), b->GetPosition() }, a, b);
+    segments_.push_back(segment);
+    graph_.add_edge(vertecies_.at(a->GetId()),vertecies_.at(b->GetId()),segment);
+    graph_.add_edge(vertecies_.at(b->GetId()),vertecies_.at(a->GetId()),segment);
+    return segment;
 }

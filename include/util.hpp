@@ -12,6 +12,8 @@
 #include <algorithm>
 #include <time.h>
 
+#include <raylib.h>
+
 double GetGlobalTime();
 
 void PauseGlobalTime();
@@ -24,6 +26,11 @@ struct Point
 	float x; 
 	float y; 
 }; 
+
+struct Line2D {
+	Vector2 start;
+	Vector2 end;
+};
 
 // Given three colinear points p, q, r, the function checks if 
 // point q lies on line segment 'pr' 

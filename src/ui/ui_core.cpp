@@ -4,10 +4,10 @@
 #include <imgui/rlImGui.h>
 #include <imgui/imgui.h>
 
-#include "traffic_mediator.hpp"
+#include "traffic.hpp"
 #include "rules.hpp"
 
-void UiHandler::RenderUi() {
+void GameUi::RenderUi() {
   if (truck_ == nullptr && !trucks_.empty()) {
     truck_ = trucks_.at(truck_index_);
     truck_id_ = truck_->GetId();

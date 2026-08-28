@@ -10,8 +10,14 @@ map_element.hpp
 //TODO implement global unique id system
 int NextId();
 
-class Entity {
+class MapObject {
 	public:
+		MapObject(Vector2 pos) {
+			position_ = pos;
+			id_ = NextId();
+		}
+		MapObject() {
+		}
 		void SetPosition(Vector2 position) {
 			position_ = position;
 			id_ = NextId();

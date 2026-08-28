@@ -4,11 +4,11 @@
 #include <imgui/rlImGui.h>
 #include <imgui/imgui.h>
 
-#include "traffic_mediator.hpp"
+#include "traffic.hpp"
 #include "rules.hpp"
 
 
-void UiHandler::FactoryWidget() {
+void GameUi::FactoryWidget() {
   if (factory_ == nullptr) return;
 
   bool open = true;

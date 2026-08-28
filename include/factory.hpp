@@ -8,13 +8,11 @@ Factory.hpp
 
 #include "entity.hpp"
 #include "inventory.hpp"
+#include "traffic.hpp"
 #include "widget.hpp"
 
-#ifndef FACTORY_HPP 
+#ifndef FACTORY_HPP
 #define FACTORY_HPP
-
-#define FACTORY_WIDTH 15
-#define DOCK_WIDTH 10
 
 class Truck; //avoiding circular dependency
 class Road;
@@ -34,10 +32,10 @@ struct ProductionLine {
 	int id;
 };
 
-class Factory : public Entity {
+class Factory : public TrafficNode {
 	public:
-		Factory(Vector2 points) {
-			SetPosition(points);
+		Factory(Vector2 points): TrafficNode(points) {
+			// SetPosition(points);
 			intersection_ = nullptr;
 			load_speed_ = 2;
 			organizer = ReceipeOrganizer::GetInstance();
@@ -53,6 +51,10 @@ class Factory : public Entity {
 		void Undock(Truck* t);
 
 		//Getter, Setters, Check State, Et cetera
+		void SetJunctionId(int id) 
+			{junction_id_ = id;}
+		int GetJunctionId() 
+			{return junction_id_;}
 		std::vector<Dock*> GetDocks() {return docks_;}
 		void IncreaseDockCapacity() {dock_capcity_++;}
 		void SetDockQuantity(int capacity) {dock_capcity_ = capacity;}
@@ -94,7 +96,7 @@ class Factory : public Entity {
 			production_lines_.push_back({-1,-1,1.0,id});
 		}
 
-		//Entity Functions
+		//MapObject Functions
 		void Draw() override {
 			DrawRectangle(position_.x,position_.y,FACTORY_WIDTH,FACTORY_WIDTH,BLUE);
 
@@ -123,6 +125,7 @@ class Factory : public Entity {
 		int dock_capcity_;
 		int widget_capacity_;
 		float load_speed_;
+		int junction_id_;
 		std::vector<int> craftables_;
 		std::vector<int> loadables_;
 		std::vector<Dock*> docks_;

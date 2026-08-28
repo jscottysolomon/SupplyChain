@@ -57,7 +57,7 @@ void Truck::Drive() {
   if (state_ != kDriving) return;
 
   if (create_route && !stops_.empty()) {
-    route_ = controller_.RequestRoute(intersection_,stops_.front()->GetIntersection());
+    route_ = mediator_.RequestRoute(intersection_,stops_.front()->GetIntersection());
     create_route = false;
   }
 
@@ -80,7 +80,7 @@ void Truck::Drive() {
     } else if (route_.size() > 0) {
       intersection_ = nullptr;
     } else if (Vector2Distance(position_,stops_.front()->GetPosition()) <= 5) {
-      dock_ = controller_.RequestDock(stops_.front(),this);
+      dock_ = mediator_.RequestDock(stops_.front(),this);
       if (dock_ != nullptr) {
         target_ = dock_->position;
       } else {
@@ -90,7 +90,7 @@ void Truck::Drive() {
         //1. Wait 2. Add to end of list
         // stops_.erase(stops_.begin());
         // if (!stops_.empty() && intersection_ != nullptr) {
-        //   route_ = controller_.RequestRoute(intersection_, 
+        //   route_ = mediator_.RequestRoute(intersection_, 
         //       stops_.front()->GetIntersection());
         // }
       }
@@ -117,7 +117,7 @@ void Truck::AddStop(Factory* factory) {
           intersection_ = i;
       }
     }
-    route_ = controller_.RequestRoute(intersection_,factory->GetIntersection());
+    route_ = mediator_.RequestRoute(intersection_,factory->GetIntersection());
     intersection_ = nullptr;
   }
   stops_.push_back(factory);

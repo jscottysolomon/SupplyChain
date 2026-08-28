@@ -1,12 +1,17 @@
-#include "traffic_control.hpp"
+#include "traffic.hpp"
 
+#include <cassert>
 #include <float.h>
 #include <iostream>
 #include <memory>
-#include <raylib.h>
-#include <raymath.h>
 #include <vector>
 #include <queue>
+
+
+#include <graaflib/algorithm/shortest_path/dijkstra_shortest_path.h>
+#include <graaflib/algorithm/shortest_path/bfs_shortest_path.h>
+#include <raylib.h>
+#include <raymath.h>
 
 #include "factory.hpp"
 #include "intersection.hpp"
@@ -14,7 +19,7 @@
 
 Vertex* GetVertex(std::vector<Vertex*> vertices, Intersection* intersection);
 
-std::queue<Intersection*> TrafficControl::RequestRoute(Intersection* src, Intersection* dest) {
+std::queue<Intersection*> TrafficMediator::RequestRoute(Intersection* src, Intersection* dest) {
   std::vector<Vertex*> vertices = Dijkstra(src);
   std::vector<Intersection*> route;
 
@@ -38,7 +43,34 @@ std::queue<Intersection*> TrafficControl::RequestRoute(Intersection* src, Inters
   return ret;
 }
 
-std::vector<Vertex*> TrafficControl::Dijkstra(Intersection* src)
+std::vector<Junction*> TrafficMediator::RequestRoute(Junction* src, Junction* dest) {
+  std::vector<Junction*> path;
+
+  if(src == nullptr || dest == nullptr) {
+    TraceLog(LOG_WARNING, "Passed null junction for path request");
+    return path;
+  }
+
+  const auto maybe_path = graaf::algorithm::bfs_shortest_path(graph_, 
+      vertecies_.at(src->GetId()), vertecies_.at(dest->GetId()));
+
+  assert(maybe_path.has_value());
+  auto shortest_path{maybe_path.value()};
+
+  
+  for (auto id: shortest_path.vertices) {
+    Junction* node = junctions_.at(id);
+    if(node != nullptr) {
+      path.push_back(node);
+    } else {
+      TraceLog(LOG_WARNING, "Null pointer in path");
+    }
+  }
+
+  return path;
+}
+
+std::vector<Vertex*> TrafficMediator::Dijkstra(Intersection* src)
 {
 
   std::vector<Vertex*> vertices;
@@ -104,6 +136,6 @@ Vertex* GetVertex(std::vector<Vertex*> vertices, Intersection* intersection) {
   return nullptr;
 }
 
-Dock* TrafficControl::RequestDock(Factory* factory, Truck* truck) {
+Dock* TrafficMediator::RequestDock(Factory* factory, Truck* truck) {
   return factory->DockRequest(truck);
 }

@@ -4,10 +4,10 @@
 #include <imgui/rlImGui.h>
 #include <imgui/imgui.h>
 
-#include "traffic_mediator.hpp"
+#include "traffic.hpp"
 #include "rules.hpp"
 
-void UiHandler::QuantityTargetTableRow(std::string str, DispatchQuantity* rule, Target* t, 
+void GameUi::QuantityTargetTableRow(std::string str, DispatchQuantity* rule, Target* t, 
     Factory* f, std::vector<Target*>& removals) {
   ImGui::BeginGroup();
   ImGui::Text("Dispatch");
@@ -31,7 +31,7 @@ void UiHandler::QuantityTargetTableRow(std::string str, DispatchQuantity* rule, 
   ImGui::EndGroup();
 }
 
-void UiHandler::QuantityTargetTableRow(std::string str, ReceiveQuantity* rule, Target* t, 
+void GameUi::QuantityTargetTableRow(std::string str, ReceiveQuantity* rule, Target* t, 
     Factory* f, std::vector<Target*>& removals) {
   ImGui::BeginGroup();
   ImGui::Text("Release");
@@ -57,10 +57,9 @@ void UiHandler::QuantityTargetTableRow(std::string str, ReceiveQuantity* rule, T
   }
   ImGui::SameLine();
   ImGui::EndGroup();
-
 }
 
-void UiHandler::TruckScheduleFactorySection(Factory* f, Plan* p) {
+void GameUi::TruckScheduleFactorySection(Factory* f, Plan* p) {
   std::string str = "";
   if (p == nullptr) {
     TraceLog(LOG_ERROR, "Plan is null!");
@@ -96,7 +95,7 @@ void UiHandler::TruckScheduleFactorySection(Factory* f, Plan* p) {
   }
 }
 
-void UiHandler::TruckScheduleTab() {
+void GameUi::TruckScheduleTab() {
   if (ImGui::BeginTabItem("Schedule")) {
     int i = 0;
     for (Factory* f: truck_->GetSchedule()) {
@@ -137,7 +136,7 @@ void UiHandler::TruckScheduleTab() {
   }
 }
 
-void UiHandler::TargetTableRow(
+void GameUi::TargetTableRow(
     Target* target,
     Factory* factory,
     std::vector<Target*>& removals) {
@@ -153,7 +152,7 @@ void UiHandler::TargetTableRow(
   }
 }
 
-void UiHandler::TruckWidget() {
+void GameUi::TruckWidget() {
   if (truck_ == nullptr) return;
 
   bool open = true;
@@ -175,7 +174,6 @@ void UiHandler::TruckWidget() {
       for (std::pair<int,int> inv : truck_->GetInventoryMap()) {
         ImGui::Text("%s[%d]: %d\n", organizer_->GetWidgetName(inv.first).c_str(), inv.first, inv.second);
       }
-
       if (ImGui::Button("Next")) {
         truck_index_++;
         if (truck_index_ >= trucks_.size()) {
@@ -183,17 +181,13 @@ void UiHandler::TruckWidget() {
         }
         truck_ = trucks_.at(truck_index_);
       }
-
       ImGui::EndTabItem();
     }
     if (ImGui::BeginTabItem("Whitelist")) {
-      if (ImGui::BeginTable("Inventory", 3))
-      {
-        for (int row = 0; row < 4; row++)
-        {
+      if (ImGui::BeginTable("Inventory", 3)) {
+        for (int row = 0; row < 4; row++) {
           ImGui::TableNextRow();
-          for (int column = 0; column < 3; column++)
-          {
+          for (int column = 0; column < 3; column++) {
             ImGui::TableSetColumnIndex(column);
             ImGui::Text("Row %d Column %d", row, column);
           }

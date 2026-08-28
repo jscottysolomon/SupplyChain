@@ -1,0 +1,10 @@
+#ifndef COMMON_HPP
+#define COMMON_HPP
+
+#define TRUCK_WIDTH 10
+#define FOUR_WAY_STOP_WIDTH 15
+#define LANE_WIDTH 15
+#define DOCK_WIDTH 15
+#define FACTORY_WIDTH (DOCK_WIDTH * 3)
+
+#endif

@@ -21,7 +21,7 @@
 #include <vector>
 
 #include "road.hpp"
-#include "traffic_mediator.hpp"
+#include "traffic.hpp"
 #include "util.hpp"
 #include "ui_core.hpp"
 
@@ -75,8 +75,8 @@ int main(void)
   SetTargetFPS(TICK_RATE);
 
   // SetGlobalTime();
-  TrafficMediator traffic;
-  UiHandler uiHandler(traffic);
+  TrafficCommand traffic;
+  GameUi uiHandler(traffic);
 
   rlImGuiSetup(true);
 
