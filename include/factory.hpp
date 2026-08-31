@@ -51,17 +51,24 @@ class Factory : public TrafficNode {
 		void Undock(Truck* t);
 
 		//Getter, Setters, Check State, Et cetera
-		void SetJunctionId(int id) 
-			{junction_id_ = id;}
-		int GetJunctionId() 
-			{return junction_id_;}
-		std::vector<Dock*> GetDocks() {return docks_;}
-		void IncreaseDockCapacity() {dock_capcity_++;}
-		void SetDockQuantity(int capacity) {dock_capcity_ = capacity;}
-		void SetRoad(Road* r) {road_ = r;}
-		Road* GetRoad() {return road_;}
-		void SetIntersection(Intersection* i) {intersection_ = i;}
-		Intersection* GetIntersection() {return intersection_;}
+		std::vector<Dock*> GetDocks() 
+			{return docks_;}
+		void IncreaseDockCapacity() 
+			{dock_capcity_++;}
+		void SetDockQuantity(int capacity) 
+			{dock_capcity_ = capacity;}
+		void SetRoad(Road* r) 
+			{road_ = r;}
+		Road* GetRoad() 
+			{return road_;}
+		void SetRoadSegment(RoadSegment* segment)
+			{segment_ = segment;}
+		RoadSegment* GetRoadSegment() 
+			{return segment_;}
+		void SetIntersection(Intersection* i) 
+			{intersection_ = i;}
+		Intersection* GetIntersection() 
+			{return intersection_;}
 		std::unordered_map<int,int> GetInventoryMap()
 			{return inventory_.GetInventoryMap();}
 
@@ -125,7 +132,6 @@ class Factory : public TrafficNode {
 		int dock_capcity_;
 		int widget_capacity_;
 		float load_speed_;
-		int junction_id_;
 		std::vector<int> craftables_;
 		std::vector<int> loadables_;
 		std::vector<Dock*> docks_;
@@ -134,6 +140,7 @@ class Factory : public TrafficNode {
 		Inventory inventory_;
 		std::vector<ProductionLine> production_lines_;
 		ReceipeOrganizer* organizer;
+		RoadSegment* segment_;
 
 		void Produce();
 		void DockOnTick();

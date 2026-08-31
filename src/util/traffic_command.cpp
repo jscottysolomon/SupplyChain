@@ -27,7 +27,7 @@
 
 void TrafficCommand::SetUp() {
   mediator_ = new TrafficMediator(intersections_,roads_,factories_,
-    trucks_,junctions_,segments_,graph_,vertecies_);
+    trucks_,junctions_,segments_,graph_);
 
 
   Road* r1 = new Road({{330,420},{330,120}});
@@ -65,28 +65,28 @@ void TrafficCommand::SetUp() {
   roads_.push_back(r8);
 
   for (std::size_t xx = 0; xx < roads_.size(); ++xx) {
-  for (std::size_t yy = xx + 1; yy < roads_.size(); ++yy) {
-    Vector2 col = {};
+    for (std::size_t yy = xx + 1; yy < roads_.size(); ++yy) {
+      Vector2 col = {};
 
-    if (CheckCollisionLines(roads_[xx]->GetStart(), roads_[xx]->GetEnd(), roads_[yy]->GetStart(), roads_[yy]->GetEnd(), &col)) {
-    roads_[xx]->AddRoad(roads_[yy]);
-    roads_[yy]->AddRoad(roads_[xx]);
-    Intersection* inter = new Intersection(col,roads_[xx],roads_[yy]);
-    roads_[xx]->AddIntersection(inter);
-    roads_[yy]->AddIntersection(inter);
-    intersections_.push_back(inter);
+      if (CheckCollisionLines(roads_.at(xx)->GetStart(), roads_.at(xx)->GetEnd(), roads_.at(yy)->GetStart(), roads_.at(yy)->GetEnd(), &col)) {
+        roads_.at(xx)->AddRoad(roads_.at(yy));
+        roads_.at(yy)->AddRoad(roads_.at(xx));
+        Intersection* inter = new Intersection(col,roads_.at(xx),roads_.at(yy));
+        roads_.at(xx)->AddIntersection(inter);
+        roads_.at(yy)->AddIntersection(inter);
+        intersections_.push_back(inter);
+      }
     }
-  }
 
-  for (Truck* t:trucks_) {
-    Point p1 = {roads_[xx]->GetStart().x, roads_[xx]->GetStart().y};
-    Point p2 = {roads_[xx]->GetEnd().x, roads_[xx]->GetEnd().y};
-    Point p3 = {t->GetPosition().x, t->GetPosition().y};
+    for (Truck* t:trucks_) {
+      Point p1 = {roads_.at(xx)->GetStart().x, roads_.at(xx)->GetStart().y};
+      Point p2 = {roads_.at(xx)->GetEnd().x, roads_.at(xx)->GetEnd().y};
+      Point p3 = {t->GetPosition().x, t->GetPosition().y};
 
-    if (DoIntersect(p1,p2,p3,p3)) {
-    t->SetCurrentRoad(roads_[xx]);
+      if (DoIntersect(p1,p2,p3,p3)) {
+        t->SetCurrentRoad(roads_.at(xx));
+      }
     }
-  }
   }
 
   for (Road* r: roads_) {
@@ -102,12 +102,12 @@ void TrafficCommand::SetUp() {
 
   for (std::size_t ii = 0; ii < r_ints.size(); ii++) {
     if (ii > 0) {
-    r_ints.at(ii)->AddIntersection(r_ints.at(ii-1));
+      r_ints.at(ii)->AddIntersection(r_ints.at(ii-1));
+      } 
+      if(ii < r_ints.size() - 1) {
+      r_ints.at(ii)->AddIntersection(r_ints.at(ii+1));
+      }
     } 
-    if (ii < r_ints.size() - 1) {
-    r_ints.at(ii)->AddIntersection(r_ints.at(ii+1));
-    }
-  }
   }
 
   std::unordered_map<int, int> inv = {{1,50},{2,50},{3,50},{4,50}};
@@ -255,28 +255,119 @@ void TrafficCommand::Draw() {
   }
 }
 
+void TrafficCommand::ConnectJunctions(Junction* j1, Junction* j2, RoadSegment* rs1) {
+  if(!graph_.has_edge(j1->GetGraphId(), j2->GetGraphId())) {
+    graph_.add_edge(j1->GetGraphId(),j2->GetGraphId(),rs1);
+    
+  }
+
+  if(!graph_.has_edge(j2->GetGraphId(), j1->GetGraphId())) {
+    graph_.add_edge(j2->GetGraphId(),j1->GetGraphId(),rs1);
+  }
+
+  j1->AddSegmnet(rs1); 
+  j2->AddSegmnet(rs1);
+}
+
 Junction* TrafficCommand::AddFourWayJunction(Vector2 position) {
     FourWayStop* stop = new FourWayStop(position);
     Junction* junction = new Junction(stop, JunctionType::FourWayStop);
     junctions_.push_back(junction);
-    vertecies_.insert({junction->GetId(), graph_.add_vertex(junction)});
-    graph_.add_vertex(junction);
+    junction->SetGraphId(graph_.add_vertex(junction));
     return junction;
 }
 
 Junction* TrafficCommand::AddFactoryJunction(Factory* factory) {
   Junction* junction = new Junction(factory, JunctionType::Factory);
   junctions_.push_back(junction);
-  vertecies_.insert({junction->GetId(), graph_.add_vertex(junction)});
+  junction->SetGraphId(graph_.add_vertex(junction));
   factory->SetJunctionId(junction->GetId());
   graph_.add_vertex(junction);
   return junction;
 }
 
-RoadSegment* TrafficCommand::AddRoadSegment(Junction* a, Junction* b) {
-    RoadSegment* segment = new RoadSegment({ a->GetPosition(), b->GetPosition() }, a, b);
+RoadSegment* TrafficCommand::AddRoadSegment(Junction* j1, Junction* j2) {
+    RoadSegment* segment = new RoadSegment({ j1->GetPosition(), j2->GetPosition() }, j1, j2);
     segments_.push_back(segment);
-    graph_.add_edge(vertecies_.at(a->GetId()),vertecies_.at(b->GetId()),segment);
-    graph_.add_edge(vertecies_.at(b->GetId()),vertecies_.at(a->GetId()),segment);
+    ConnectJunctions(j1,j2,segment);
     return segment;
+}
+
+RoadSegment* TrafficCommand::AddJunction(RoadSegment* rs1, RoadSegment* rs2, float ratio, JunctionType type) {
+  // RoadSegment* rs3 = new RoadSegment()
+//  graph_.remove_edge()
+  // RoadSegment* rs3 = new RoadSegment()
+  return nullptr;
+}
+
+Junction* TrafficCommand::AddJunction(Junction* j1, Junction* j2, JunctionType type, float ratio) {
+  Vector2 midpoint = {(j1->GetPosition().x + j2->GetPosition().x) / 2, 
+    (j1->GetPosition().y + j2->GetPosition().y) / 2};
+
+  TrafficNode* node = nullptr;
+  RoadSegment* road = GetCommonRoad(j1,j2);
+  Vector2 p1 = j1->GetPosition();
+  Vector2 p2 = j2->GetPosition();
+
+  Vector2 split_point = {
+      p1.x + (p2.x - p1.x) * ratio,
+      p1.y + (p2.y - p1.y) * ratio
+  };
+
+  switch(type) {
+    case JunctionType:: Factory:
+      node = new Factory(split_point);
+      break;
+    case JunctionType::FourWayStop:
+      node = new FourWayStop(split_point);
+      break;
+    default:
+      return nullptr;
+  }
+
+  Junction* junction = new Junction(node,type);
+  junction->SetGraphId(graph_.add_vertex(junction));
+
+  RoadSegment* road1 = AddRoadSegment(j1,junction);
+  RoadSegment* road2 = AddRoadSegment(j2,junction);
+
+  ConnectJunctions(j1,junction,road1);
+  ConnectJunctions(j2,junction,road2);
+
+  graph_.remove_edge(j1->GetGraphId(), j2->GetGraphId());
+  ConnectJunctions(j1,junction,road1);
+  // ConnectJunctions()
+  // graph_.add_edge(j1->GetId(), junction->GetId());
+
+  
+
+  delete road;
+
+
+  return junction;
+}
+
+RoadSegment* GetCommonRoad(Junction* j1, Junction* j2) {
+  for (RoadSegment* rs1: j1->GetSegments()) {
+    for (RoadSegment* rs2: j2->GetSegments()) {
+      if (rs1 == rs2) {
+        return rs1;
+      }
+    }
+  }
+  return nullptr;
+}
+
+void TrafficCommand::RemoveRoad(RoadSegment* rs1, Junction* j1, Junction* j2) {
+  graph_.remove_edge(j1->GetGraphId(), j2->GetGraphId());
+  graph_.remove_edge(j2->GetGraphId(), j1->GetGraphId());
+  j1->RemoveSegment(rs1);
+  j2->RemoveSegment(rs1);
+  segments_.erase(std::remove(segments_.begin(), segments_.end(), rs1),segments_.end());
+  delete rs1;
+  rs1 = nullptr;
+}
+
+void RemoveJunction(Junction* junction) {
+  if(!junction) return;
 }

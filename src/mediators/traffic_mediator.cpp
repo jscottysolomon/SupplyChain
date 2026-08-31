@@ -52,7 +52,7 @@ std::vector<Junction*> TrafficMediator::RequestRoute(Junction* src, Junction* de
   }
 
   const auto maybe_path = graaf::algorithm::bfs_shortest_path(graph_, 
-      vertecies_.at(src->GetId()), vertecies_.at(dest->GetId()));
+      src->GetGraphId(), dest->GetGraphId());
 
   assert(maybe_path.has_value());
   auto shortest_path{maybe_path.value()};
