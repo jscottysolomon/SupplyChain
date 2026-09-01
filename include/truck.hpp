@@ -48,11 +48,18 @@ class Truck : public MapObject {
 			DrawRectangle(position_.x,position_.y,TRUCK_WIDTH,TRUCK_WIDTH,PINK);
 		}
 		//Getters & Setters
-		Road* GetCurrentRoad() { return current_road_; }
-		void SetCurrentRoad(Road* r) { current_road_ = r; }
-
-		std::vector<Factory*> GetStops() { return stops_; }
-		std::vector<Factory*> GetSchedule() { return schedule_;}
+		Road* GetCurrentRoad() 
+			{ return current_road_; }
+		void SetCurrentRoad(Road* r) 
+			{ current_road_ = r; }
+		void SetRoadSegment(RoadSegment* rs) 
+			{ segment_ = rs; }
+		RoadSegment* GetRoadSegment() 
+			{ return segment_; }
+		std::vector<Factory*> GetStops()
+			{ return stops_; }
+		std::vector<Factory*> GetSchedule()
+			{ return schedule_;}
 		
 		void AddStop(Factory* factory);
 		void AddStop(std::vector<Factory*> factories);

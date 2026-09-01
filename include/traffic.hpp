@@ -27,15 +27,21 @@ class TrafficMediator;
 class TrafficNode: public MapObject {
   public:
     TrafficNode(Vector2 pos) : MapObject(pos) {
-
+      // NextId();
     }
     void SetJunctionId(int id) 
 			{junction_id_ = id;}
 		int GetJunctionId() 
 			{return junction_id_;}
     int GetCost();
+    int GetLaneNumber() 
+      {return lanes_;}
+    void SetLaneNumber(int lanes) 
+      {lanes_ = lanes;}
   protected:
     int junction_id_;
+    std::vector<Truck*> trucks_;
+    int lanes_ = 2;
 };
 
 enum class JunctionType {
@@ -113,58 +119,7 @@ public:
     j2_ = j2;   j2->AddSegmnet(this);
     one_way_ = false;
     lanes_ = 2;
-    if(j1 == nullptr || j2 == nullptr) return;
-
-    Vector2 p1 = j1_->GetPosition();
-    Vector2 p2 = j2_->GetPosition();
-
-    int offset = 0;
-
-    //TODO: Factor in type of j1 & j2
-    switch(j2->GetType()) {
-      case JunctionType::Factory:
-        offset = FACTORY_WIDTH;
-        break;
-      case JunctionType::FourWayStop:
-        offset = FOUR_WAY_STOP_WIDTH * lanes_;
-        break;
-      default:
-        offset = 0;
-    }
-
-    float road_thickness = LANE_WIDTH * lanes_;
-
-    //Vertical
-    if (p1.x == p2.x) {
-      float top = std::min(p1.y, p2.y) + offset;
-      float bottom = std::max(p1.y, p2.y);
-
-      float road_length = bottom - top;
-      rectangle_ = {p1.x, top, road_thickness, road_length};
-
-      for (int ii = 1; ii < lanes_; ++ii) {
-          float line_x = rectangle_.x + LANE_WIDTH * ii;
-
-          lines_.push_back({{ line_x, rectangle_.y },
-              { line_x, rectangle_.y + rectangle_.height }});
-      }
-    //Horizontal
-    } else if (p1.y == p2.y) {
-      float left = std::min(p1.x, p2.x);
-      float right = std::max(p1.x, p2.x);
-      left += offset;
-
-      float road_length = right - left;
-      rectangle_ = {left,p1.y,road_length,road_thickness};
-      
-      for (int ii = 1; ii < lanes_; ++ii) {
-        float line_y = rectangle_.y + LANE_WIDTH * ii;
-
-        lines_.push_back({{ rectangle_.x, line_y }, 
-          { rectangle_.x + rectangle_.width, line_y}});
-      }
-    }
-
+    CalculateDrawingRectangle();
   }
   void Draw() {
     DrawRectangleRec(rectangle_,BLACK);
@@ -173,17 +128,30 @@ public:
     }
   }
 
+  void SetJunctions(Junction* j1, Junction* j2) {
+    j1_ = j1;
+    j2_ = j2;
+    CalculateDrawingRectangle();
+  }
+
+  std::vector<Truck*> GetTrucks() 
+    { return trucks_; }
+  Truck* AddTruck(Truck* t) 
+    { trucks_.push_back(t); }
+
   void OnTick() {
     
   }
-
   std::vector<Junction*> GetJunctions() {
     std::vector<Junction*> ret;
     ret.push_back(j1_);
     ret.push_back(j2_);
     return ret;
   }
-
+  Junction* GetStart() 
+    { return j1_; }
+  Junction* GetEnd() 
+    { return j2_; }
   void SetGraphId(graaf::vertex_id_t id)
     {graph_id_ = id;}
   graaf::vertex_id_t GetGraphId() 
@@ -200,15 +168,34 @@ private:
 
   std::vector<Vector2> path_points;
   std::vector<Line2D> lines_;
-  float GetTravelCost() const;
+  std::vector<Truck*> trucks_;
   Rectangle rectangle_;
   graaf::vertex_id_t graph_id_;
+
+  float GetTravelCost() const;
+  void CalculateDrawingRectangle();
+};
+
+class CenterYield : public TrafficNode {
+public:
+  CenterYield(Vector2 pos) : TrafficNode(pos) {
+    lanes_ = 2;
+  }
+
+  void Draw() override {
+    DrawRectangleV(position_,{(float)FOUR_WAY_STOP_WIDTH*lanes_,
+      (float)FOUR_WAY_STOP_WIDTH*lanes_},YELLOW);
+  }
+
+  void OnTick() override {
+    
+  }
 };
 
 class FourWayStop : public TrafficNode {
 public: 
   FourWayStop(Vector2 pos) : TrafficNode(pos) {
-
+    lanes_ = 2;
   }
 
   void Draw() override {
@@ -219,21 +206,14 @@ public:
   void OnTick() override {
     
   }
-
-private:
-  std::vector<Truck*> trucks_;
-  int lanes_ = 2;
-
 };
 
-class TrafficGraph {
-public:
-  std::vector<Junction*> nodes;
-  std::vector<RoadSegment*> roads;
-
-  std::vector<RoadSegment*> GetOutgoingRoads(Junction* node);
-};
-
+/**
+ * @brief TrafficCommand is in charge of creating any map objects
+ * (e.g. Truck, RoadSegment, Junction) and uses the Chain of Command
+ * design pattern for OnTick() and Draw()
+ * 
+ */
 class TrafficCommand {
 public:
   std::vector<Intersection*> GetIntersections() {
@@ -259,14 +239,113 @@ public:
   void Draw();
 private:
   void SetUp();
+  void RoadSegmentSetUp();
+
+  /**
+   * @brief Create a Mediator object
+   * 
+   */
+  void CreateMediator();
+
+  /**
+   * @brief Creates a FourWayStop object and wraps it 
+   * in a Junction object.
+   * 
+   * @param position 
+   * @return Junction* 
+   */
   Junction* AddFourWayJunction(Vector2 position);
+
+  /**
+   * @brief Wraps Factory pointer in a Junction object.
+   * 
+   * @param factory 
+   * @return Junction* 
+   */
   Junction* AddFactoryJunction(Factory* factory);
-  RoadSegment* AddRoadSegment(Junction* a, Junction* b);
-  RoadSegment* AddJunction(RoadSegment* rs1, RoadSegment* rs2, float ratio, JunctionType type);
+
+  /**
+   * @brief Creates a straight RoadSegment between j1 and 
+   * j2 and calls ConnectJunctions(). Addition to segments_ 
+   * must be flushed.
+   * 
+   * @param j1 
+   * @param j2 
+   * @return RoadSegment* 
+   */
+  RoadSegment* AddRoadSegment(Junction* j1, Junction* j2);
+  
+  Junction* AddJunction(Junction* j1, Vector2 pos, JunctionType type);
+  
+  /**
+   * @brief Creates a junction between J1 and J2. Any segments that 
+   * need to be added/deleted from segments_ has to be flushed.
+   * Connects new roads to new/existing junctions.
+   * 
+   * @param j1 
+   * @param j2 
+   * @param type 
+   * @param ratio 
+   * @return Junction* 
+   */
   Junction* AddJunction(Junction* j1, Junction* j2, JunctionType type, float ratio);
+  
+  /**
+   * @brief Creates a junction at the specified position of the specified type.
+   * Does not connect any junction
+   * 
+   * @param type 
+   * @param pos 
+   * @return Junction* 
+   */
+  Junction* AddJunction(JunctionType type, Vector2 pos);
+
+  /**
+   * @brief Connects junctions to each other via road segment. 
+   * Road segment's junction are also set.
+   * 
+   * @param j1 
+   * @param j2 
+   * @param rs 
+   */
   void ConnectJunctions(Junction* j1, Junction* j2, RoadSegment* rs);
+
+  /**
+   * @brief Removes RoadSegment from both junctions and removes 
+   * bidirectional edges between junctions. Queues RoadSegment 
+   * deletion that must be flushed.
+   * 
+   * @param rs1 
+   * @param j1 
+   * @param j2 
+   */
   void RemoveRoad(RoadSegment* rs1, Junction* j1, Junction* j2);
   void RemoveJunction(Junction* junction);
+
+  /**
+   * @brief Create a Truck object at specified position
+   * 
+   * @param rs 
+   * @param pos 
+   * @return Truck* 
+   */
+  Truck* CreateTruck(RoadSegment* rs, Vector2 pos);
+
+  /**
+   * @brief Create a Truck object at ratio of road (e.g. 1/2 way through)
+   * 
+   * @param segment 
+   * @param scale 
+   * @return Truck* 
+   */
+  Truck* CreateTruck(RoadSegment* segment, float scale);
+
+  /**
+   * @brief Helper function to flush additions and deletions to segments_.
+   * Used to avoid push/removing elements while iterating through funtion
+   * 
+   */
+  void SegmentFlush();
 
   std::vector<Intersection*> intersections_;
   std::vector<Road*> roads_;
@@ -275,6 +354,8 @@ private:
   std::vector<Junction*> junctions_;
   std::vector<RoadSegment*> segments_;
   graaf::directed_graph<Junction*, RoadSegment*> graph_;
+  std::queue<RoadSegment*> segment_deletions_;
+  std::queue<RoadSegment*> segment_additions_;
   // std::unordered_map<int, graaf::vertex_id_t> vertecies_;
   TrafficMediator* mediator_;
 };
