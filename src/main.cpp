@@ -42,7 +42,7 @@ void clean_up();
  * segfault occurs but before the program exits.
  * @param signal 
  */
-void segfault_handler(int signal);
+// void segfault_handler(int signal);
 void SetUpStyle();
 
 Color background = {56,24,35,225};
@@ -65,7 +65,7 @@ int ScaleToDPII(int value)
  */
 int main(void)
 {
-  signal(SIGSEGV, segfault_handler);
+  // signal(SIGSEGV, segfault_handler);
   SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT | FLAG_WINDOW_RESIZABLE);
 
   /*Graphics*/
@@ -109,6 +109,6 @@ int main(void)
   return 0;
 }
 
-void segfault_handler(int signal) {
-  exit(EXIT_FAILURE); 
-}
+// void segfault_handler(int signal) {
+//   exit(EXIT_FAILURE); 
+// }

@@ -1,6 +1,8 @@
 #include "traffic.hpp"
 
-#include "raylib.h"
+#include <raylib.h>
+
+#include "factory.hpp"
 
 void RoadSegment::CalculateDrawingRectangle() {
   if(j1_ == nullptr || j2_ == nullptr) return;
@@ -13,7 +15,7 @@ void RoadSegment::CalculateDrawingRectangle() {
   //TODO: Factor in type of j1 & j2
   switch(j2_->GetType()) {
     case JunctionType::Factory:
-      offset = FACTORY_WIDTH;
+      offset = 0;
       break;
     case JunctionType::FourWayStop:
     case JunctionType::CenterYield:
@@ -55,4 +57,11 @@ void RoadSegment::CalculateDrawingRectangle() {
         { rectangle_.x + rectangle_.width, line_y}});
     }
   }
+}
+
+Factory* Junction::GetFactory() {
+    if (auto* factory = dynamic_cast<Factory*>(obj_)) {
+      return factory;
+    }
+    return nullptr;
 }

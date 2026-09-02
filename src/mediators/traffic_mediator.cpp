@@ -3,6 +3,7 @@
 #include <cassert>
 #include <float.h>
 #include <iostream>
+#include <list>
 #include <memory>
 #include <vector>
 #include <queue>
@@ -43,8 +44,8 @@ std::queue<Intersection*> TrafficMediator::RequestRoute(Intersection* src, Inter
   return ret;
 }
 
-std::vector<Junction*> TrafficMediator::RequestRoute(Junction* src, Junction* dest) {
-  std::vector<Junction*> path;
+std::list<Junction*> TrafficMediator::RequestRoute(Junction* src, Junction* dest) {
+  std::list<Junction*> path;
 
   if(src == nullptr || dest == nullptr) {
     TraceLog(LOG_WARNING, "Passed null junction for path request");
@@ -58,8 +59,8 @@ std::vector<Junction*> TrafficMediator::RequestRoute(Junction* src, Junction* de
   auto shortest_path{maybe_path.value()};
 
   
-  for (auto id: shortest_path.vertices) {
-    Junction* node = junctions_.at(id);
+  for (graaf::vertex_id_t id: shortest_path.vertices) {
+    Junction* node = graph_.get_vertex(id);
     if(node != nullptr) {
       path.push_back(node);
     } else {
@@ -133,6 +134,15 @@ Vertex* GetVertex(std::vector<Vertex*> vertices, Intersection* intersection) {
     }
   }
 
+  return nullptr;
+}
+
+Dock* TrafficMediator::RequestDock(Junction* junction, Truck* truck) {
+  if(junction->GetType() == JunctionType::Factory) {
+    if (auto* factory = dynamic_cast<Factory*>(junction)) {
+      return factory->DockRequest(truck);
+    }
+  }
   return nullptr;
 }
 

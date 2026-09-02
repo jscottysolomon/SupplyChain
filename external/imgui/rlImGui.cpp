@@ -839,7 +839,7 @@ bool ImGui_ImplRaylib_ProcessEvents(void)
     LastSuperPressed = superDown;
 
     // walk the keymap and check for up and down events
-	for (int keyItr = 0; keyItr < MAX_RAYLIB_KEY; keyItr++)
+	for (std::size_t keyItr = 0; keyItr < MAX_RAYLIB_KEY; keyItr++)
     {
         const auto key = RaylibKeyMap[keyItr];
 

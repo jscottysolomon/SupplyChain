@@ -98,32 +98,35 @@ void GameUi::TruckScheduleFactorySection(Factory* f, Plan* p) {
 void GameUi::TruckScheduleTab() {
   if (ImGui::BeginTabItem("Schedule")) {
     int i = 0;
-    for (Factory* f: truck_->GetSchedule()) {
-      if (f == nullptr) continue;
+    for (Junction* junc : truck_->GetSchedule()) {
+      Factory* factory = junc->GetFactory();
+      if(factory == nullptr) 
+        { continue; }
+      if (factory == nullptr) continue;
 
-      Plan* p = truck_->GetPlan(f->GetId());
-      RuleContext& context = truck_->GetContext(f->GetId());
+      Plan* p = truck_->GetPlan(factory->GetId());
+      RuleContext& context = truck_->GetContext(factory->GetId());
       bool style = false;
       std::string str = "";
       std::vector<Target*> removals;
 
-      ImGui::Text("Factory ID: %d", f->GetId());
+      ImGui::Text("Factory ID: %d", factory->GetId());
       ImGui::PushID(i);
       if (ImGui::Button("Add")) {
         ImGui::OpenPopup("Add Rule");
       }
-      TruckScheduleFactorySection(f,p);
+      TruckScheduleFactorySection(factory,p);
 
       if (p!= nullptr) {
         int ii = 0;
         for (Target* t: p->GetTargets()) {
           ImGui::PushID(t);
-          TargetTableRow(t,f,removals);
+          TargetTableRow(t,factory,removals);
           ImGui::PopID();
         }
 
         for (Target* t: removals) {
-          truck_->RemoveTarget(t,f->GetId());
+          truck_->RemoveTarget(t,factory->GetId());
         }
       }
 
@@ -169,7 +172,7 @@ void GameUi::TruckWidget() {
 
   //TODO: use table for displaying targets & functions to reduce redundancy
   if (ImGui::BeginTabBar("Tabs")) {
-    TruckScheduleTab();
+    // TruckScheduleTab();
     if (ImGui::BeginTabItem("Inventory")) {      
       for (std::pair<int,int> inv : truck_->GetInventoryMap()) {
         ImGui::Text("%s[%d]: %d\n", organizer_->GetWidgetName(inv.first).c_str(), inv.first, inv.second);

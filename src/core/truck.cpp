@@ -43,7 +43,7 @@ void Truck::Dispatch() {
   if (!docked_) return;
   if (state_ != kDispatching) return;
 
-  stops_.front()->Undock(this);
+  // stops_.front()->Undock(this);
   stops_.erase(stops_.begin());
   docked_ = false;
   dock_ = nullptr;
@@ -57,14 +57,14 @@ void Truck::Drive() {
   if (state_ != kDriving) return;
 
   if (create_route && !stops_.empty()) {
-    route_ = mediator_.RequestRoute(intersection_,stops_.front()->GetIntersection());
+    route_ = mediator_.RequestRoute(junction_,stops_.front());
     create_route = false;
   }
 
-  if (intersection_ == nullptr && dock_ == nullptr) {
-    intersection_ = route_.front();
-    route_.pop();
-    target_ = intersection_->GetPosition();
+  if (junction_ == nullptr && dock_ == nullptr) {
+    junction_ = route_.front();
+    route_.pop_front();
+    target_ = junction_->GetPosition();
   }
   
   Vector2 movement_vector = Vector2Subtract(target_, position_);
@@ -78,7 +78,7 @@ void Truck::Drive() {
       SetState(kReceiving);
       dock_->cargo_ready = true;
     } else if (route_.size() > 0) {
-      intersection_ = nullptr;
+      junction_ = nullptr;
     } else if (Vector2Distance(position_,stops_.front()->GetPosition()) <= 5) {
       dock_ = mediator_.RequestDock(stops_.front(),this);
       if (dock_ != nullptr) {
@@ -89,8 +89,8 @@ void Truck::Drive() {
         //TODO add default behavior if dock is full
         //1. Wait 2. Add to end of list
         // stops_.erase(stops_.begin());
-        // if (!stops_.empty() && intersection_ != nullptr) {
-        //   route_ = mediator_.RequestRoute(intersection_, 
+        // if (!stops_.empty() && junction_ != nullptr) {
+        //   route_ = mediator_.RequestRoute(junction_, 
         //       stops_.front()->GetIntersection());
         // }
       }
@@ -101,29 +101,22 @@ void Truck::Drive() {
 
 }
 
-void Truck::AddStop(std::vector<Factory*> facts) {
-  for (Factory* f: facts) {
-    AddStop(f);
+void Truck::AddStop(std::vector<Junction*> junctions) {
+  for (Junction* junc: junctions) {
+    AddStop(junc);
   }
 }
 
-void Truck::AddStop(Factory* factory) {
+void Truck::AddStop(Junction* junction) {
   if (stops_.size() <= 0) {
-    for (Intersection* i: current_road_->GetIntersections()) {
-      if (intersection_ == nullptr) {
-        intersection_ = i;
-      } else if ( Vector2Distance(position_,i->GetPosition())
-        < Vector2Distance(position_,intersection_->GetPosition())) {
-          intersection_ = i;
-      }
-    }
-    route_ = mediator_.RequestRoute(intersection_,factory->GetIntersection());
-    intersection_ = nullptr;
+    route_ = mediator_.RequestRoute(junction_,junction);
   }
-  stops_.push_back(factory);
-  schedule_.push_back(factory);
+  stops_.push_back(junction);
+  schedule_.push_back(junction);
 
-  if (contexts_.find(factory->GetId()) == contexts_.end()) {
+  Factory* factory = junction->GetFactory();
+  
+  if(factory && contexts_.find(factory->GetId()) == contexts_.end()) {
     RuleContext context;
     context.factory_inv = factory->GetInventory();
     context.truck_inv = GetInventory();

@@ -2,6 +2,7 @@
 #define TRAFFIC_HPP
 
 #include <cmath>
+#include <list>
 #include <queue>
 #include <vector>
 
@@ -29,9 +30,9 @@ class TrafficNode: public MapObject {
     TrafficNode(Vector2 pos) : MapObject(pos) {
       // NextId();
     }
-    void SetJunctionId(int id) 
+    void SetJunctionId(graaf::vertex_id_t id) 
 			{junction_id_ = id;}
-		int GetJunctionId() 
+		graaf::vertex_id_t GetJunctionId() 
 			{return junction_id_;}
     int GetCost();
     int GetLaneNumber() 
@@ -39,7 +40,7 @@ class TrafficNode: public MapObject {
     void SetLaneNumber(int lanes) 
       {lanes_ = lanes;}
   protected:
-    int junction_id_;
+    graaf::vertex_id_t junction_id_;
     std::vector<Truck*> trucks_;
     int lanes_ = 2;
 };
@@ -94,9 +95,14 @@ public:
     }
     return 0;
   }
+  TrafficNode* GetEntity() 
+    { return obj_;}
+  Factory* GetFactory();
 
-  void SetGraphId(graaf::vertex_id_t id)
-    {graph_id_ = id;}
+  void SetGraphId(graaf::vertex_id_t id) {
+    graph_id_ = id;
+    obj_->SetJunctionId(graph_id_);
+  }
   graaf::vertex_id_t GetGraphId() 
     {return graph_id_;}
   
@@ -136,7 +142,7 @@ public:
 
   std::vector<Truck*> GetTrucks() 
     { return trucks_; }
-  Truck* AddTruck(Truck* t) 
+  void AddTruck(Truck* t) 
     { trucks_.push_back(t); }
 
   void OnTick() {
@@ -381,9 +387,10 @@ class TrafficMediator {
 
     }
     std::queue<Intersection*> RequestRoute(Intersection* src, Intersection* dest);
-    std::vector<Junction*> RequestRoute(Junction* src, Junction* dest);
+    std::list<Junction*> RequestRoute(Junction* src, Junction* dest);
     bool RequestIntersection(Intersection* inter, Truck* truck);
     Dock* RequestDock(Factory* factory, Truck* truck);
+    Dock* RequestDock(Junction* junction, Truck* truck);
   private:
     std::vector<Vertex*> Dijkstra(Intersection* src);
     std::vector<Intersection*>& intersections_;

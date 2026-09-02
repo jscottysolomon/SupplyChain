@@ -5,9 +5,11 @@
 #ifndef TRUCK_HPP
 #define TRUCK_HPP
 
-#include <raylib.h>
+#include <list>
 #include <vector>
 #include <queue>
+
+#include <raylib.h>
 
 #include "common.hpp"
 #include "entity.hpp"
@@ -19,7 +21,6 @@
 
 class Factory; //avoiding circular dependency
 class Road;
-class Intersection;
 struct Dock;
 
 enum TruckState {
@@ -36,7 +37,7 @@ class Truck : public MapObject {
 			SetPosition(vec);
 			docked_ = false;
 			speed_ = .025f;
-			intersection_ = nullptr;
+			junction_ = nullptr;
 			dock_ = nullptr;
 			create_route = false;
 			state_ = kDriving; //TODO: update
@@ -56,13 +57,17 @@ class Truck : public MapObject {
 			{ segment_ = rs; }
 		RoadSegment* GetRoadSegment() 
 			{ return segment_; }
-		std::vector<Factory*> GetStops()
+		std::vector<Junction*> GetStops()
 			{ return stops_; }
-		std::vector<Factory*> GetSchedule()
+		std::vector<Junction*> GetSchedule()
 			{ return schedule_;}
+		void SetJunction(Junction* junc)
+			{ junction_ = junc; }
+		Junction* GetJunction() 
+			{ return junction_; }
 		
-		void AddStop(Factory* factory);
-		void AddStop(std::vector<Factory*> factories);
+		void AddStop(Junction* junction);
+		void AddStop(std::vector<Junction*> junctions);
 
 		void ClearStops() {
 			while (!stops_.empty()) {
@@ -88,7 +93,15 @@ class Truck : public MapObject {
 			return nullptr;
 		}
 
-		RuleContext& GetContext(int id) { return contexts_.at(id); }
+		RuleContext& GetContext(int id) { 
+			if (contexts_.find(id) == contexts_.end()) {
+				return contexts_.at(id);
+			} else {
+				RuleContext context;
+				contexts_.insert({id,context});
+				return context;
+			}
+		}
 		void RemoveTarget(Target* t, int factory_id) {
 			Plan* p = plans_.at(factory_id);
 			
@@ -118,7 +131,7 @@ class Truck : public MapObject {
 		}
 
 		/*Road Relations*/
-		Intersection* intersection_;	//current intersection
+		Junction* junction_;
 		TrafficMediator& mediator_;	//traffic control mediator
 		RoadSegment* segment_;
 		Vector2 target_;				//target position
@@ -126,9 +139,9 @@ class Truck : public MapObject {
 		Dock* dock_;
 
 		/*Schedules and Routes*/
-		std::vector<Factory*> stops_; 		//dynamic list of stops
-		std::vector<Factory*> schedule_; 	//fixed schedule
-		std::queue<Intersection*> route_;	//route to current target factory
+		std::vector<Junction*> stops_; 		//dynamic list of stops
+		std::vector<Junction*> schedule_; 	//fixed schedule
+		std::list<Junction*> route_;	//route to current target factory
 
 		/*Cargo Management*/
 		Inventory inventory_;

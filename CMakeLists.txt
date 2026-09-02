@@ -17,6 +17,13 @@ file(GLOB SOURCES CONFIGURE_DEPENDS
 
 add_executable(CHAIN ${SOURCES})
 
+target_compile_features(CHAIN PRIVATE cxx_std_20)
+set_target_properties(CHAIN PROPERTIES
+  CXX_STANDARD 20
+  CXX_STANDARD_REQUIRED YES
+  CXX_EXTENSIONS NO
+)
+
 #set(CXXFLAGS
 #"-g -O0 -Wall -std=c++20 -Wno-missing-braces -pedantic -Wno-unused-variable -Wunused-result -Wno-delete-non-virtual-dtor -fpermissive -stdlib=libc++"
 #)
@@ -32,7 +39,7 @@ target_include_directories(CHAIN
 
 if (MSVC)
   target_link_libraries(CHAIN PRIVATE
-    "${CMAKE_SOURCE_DIR}/lib/raylib.lib"
+    "${CMAKE_SOURCE_DIR}/lib/MSVC/raylib.lib"
     opengl32
     gdi32
     winmm
@@ -50,8 +57,25 @@ if (MSVC)
     /fsanitize=address
   )
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  target_link_libraries(CHAIN PRIVATE "${CMAKE_SOURCE_DIR}/lib/raylib.lib" OpenGL32 Gdi32 WinMM kernel32 shell32 User32)
-  add_compile_options (-fcolor-diagnostics)
+  target_compile_options(CHAIN PRIVATE
+    -g
+    -O0
+    -Wall
+    -Wno-missing-braces
+    -pedantic
+    -Wno-unused-variable
+    -Wsign-compare
+    -Wno-delete-non-virtual-dtor
+    -fpermissive
+    -fcolor-diagnostics
+  )
+
+  target_link_libraries(CHAIN PRIVATE
+    "${CMAKE_SOURCE_DIR}/lib/libraylib.a"
+    opengl32
+    gdi32
+    winmm
+  )
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   target_compile_options(CHAIN PRIVATE
     -g
