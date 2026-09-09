@@ -25,51 +25,33 @@ void GameUi::BaseLayer() {
 
   ImGui::Begin("GameOverlay", nullptr, flags);
 
-  for (Factory* factory: factories_) {
-    if(factory == nullptr) {
-      TraceLog(LOG_WARNING, "Null factory in factory UI list!");
-      continue;
-    }
-
-    std::string str = CreateUniqueId("factory_button", factory->GetId());
-    ImGui::SetCursorScreenPos(ImVec2(factory->GetPosition().x, 
-        factory->GetPosition().y));
+  commander_.ForEachFactory([this](int id, Factory& factory) {
+    std::string str = CreateUniqueId("factory_button", factory.GetId());
+    ImGui::SetCursorScreenPos(ImVec2(factory.GetPosition().x, 
+        factory.GetPosition().y));
     ImGui::InvisibleButton(str.c_str(), ImVec2(FACTORY_WIDTH, FACTORY_WIDTH));
 
     if (ImGui::IsItemClicked()) {
-      if (factory_->GetId() != factory->GetId()) {
-        factory_ = factory;
-        auto it = find(factories_.begin(), factories_.end(), factory);
-        factory_index_ = it - factories_.begin();
-        break;
+      if (factory_id_ != factory.GetId()) {
+        factory_id_ = factory.GetId();
       }
     }
-  }
+  });
 
-  for (Truck* truck : trucks_) {
-    if(truck == nullptr) {
-      TraceLog(LOG_WARNING, "Null truck in truck UI list!");
-      continue;
-    }
-
-    if(truck_ == nullptr) {
-      TraceLog(LOG_WARNING, "Null current truck!");
-      break;
-    }
-
-    std::string str = CreateUniqueId("truck_button", truck->GetId());
-    ImGui::SetCursorScreenPos(ImVec2(truck->GetPosition().x, 
-        truck->GetPosition().y));
+  commander_.ForEachTruck([this](int id, Truck& truck) {
+    std::string str = CreateUniqueId("truck_button", truck.GetId());
+    ImGui::SetCursorScreenPos(ImVec2(truck.GetPosition().x, 
+        truck.GetPosition().y));
     ImGui::InvisibleButton(str.c_str(), ImVec2(TRUCK_WIDTH, TRUCK_WIDTH));
 
     if (ImGui::IsItemClicked()) {
-      if (truck_->GetId() != truck->GetId()) {
-        truck_ = truck;
-        auto it = find(trucks_.begin(), trucks_.end(), truck);
-        truck_index_ = it - trucks_.begin();
-        break;
+      if (truck_id_ != truck.GetId()) {
+        truck_id_ = truck.GetId();
       }
     }
-  }
-  ImGui::End();
+  
+    ImGui::End();
+  });
+
+    
 }

@@ -2,9 +2,14 @@
 #define TRAFFIC_HPP
 
 #include <cmath>
+#include <functional>
+#include <iterator>
 #include <list>
+#include <memory>
 #include <queue>
+#include <unordered_map>
 #include <vector>
+
 
 #include <graaflib/graph.h>
 #include <graaflib/edge.h>
@@ -22,6 +27,7 @@ class Factory;
 class Intersection;
 struct Dock;
 class TrafficMediator;
+class TrafficCommand;
 
 
 /*Map Object that has a "cost" for graph purposes*/
@@ -30,6 +36,7 @@ class TrafficNode: public MapObject {
     TrafficNode(Vector2 pos) : MapObject(pos) {
       // NextId();
     }
+    virtual ~TrafficNode() = default;
     void SetJunctionId(graaf::vertex_id_t id) 
 			{junction_id_ = id;}
 		graaf::vertex_id_t GetJunctionId() 
@@ -39,6 +46,8 @@ class TrafficNode: public MapObject {
       {return lanes_;}
     void SetLaneNumber(int lanes) 
       {lanes_ = lanes;}
+    void OnTick() override = 0;
+    void Draw() override = 0;
   protected:
     graaf::vertex_id_t junction_id_;
     std::vector<Truck*> trucks_;
@@ -54,7 +63,7 @@ enum class JunctionType {
   CenterYield
 };
 
-class Junction : public MapObject{
+class Junction : public MapObject {
 public:
   Junction(Vector2 position, JunctionType type, TrafficNode* obj, 
       std::vector<RoadSegment*> segments) : MapObject(position) {
@@ -69,7 +78,7 @@ public:
     if(obj != nullptr) SetPosition(obj_->GetPosition());
   }
 
-  ~Junction(){
+  ~Junction() override {
     delete obj_;
     obj_ = nullptr;
   }
@@ -112,6 +121,11 @@ public:
 
 private:
   JunctionType type_;
+
+  /**
+   * @brief Junction owns the TrafficNode it wraps.
+   * 
+   */
   TrafficNode* obj_;
   std::vector<RoadSegment*> segments_;
   graaf::vertex_id_t graph_id_;
@@ -119,13 +133,11 @@ private:
 
 class RoadSegment {
 public: 
-  RoadSegment(std::vector<Vector2> path, Junction* j1, Junction* j2) {
-    path_points = path;
-    j1_ = j1;   j1_->AddSegmnet(this);
-    j2_ = j2;   j2->AddSegmnet(this);
+  RoadSegment(Junction* j1, Junction* j2) {
     one_way_ = false;
     lanes_ = 2;
-    CalculateDrawingRectangle();
+    CalculateLeftRight(j1,j2);    
+    id_ = NextId();
   }
   void Draw() {
     DrawRectangleRec(rectangle_,BLACK);
@@ -135,8 +147,7 @@ public:
   }
 
   void SetJunctions(Junction* j1, Junction* j2) {
-    j1_ = j1;
-    j2_ = j2;
+    CalculateLeftRight(j1,j2);
     CalculateDrawingRectangle();
   }
 
@@ -144,27 +155,51 @@ public:
     { return trucks_; }
   void AddTruck(Truck* t) 
     { trucks_.push_back(t); }
+  int GetId() 
+    { return id_; }
 
   void OnTick() {
     
   }
   std::vector<Junction*> GetJunctions() {
     std::vector<Junction*> ret;
-    ret.push_back(j1_);
-    ret.push_back(j2_);
+    ret.push_back(right_);
+    ret.push_back(left_);
     return ret;
   }
-  Junction* GetStart() 
-    { return j1_; }
-  Junction* GetEnd() 
-    { return j2_; }
+  /**
+   * @brief Junction truck heads to if it's on the right side of the road
+   * 
+   * @return Junction* 
+   */
+  Junction* GetRightSideJunction() 
+    { return right_; }
+
+  /**
+   * @brief Junction truck heads to if it's on the left side of the road
+   * 
+   * @return Junction* 
+   */
+  Junction* GetLeftSideJunction()
+    { return left_; }
+
+  /**
+   * @brief Returns right or left based on param
+   * 
+   * @param on_right truck is on right side of road
+   * @return Junction* 
+   */
+  Junction* GetJunction(bool on_right) {
+    if(on_right) { return right_; }
+    return left_;
+  }
   void SetGraphId(graaf::vertex_id_t id)
     {graph_id_ = id;}
   graaf::vertex_id_t GetGraphId() 
     {return graph_id_;}
 private:
-  Junction* j1_;
-  Junction* j2_;
+  Junction* right_;
+  Junction* left_;
 
   float length_;
   float speed_limit_;
@@ -180,6 +215,7 @@ private:
 
   float GetTravelCost() const;
   void CalculateDrawingRectangle();
+  void CalculateLeftRight(Junction* j1, Junction* j2);
 };
 
 class CenterYield : public TrafficNode {
@@ -187,6 +223,8 @@ public:
   CenterYield(Vector2 pos) : TrafficNode(pos) {
     lanes_ = 2;
   }
+  ~CenterYield() override = default;
+
 
   void Draw() override {
     DrawRectangleV(position_,{(float)FOUR_WAY_STOP_WIDTH*lanes_,
@@ -203,6 +241,7 @@ public:
   FourWayStop(Vector2 pos) : TrafficNode(pos) {
     lanes_ = 2;
   }
+  ~FourWayStop() override = default;
 
   void Draw() override {
     DrawRectangleV(position_,{(float)FOUR_WAY_STOP_WIDTH*lanes_,
@@ -214,6 +253,22 @@ public:
   }
 };
 
+class TrafficMediator {
+  public:
+    TrafficMediator(TrafficCommand& commander, graaf::directed_graph<Junction*, RoadSegment*>& graph
+      ): commander_(commander), graph_(graph)  {
+
+    }
+    std::list<Junction*> RequestRoute(Junction* src, Junction* dest);
+    bool RequestIntersection(Intersection* inter, Truck* truck);
+    Dock* RequestDock(Factory* factory, Truck* truck);
+    Dock* RequestDock(Junction* junction, Truck* truck);
+  private:
+    TrafficCommand& commander_;
+    graaf::directed_graph<Junction*, RoadSegment*>& graph_;
+    // std::unordered_map<int, graaf::vertex_id_t>& vertecies_;
+};
+
 /**
  * @brief TrafficCommand is in charge of creating any map objects
  * (e.g. Truck, RoadSegment, Junction) and uses the Chain of Command
@@ -222,27 +277,117 @@ public:
  */
 class TrafficCommand {
 public:
-  std::vector<Intersection*> GetIntersections() {
-    return intersections_;
-  }
-  std::vector<Truck*> GetTrucks() {
-    return trucks_;
-  }
-  std::vector<Factory*> GetFactories() {
-    return factories_;
-  }
-
-  void AddIntersection(Intersection* inter) {
-    intersections_.push_back(inter);
-  }
-  TrafficCommand() {
-    SetUp();
-  }
+  TrafficCommand();
   ~TrafficCommand();
 
   void OnTick();
 
   void Draw();
+
+  void ForEachFactory(const std::function<void(int, Factory&)>& fn) {
+      for (auto& [id, factory] : factories_) {
+          fn(id, *factory);
+      }
+  }
+
+  Factory* GetFactory(int id) {
+      auto it = factories_.find(id);
+      if (it == factories_.end()) {
+          return nullptr;
+      }
+      return it->second;
+  }
+
+  void RemoveFactory(int id) {
+      factories_.erase(id);
+  }
+
+  Factory* GetNextFactoryOrFirst(int id) {
+    if (factories_.empty()) {
+        return nullptr;
+    }
+
+    auto it = factories_.find(id);
+    if (it == factories_.end()) {
+        return factories_.begin()->second;
+    }
+
+    auto next = std::next(it);
+    if (next == factories_.end()) {
+        return factories_.begin()->second;
+    }
+    return next->second;
+  }
+
+  void ForEachTruck(const std::function<void(int, Truck&)>& fn) {
+      for (auto& [id, truck]  : trucks_) {
+          fn(id, *truck);
+      }
+  }
+
+  Truck* GetTruck(int id) {
+      auto it = trucks_.find(id);
+      if (it == trucks_.end()) {
+          return nullptr;
+      }
+      return it->second.get();
+  }
+
+  void RemoveTruck(int id);
+
+  Truck* GetNextTruckOrFirst(int id) {
+    if (trucks_.empty()) {
+        return nullptr;
+    }
+
+    auto it = trucks_.find(id);
+    if (it == trucks_.end()) {
+        return trucks_.begin()->second.get();
+    }
+
+    auto next = std::next(it);
+    if (next == trucks_.end()) {
+        return trucks_.begin()->second.get();
+    }
+    return next->second.get();
+  }
+
+  void ForEachJunction(const std::function<void(int, Junction&)>& fn) {
+    for (auto& [id, junction] : junctions_) {
+        fn(id, *junction);
+    }
+  }
+
+  Junction* GetJunction(int id) {
+      auto it = junctions_.find(id);
+      if (it == junctions_.end()) {
+          return nullptr;
+      }
+      return it->second.get();
+  }
+
+  void RemoveJunction(int id) {
+      junctions_.erase(id);
+  }
+
+  void ForEachSegment(const std::function<void(int, RoadSegment&)>& fn) {
+    for (auto& [id, seg] : segments_) {
+        fn(id, *seg);
+    }
+  }
+
+  RoadSegment* GetSegment(int id) {
+      auto it = segments_.find(id);
+      if (it == segments_.end()) {
+          return nullptr;
+      }
+      return it->second.get();
+  }
+
+  void RemoveSegment(int id) {
+      segments_.erase(id);
+  }
+
 private:
   void SetUp();
   void RoadSegmentSetUp();
@@ -352,16 +497,13 @@ private:
    * 
    */
   void SegmentFlush();
-
-  std::vector<Intersection*> intersections_;
-  std::vector<Road*> roads_;
-  std::vector<Factory*> factories_;
-  std::vector<Truck*> trucks_;
-  std::vector<Junction*> junctions_;
-  std::vector<RoadSegment*> segments_;
+  std::unordered_map<int, Factory*> factories_;
+  std::unordered_map<int, std::unique_ptr<Truck>> trucks_;
+  std::unordered_map<int, std::unique_ptr<Junction>> junctions_;
+  std::unordered_map<int, std::unique_ptr<RoadSegment>> segments_;
   graaf::directed_graph<Junction*, RoadSegment*> graph_;
-  std::queue<RoadSegment*> segment_deletions_;
-  std::queue<RoadSegment*> segment_additions_;
+  std::queue<int> segment_deletions_;
+  std::queue<std::unique_ptr<RoadSegment>> segment_additions_;
   // std::unordered_map<int, graaf::vertex_id_t> vertecies_;
   TrafficMediator* mediator_;
 };
@@ -372,36 +514,7 @@ struct Vertex{
   Vertex* prev;
 };
 
-class TrafficMediator {
-  public:
-    TrafficMediator(
-      std::vector<Intersection*>& intersections,
-      std::vector<Road*>& roads,
-      std::vector<Factory*>& factories,
-      std::vector<Truck*>& trucks,
-      std::vector<Junction*>& junctions,
-      std::vector<RoadSegment*>& segments,
-      graaf::directed_graph<Junction*, RoadSegment*>& graph
-      ): intersections_(intersections), roads_(roads), factories_(factories), trucks_(trucks), 
-        junctions_(junctions), segments_(segments), graph_(graph)  {
 
-    }
-    std::queue<Intersection*> RequestRoute(Intersection* src, Intersection* dest);
-    std::list<Junction*> RequestRoute(Junction* src, Junction* dest);
-    bool RequestIntersection(Intersection* inter, Truck* truck);
-    Dock* RequestDock(Factory* factory, Truck* truck);
-    Dock* RequestDock(Junction* junction, Truck* truck);
-  private:
-    std::vector<Vertex*> Dijkstra(Intersection* src);
-    std::vector<Intersection*>& intersections_;
-    std::vector<Road*>& roads_;
-    std::vector<Factory*>& factories_;
-    std::vector<Truck*>& trucks_; 
-    std::vector<Junction*>& junctions_;
-    std::vector<RoadSegment*>& segments_;
-    graaf::directed_graph<Junction*, RoadSegment*>& graph_;
-    // std::unordered_map<int, graaf::vertex_id_t>& vertecies_;
-};
 
 RoadSegment* GetCommonRoad(Junction* j1, Junction* j2);
 

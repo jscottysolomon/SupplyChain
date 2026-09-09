@@ -7,4 +7,6 @@
 #define DOCK_WIDTH 15
 #define FACTORY_WIDTH (DOCK_WIDTH * 3)
 
+#define LEEWAY 3
+
 #endif

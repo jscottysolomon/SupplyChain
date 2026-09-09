@@ -18,6 +18,8 @@ class MapObject {
 		}
 		MapObject() {
 		}
+
+		virtual ~MapObject() = default;
 		void SetPosition(Vector2 position) {
 			position_ = position;
 			id_ = NextId();
@@ -30,7 +32,7 @@ class MapObject {
 		virtual void Draw() {
 			DrawRectangle(position_.x,position_.y,15,15,BLUE);
 		}
-		virtual void OnTick() {}
+		virtual void OnTick() = 0;
 	protected:
 		Vector2 position_;
 		int id_;

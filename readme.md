@@ -4,6 +4,13 @@ Sample run:
 ```
 ```
   cmake -B build -G Ninja -DCMAKE_C_COMPILER="C:/Development/Tools/msys64/clang64/bin/clang.exe" -DCMAKE_CXX_COMPILER="C:/Development/Tools/msys64/clang64/bin/clang++.exe"
+
+  cmake -B build -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Debug
+
+  C:\Program Files\LLVM\bin
+```
+```
+cmake -S . -B build -G Ninja -DCMAKE_CXX_COMPILER=clang-cl -DCMAKE_MT="C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\mt.exe" -DCMAKE_BUILD_TYPE=Debug
 ```
 
 Dependencies:

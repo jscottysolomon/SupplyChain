@@ -36,7 +36,14 @@ void GameUi::QuantityTargetTableRow(std::string str, ReceiveQuantity* rule, Targ
   ImGui::BeginGroup();
   ImGui::Text("Release");
   ImGui::SameLine();
-  str = CreateUniqueId("-", truck_, f, rule->GetWidgetId());
+  Truck* truck = commander_.GetTruck(truck_id_);
+  if (!truck) {
+    TraceLog(LOG_WARNING, "Null truck for table rows");
+    ImGui::End();
+    return;
+  }
+
+  str = CreateUniqueId("-", truck, f, rule->GetWidgetId());
   if (ImGui::Button(str.c_str()))
   {
     rule->DecreaseAmount();
@@ -44,14 +51,14 @@ void GameUi::QuantityTargetTableRow(std::string str, ReceiveQuantity* rule, Targ
   ImGui::SameLine();
   ImGui::Text("%d", rule->GetAmount());
   ImGui::SameLine();
-  str = CreateUniqueId("+", truck_, f, rule->GetWidgetId());
+  str = CreateUniqueId("+", truck, f, rule->GetWidgetId());
   if (ImGui::Button(str.c_str())) {
     rule->IncreaseAmount();
   }
   ImGui::SameLine();
   ImGui::Text("%s", organizer_->GetWidgetName(rule->GetWidgetId()).c_str());
   ImGui::SameLine();
-  str = CreateUniqueId("X", truck_, f, rule->GetWidgetId());
+  str = CreateUniqueId("X", truck, f, rule->GetWidgetId());
   if (ImGui::SmallButton(str.c_str())) {
     removals.push_back(t);
   }
@@ -65,6 +72,13 @@ void GameUi::TruckScheduleFactorySection(Factory* f, Plan* p) {
     TraceLog(LOG_ERROR, "Plan is null!");
     return;
   }
+
+  Truck* truck = commander_.GetTruck(truck_id_);
+  if (!truck) {
+    TraceLog(LOG_WARNING, "Null truck for table rows");
+    return;
+  }
+
   if (ImGui::BeginPopup("Add Rule")) {
     if (ImGui::BeginMenu("Receive")) {
       for (std::pair<int,int> pair: f->GetInventoryMap()) {
@@ -78,7 +92,7 @@ void GameUi::TruckScheduleFactorySection(Factory* f, Plan* p) {
       ImGui::EndMenu();
     }
     if (ImGui::BeginMenu("Dispatch")) {
-      for (std::pair<int,int> pair: truck_->GetInventoryMap()) {
+      for (std::pair<int,int> pair: truck->GetInventoryMap()) {
         std::string name = organizer_->GetWidgetName(pair.first) + "##" +
           std::to_string(pair.first);
         if (ImGui::MenuItem(name.c_str())) {
@@ -98,14 +112,19 @@ void GameUi::TruckScheduleFactorySection(Factory* f, Plan* p) {
 void GameUi::TruckScheduleTab() {
   if (ImGui::BeginTabItem("Schedule")) {
     int i = 0;
-    for (Junction* junc : truck_->GetSchedule()) {
+    Truck* truck = commander_.GetTruck(truck_id_);
+    if (!truck) {
+      TraceLog(LOG_WARNING, "Null truck for table rows");
+      return;
+    }
+    for (Junction* junc : truck->GetSchedule()) {
       Factory* factory = junc->GetFactory();
       if(factory == nullptr) 
         { continue; }
       if (factory == nullptr) continue;
 
-      Plan* p = truck_->GetPlan(factory->GetId());
-      RuleContext& context = truck_->GetContext(factory->GetId());
+      Plan* p = truck->GetPlan(factory->GetId());
+      RuleContext& context = truck->GetContext(factory->GetId());
       bool style = false;
       std::string str = "";
       std::vector<Target*> removals;
@@ -126,7 +145,7 @@ void GameUi::TruckScheduleTab() {
         }
 
         for (Target* t: removals) {
-          truck_->RemoveTarget(t,factory->GetId());
+          truck->RemoveTarget(t,factory->GetId());
         }
       }
 
@@ -156,7 +175,11 @@ void GameUi::TargetTableRow(
 }
 
 void GameUi::TruckWidget() {
-  if (truck_ == nullptr) return;
+  Truck* truck = commander_.GetTruck(truck_id_);
+  if (!truck) {
+    TraceLog(LOG_WARNING, "Null truck for table rows");
+    return;
+  }
 
   bool open = true;
   ImVec2 displaySize = ImGui::GetIO().DisplaySize;
@@ -167,22 +190,21 @@ void GameUi::TruckWidget() {
       ImGuiWindowFlags_NoResize |
       ImGuiWindowFlags_NoCollapse);
 
-  ImGui::Text("ID: %d", truck_->GetId());
-  ImGui::Text("Capacity: %d/%d", truck_->GetAvailableCapacity(), truck_->GetMaxCapacity());
+  ImGui::Text("ID: %d", truck->GetId());
+  ImGui::Text("Capacity: %d/%d", truck->GetAvailableCapacity(), truck->GetMaxCapacity());
 
   //TODO: use table for displaying targets & functions to reduce redundancy
   if (ImGui::BeginTabBar("Tabs")) {
     // TruckScheduleTab();
     if (ImGui::BeginTabItem("Inventory")) {      
-      for (std::pair<int,int> inv : truck_->GetInventoryMap()) {
+      for (std::pair<int,int> inv : truck->GetInventoryMap()) {
         ImGui::Text("%s[%d]: %d\n", organizer_->GetWidgetName(inv.first).c_str(), inv.first, inv.second);
       }
       if (ImGui::Button("Next")) {
-        truck_index_++;
-        if (truck_index_ >= trucks_.size()) {
-          truck_index_ = 0;
+        Truck* next = commander_.GetNextTruckOrFirst(truck_id_);
+        if(next) {
+          truck_id_ = next->GetId();
         }
-        truck_ = trucks_.at(truck_index_);
       }
       ImGui::EndTabItem();
     }

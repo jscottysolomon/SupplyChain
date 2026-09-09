@@ -8,17 +8,21 @@
 #include "rules.hpp"
 
 void GameUi::RenderUi() {
-  if (truck_ == nullptr && !trucks_.empty()) {
-    truck_ = trucks_.at(truck_index_);
-    truck_id_ = truck_->GetId();
+  if(factory_id_ <= -1) {
+    Factory* next = commander_.GetNextFactoryOrFirst(factory_id_);
+    if(next) {
+      factory_id_ = next->GetId();
+    }
   }
-  if (factory_ == nullptr && !factories_.empty()) {
-    factory_ = factories_.at(factory_index_);
-    factory_id_ = factory_->GetId();
+  if(truck_id_ <= -1) {
+    Truck* next = commander_.GetNextTruckOrFirst(truck_id_);
+    if(next) {
+      truck_id_ = next->GetId();
+    }
   }
-
-  BaseLayer();
-  TruckWidget();
+  
+  // BaseLayer();
+  // TruckWidget();
   FactoryWidget();
   ImGui::ShowIDStackToolWindow();
 }

@@ -10,6 +10,8 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <iterator>
+#include <memory>
 #include <unordered_map>
 
 #include <raylib.h>
@@ -20,7 +22,6 @@
 #include "factory.hpp"
 #include "intersection.hpp"
 #include "util.hpp"
-#include "traffic.hpp"
 #include "traffic.hpp"
 #include "truck.hpp"
 
@@ -41,78 +42,90 @@ void TrafficCommand::RoadSegmentSetUp() {
     }
   }
 
-  for (std::size_t xx = 0; xx < junctions_.size(); xx++) {
-    for (std::size_t yy = 1; yy < junctions_.size(); yy++) {
-      Junction* j1 = junctions_.at(xx);
-      Junction* j2 = junctions_.at(yy);
+  for (auto itA = junctions_.begin(); itA != junctions_.end(); ++itA) {
+    for (auto itB = std::next(itA); itB != junctions_.end(); ++itB) {
+        Junction* j1 = itA->second.get();
+        Junction* j2 = itB->second.get();
 
-      if(Vector2Distance(j1->GetPosition(),j2->GetPosition()) <= LENGTH 
+        if(Vector2Distance(j1->GetPosition(),j2->GetPosition()) <= LENGTH 
         && j1->GetId() != j2->GetId()) {
         AddRoadSegment(j1, j2);
       }
     }
   }
+
   SegmentFlush();
 
-  int index = 4;
+  std::size_t index = 4;
 
-  for (std::size_t ii = 0; ii < segments_.size(); ii++) {
-    if (ii % 4 == 0) {
-      Truck* tr = CreateTruck(segments_.at(ii), 0.5);
-      
-    }
+  std::vector<RoadSegment*> truck_segs;
+  int ii = 0;
+
+  for (auto it = segments_.begin(); it != segments_.end(); ++it) {
+    RoadSegment* rs = it->second.get();
+
+    
 
     if (ii % index == 0) {
       index+= index;
-      Junction* j1 = AddJunction(segments_.at(ii)->GetStart(), 
-          segments_.at(ii)->GetEnd(),JunctionType::CenterYield, 0.5);
+      Junction* j1 = AddJunction(rs->GetRightSideJunction(), 
+          rs->GetLeftSideJunction(),JunctionType::CenterYield, 0.5);
 
-      if (ii % (index*index) && j1 != nullptr) {
-        Vector2 p1 = j1->GetPosition();
-        Junction* other = nullptr;
-        for (RoadSegment* rs: j1->GetSegments()) {
-          if (rs->GetStart() == j1) {
-            other = rs->GetEnd();
-          } else if (rs->GetEnd() == j1) {
-            other = rs->GetStart();
-          }
+      // if (ii % (index*index) && j1 != nullptr) {
+      //   Vector2 p1 = j1->GetPosition();
+      //   Junction* other = nullptr;
+      //   for (RoadSegment* rs: j1->GetSegments()) {
+      //     if (rs->GetRightSideJunction() == j1) {
+      //       other = rs->GetLeftSideJunction();
+      //     } else if (rs->GetLeftSideJunction() == j1) {
+      //       other = rs->GetRightSideJunction();
+      //     }
 
-          if (other == nullptr) continue;
+      //     if (other == nullptr) continue;
 
-          Vector2 p2 = other->GetPosition();
-          Vector2 p3 = p1;
+      //     Vector2 p2 = other->GetPosition();
+      //     Vector2 p3 = p1;
 
-          if (p1.x == p2.x) {
-              p3.x += OFFSET_JUNCTION;
-          } else if (p1.y == p2.y) {
-              p3.y += OFFSET_JUNCTION;
-          }
-          AddJunction(j1, p3, JunctionType::Factory);
-          break;
-        }
+      //     if (p1.x == p2.x) {
+      //         p3.x += OFFSET_JUNCTION;
+      //     } else if (p1.y == p2.y) {
+      //         p3.y += OFFSET_JUNCTION;
+      //     }
+      //     AddJunction(j1, p3, JunctionType::Factory);
+      //     break;
+      //   }
 
-      }
+      // }
+    } else if (ii % 4 == 0) {
+      truck_segs.push_back(rs);   
     }
+
+    ii++;
   }
   SegmentFlush();
 
+  for (auto it = segments_.begin(); it != segments_.end(); ++it) {
+    RoadSegment* rs = it->second.get();
+  }
+  SegmentFlush();
 
 
   std::unordered_map<int, int> inv = {{1,50},{2,50},{3,50},{4,50}};
   index = 0;
 
-  for (std::size_t ii = 0; ii < trucks_.size(); ii++) {
-    Truck* tr = trucks_.at(ii);
-
+  for (RoadSegment* rs: truck_segs) {
+    Truck* tr = CreateTruck(rs, 0.5);
     tr->SetInventory(inv);
+    tr->SetJunction(rs->GetRightSideJunction());   
 
-    if(index >= factories_.size()) {
-      index = 0;
-    }
-    Junction* jun = graph_.get_vertex(factories_.at(index)->GetJunctionId());
-    tr->AddStop(jun);
-    index++;
+    //Adding stop
+    // Junction* jun = graph_.get_vertex(factories_.begin()->second->GetId());
+    // tr->AddStop(jun);
+    // if(index++ >= factories_.size()) {
+    //   index = 0;
+    // }
   }
+
 
   // Junction* j1 = AddFactoryJunction(FactoryBuilder({340,420})
   //   .Capacity(3)
@@ -143,8 +156,7 @@ void TrafficCommand::RoadSegmentSetUp() {
 }
 
 void TrafficCommand::CreateMediator() {
-  mediator_ = new TrafficMediator(intersections_,roads_,factories_,
-    trucks_,junctions_,segments_,graph_);
+  mediator_ = new TrafficMediator(*this,graph_);
 }
 
 void TrafficCommand::SetUp() {
@@ -154,54 +166,51 @@ void TrafficCommand::SetUp() {
   
 }
 
-TrafficCommand::~TrafficCommand() {
-  for (std::size_t ii = 0; ii < roads_.size(); ii++) {
-    delete roads_.at(ii);
-  }
-  for (std::size_t i = 0; i < factories_.size(); i++) {
-    delete factories_.at(i);
-  }
-  for (Truck* t:trucks_) {
-    delete t;
-  }
-  for (Intersection* inter: intersections_) {
-    delete inter;
-  }
+TrafficCommand::TrafficCommand() {
+  SetUp();
+}
 
+TrafficCommand::~TrafficCommand() {
   delete mediator_;
 }
 
+void TrafficCommand::RemoveTruck(int id) {
+  trucks_.erase(id);
+}
+
 void TrafficCommand::OnTick() {
-  for (Factory* f: factories_) {
-    f->OnTick();
+  for (auto it = junctions_.begin(); it != junctions_.end(); ++it) {
+    Junction* junc = it->second.get();
+    junc->OnTick();
   }
-  for (Truck* t: trucks_) {
-    t->OnTick();
-  }
-  for (Junction* j: junctions_) {
-    j->OnTick();
+  for (auto it = trucks_.begin(); it != trucks_.end(); ++it) {
+    Truck* truck = it->second.get();
+    truck->OnTick();
   }
 }
 
 void TrafficCommand::Draw() {
-  for (Road* r:roads_) {
-    r->Draw();
+  for (auto it = segments_.begin(); it != segments_.end(); ++it) {
+    RoadSegment* rs = it->second.get();
+    rs->Draw();
   }
-  for(RoadSegment* s: segments_) {
-    s->Draw();
+  for (auto it = junctions_.begin(); it != junctions_.end(); ++it) {
+    Junction* junc = it->second.get();
+    junc->Draw();
   }
-  for (Junction* j: junctions_) {
-    j->Draw();
-  }
-  for (Truck* t: trucks_) {
-    t->Draw();
+  for (auto it = trucks_.begin(); it != trucks_.end(); ++it) {
+    Truck* truck = it->second.get();
+    truck->Draw();
   }
 }
 
 void TrafficCommand::ConnectJunctions(Junction* j1, Junction* j2, RoadSegment* rs1) {
+  if(!j1 || !j2 || !rs1) {
+    TraceLog(LOG_ERROR, "Cannot connect null junction(s) or road!");
+  }
+  
   if(!graph_.has_edge(j1->GetGraphId(), j2->GetGraphId())) {
     graph_.add_edge(j1->GetGraphId(),j2->GetGraphId(),rs1);
-    
   }
 
   if(!graph_.has_edge(j2->GetGraphId(), j1->GetGraphId())) {
@@ -214,21 +223,24 @@ void TrafficCommand::ConnectJunctions(Junction* j1, Junction* j2, RoadSegment* r
 }
 
 Truck* TrafficCommand::CreateTruck(RoadSegment* rs, Vector2 pos) {
-  Truck* tr = new Truck(pos,*mediator_);
-  trucks_.push_back(tr);
-  rs->AddTruck(tr);
-  tr->SetRoadSegment(rs); 
-  tr->SetJunction(rs->GetEnd());
+  auto truck = std::make_unique<Truck>(pos,*mediator_);
+  Truck* raw = truck.get();
+  trucks_.emplace(truck->GetId(), std::move(truck));
 
-  return tr;
+  rs->AddTruck(raw);
+  raw->SetRoadSegment(rs); 
+  raw->SetJunction(rs->GetLeftSideJunction());
+  return raw;
 }
 
 Truck* TrafficCommand::CreateTruck(RoadSegment* rs, float ratio) {
-  if(rs->GetJunctions().size() < 2)
-    return nullptr;
+  if(!rs->GetLeftSideJunction() ||!rs->GetRightSideJunction()) {
+      TraceLog(LOG_ERROR, "Passed incomplete road");
+      return nullptr;
+  }
 
-  Vector2 p1 = rs->GetJunctions().at(0)->GetPosition();
-  Vector2 p2 = rs->GetJunctions().at(1)->GetPosition();
+  Vector2 p1 = rs->GetRightSideJunction()->GetPosition();
+  Vector2 p2 = rs->GetLeftSideJunction()->GetPosition();
 
   Vector2 split_point;
 
@@ -247,27 +259,43 @@ Truck* TrafficCommand::CreateTruck(RoadSegment* rs, float ratio) {
   return CreateTruck(rs,split_point);
 }
 
-Junction* TrafficCommand::AddFourWayJunction(Vector2 position) {
-    FourWayStop* stop = new FourWayStop(position);
-    Junction* junction = new Junction(stop, JunctionType::FourWayStop);
-    junctions_.push_back(junction);
-    junction->SetGraphId(graph_.add_vertex(junction));
-    return junction;
+Junction* TrafficCommand::AddFourWayJunction(Vector2 position) {  
+  FourWayStop* stop = new FourWayStop(position);
+  auto junction = std::make_unique<Junction>(stop, JunctionType::FourWayStop);
+  Junction* raw = junction.get();
+  junctions_.emplace(junction->GetId(), std::move(junction));
+
+  raw->SetGraphId(graph_.add_vertex(raw));
+  return raw;
 }
 
 Junction* TrafficCommand::AddFactoryJunction(Factory* factory) {
-  Junction* junction = new Junction(factory, JunctionType::Factory);
-  junctions_.push_back(junction);
-  junction->SetGraphId(graph_.add_vertex(junction));
-  graaf::vertex_id_t id = graph_.add_vertex(junction);
-  return junction;
+  if (!factory) {
+    TraceLog(LOG_ERROR, "Passed null factory!");
+    return nullptr;
+  }
+
+  auto junction = std::make_unique<Junction>(factory, JunctionType::Factory);
+  Junction* raw = junction.get();
+  junctions_.emplace(junction->GetId(), std::move(junction));
+
+  factories_.emplace(factory->GetId(), factory);
+  raw->SetGraphId(graph_.add_vertex(raw));
+  graaf::vertex_id_t id = graph_.add_vertex(raw);
+  return raw;
 }
 
 RoadSegment* TrafficCommand::AddRoadSegment(Junction* j1, Junction* j2) {
-    RoadSegment* segment = new RoadSegment({ j1->GetPosition(), j2->GetPosition() }, j1, j2);
-    segment_additions_.push(segment);
-    ConnectJunctions(j1,j2,segment);
-    return segment;
+  if(!j1 || !j2) {
+    TraceLog(LOG_ERROR, "Passed null junction(s)!");
+    return nullptr;
+  }
+  auto segment = std::make_unique<RoadSegment>(j1, j2);
+  RoadSegment* raw = segment.get();
+  segment_additions_.push(std::move(segment));
+
+  ConnectJunctions(j1,j2,raw);
+  return raw;
 }
 
 Junction* TrafficCommand::AddJunction(Junction* j1, Vector2 pos, 
@@ -289,7 +317,6 @@ Junction* TrafficCommand::AddJunction(JunctionType type, Vector2 pos) {
         .WithDock({pos.x - DOCK_WIDTH,pos.y}, nullptr)
         .WithDock(pos, nullptr)
         .Build();
-      factories_.push_back(f);
       return AddFactoryJunction(f);
       break;
     }
@@ -305,11 +332,12 @@ Junction* TrafficCommand::AddJunction(JunctionType type, Vector2 pos) {
       return nullptr;
   }
 
-  Junction* junction = new Junction(node,type);
-  junction->SetGraphId(graph_.add_vertex(junction));
-  junctions_.push_back(junction);
+  std::unique_ptr<Junction> junction = std::make_unique<Junction>(node,type);
+  Junction* raw = junction.get();
+  raw->SetGraphId(graph_.add_vertex(raw));
+  junctions_.emplace(raw->GetId(), std::move(junction));
 
-  return junction;
+  return raw;
 }
 
 Junction* TrafficCommand::AddJunction(Junction* j1, Junction* j2, 
@@ -364,7 +392,7 @@ void TrafficCommand::RemoveRoad(RoadSegment* rs1, Junction* j1, Junction* j2) {
 
   j1->RemoveSegment(rs1);
   j2->RemoveSegment(rs1);
-  segment_deletions_.push(rs1);
+  segment_deletions_.push(rs1->GetId());
 }
 
 void RemoveJunction(Junction* junction) {
@@ -373,16 +401,15 @@ void RemoveJunction(Junction* junction) {
 
 void TrafficCommand::SegmentFlush() {
   while(!segment_deletions_.empty()) {
-    RoadSegment* rs = segment_deletions_.front();
+    int id = segment_deletions_.front();
     segment_deletions_.pop();
-    segments_.erase(std::remove(segments_.begin(), segments_.end(), rs),segments_.end());
-    delete rs;
-    rs = nullptr;
+    segments_.erase(id);
   }
 
   while(!segment_additions_.empty()) {
-    RoadSegment* rs = segment_additions_.front();
+    auto segment = std::move(segment_additions_.front());
+    RoadSegment* raw = segment.get();
     segment_additions_.pop();
-    segments_.push_back(rs);
+    segments_.emplace(raw->GetId(), std::move(segment));
   }
 }

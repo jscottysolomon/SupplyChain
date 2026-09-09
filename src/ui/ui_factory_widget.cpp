@@ -9,7 +9,11 @@
 
 
 void GameUi::FactoryWidget() {
-  if (factory_ == nullptr) return;
+  Factory* factory = commander_.GetFactory(factory_id_);
+  if (!factory) {
+    TraceLog(LOG_WARNING, "Null factory for widget");
+    return;
+  }
 
   bool open = true;
   ImVec2 displaySize = ImGui::GetIO().DisplaySize;
@@ -20,19 +24,18 @@ void GameUi::FactoryWidget() {
   ImGui::Begin("Factory", &open, ImGuiWindowFlags_NoResize |
       ImGuiWindowFlags_NoResize |
       ImGuiWindowFlags_NoCollapse);
-  ImGui::Text("ID: %d", factory_->GetId());
-  ImGui::Text("Capacity: %d/%d", factory_->GetAvailableCapacity(), factory_->GetMaxCapacity());
+  ImGui::Text("ID: %d", factory->GetId());
+  ImGui::Text("Capacity: %d/%d", factory->GetAvailableCapacity(), factory->GetMaxCapacity());
 
-  for (std::pair<int,int> inv : factory_->GetInventoryMap()) {
+  for (std::pair<int,int> inv : factory->GetInventoryMap()) {
     ImGui::Text("%s[%d]: %d\n", organizer_->GetWidgetName(inv.first).c_str(), inv.first, inv.second);
   }
 
   if (ImGui::Button("Next")) {
-    factory_index_++;
-    if (factory_index_ >= factories_.size()) {
-      factory_index_ = 0;
+    Factory* next = commander_.GetNextFactoryOrFirst(factory_id_);
+    if(next) {
+      factory_id_ = next->GetId();
     }
-    factory_ = factories_.at(factory_index_);
   }
   
   ImGui::End();

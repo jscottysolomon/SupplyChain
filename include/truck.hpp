@@ -10,12 +10,12 @@
 #include <queue>
 
 #include <raylib.h>
+#include <raymath.h>
 
 #include "common.hpp"
 #include "entity.hpp"
 #include "inventory.hpp"
 #include "rules.hpp"
-#include "traffic.hpp"
 #include "traffic.hpp"
 #include "widget.hpp"
 
@@ -42,17 +42,16 @@ class Truck : public MapObject {
 			create_route = false;
 			state_ = kDriving; //TODO: update
 			capacity_ = 500;
+			target_ = {-1,-1};
+			right_side_ = true;
 		}
+		~Truck() override = default;
 		//General Functions
 		void OnTick() override;
 		void Draw() override {
 			DrawRectangle(position_.x,position_.y,TRUCK_WIDTH,TRUCK_WIDTH,PINK);
 		}
 		//Getters & Setters
-		Road* GetCurrentRoad() 
-			{ return current_road_; }
-		void SetCurrentRoad(Road* r) 
-			{ current_road_ = r; }
 		void SetRoadSegment(RoadSegment* rs) 
 			{ segment_ = rs; }
 		RoadSegment* GetRoadSegment() 
@@ -85,6 +84,15 @@ class Truck : public MapObject {
 
 		bool IsState(TruckState state) { return state_ == state; }
 
+		/**
+		 * @brief If truck is travelling on the right or left of the road. 
+		 * 
+		 * @return true 
+		 * @return false 
+		 */
+		bool IsOnRightLane()
+			{return right_side_;}
+
 		Plan* GetPlan(int id) {
 			if (plans_.find(id) != plans_.end()) {
 				return plans_.at(id);
@@ -94,13 +102,7 @@ class Truck : public MapObject {
 		}
 
 		RuleContext& GetContext(int id) { 
-			if (contexts_.find(id) == contexts_.end()) {
-				return contexts_.at(id);
-			} else {
-				RuleContext context;
-				contexts_.insert({id,context});
-				return context;
-			}
+			return contexts_[id];
 		}
 		void RemoveTarget(Target* t, int factory_id) {
 			Plan* p = plans_.at(factory_id);
@@ -135,8 +137,8 @@ class Truck : public MapObject {
 		TrafficMediator& mediator_;	//traffic control mediator
 		RoadSegment* segment_;
 		Vector2 target_;				//target position
-		Road* current_road_;
 		Dock* dock_;
+		bool right_side_;
 
 		/*Schedules and Routes*/
 		std::vector<Junction*> stops_; 		//dynamic list of stops
@@ -151,6 +153,32 @@ class Truck : public MapObject {
 		void Dispatch();
 		void Stall();
 		void Drive();		
+
+		bool HasValidTarget() {
+			return target_.x > 0 && target_.y > 0;
+		}
+
+		void SetTarget(Vector2 pos) {
+			target_ = pos;
+		}
+
+		bool DeriveNextTarget() {
+			if(!stops_.empty()) {
+				// junction_ = stops_.front();
+				target_ = junction_->GetPosition();
+				return true;
+			} else {
+				SetTarget({-1,-1});
+				// junction_ = nullptr;
+				return false;
+			}
+		}
+
+		void MoveToTarget() {
+			Vector2 movement_vector = Vector2Subtract(target_, position_);
+			Vector2 movement = Vector2Scale(movement_vector, speed_);
+			SetPosition(Vector2Add(position_, movement));
+		}
 
 		//Functions
 };

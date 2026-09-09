@@ -16,25 +16,20 @@ void StyleEnd(bool style);
 class GameUi {
   public:
   GameUi(TrafficCommand& traffic)
-    : mediator_(traffic), truck_(nullptr), truck_id_(-1),
-      factory_(nullptr), factory_id_(-1) {
-        trucks_ = traffic.GetTrucks();
-        factories_ = traffic.GetFactories();
+    : commander_(traffic), truck_id_(-1), factory_id_(-1) {
         truck_index_ = 0;
         factory_index_ = 0;
         organizer_ = ReceipeOrganizer::GetInstance();
     }
     void RenderUi();
   private:
-    TrafficCommand& mediator_;
+    TrafficCommand& commander_;
 
-    std::vector<Truck*> trucks_;
-    Truck* truck_;
+    // Truck& truck_;
     std::size_t truck_index_;
     int truck_id_;
 
-    std::vector<Factory*> factories_;
-    Factory* factory_;
+    // Factory& factory_;
     std::size_t factory_index_;
     int factory_id_;
     
