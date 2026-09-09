@@ -61,7 +61,7 @@ void Truck::Drive() {
 
   float distance = Vector2Distance(position_, target_);
   //2. Move if not at target
-  if(distance > 3.0f) {
+  if(distance > 2.0f) {
     MoveToTarget();
   } else {
     //3. Snap to Target
@@ -108,5 +108,17 @@ void Truck::AddStop(Junction* junction) {
     contexts_.insert({factory->GetId(),context});
 
     plans_.insert({factory->GetId(), new Plan(context)});
+  }
+}
+
+bool Truck::DeriveNextTarget() {
+  if(!route_.empty()) {
+    junction_ = route_.front();
+    target_ = junction_->GetPosition();
+    return true;
+  } else {
+    // SetTarget({-1,-1});
+    // junction_ = nullptr;
+    return false;
   }
 }

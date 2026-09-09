@@ -162,17 +162,7 @@ class Truck : public MapObject {
 			target_ = pos;
 		}
 
-		bool DeriveNextTarget() {
-			if(!stops_.empty()) {
-				// junction_ = stops_.front();
-				target_ = junction_->GetPosition();
-				return true;
-			} else {
-				SetTarget({-1,-1});
-				// junction_ = nullptr;
-				return false;
-			}
-		}
+		bool DeriveNextTarget();
 
 		void MoveToTarget() {
 			Vector2 movement_vector = Vector2Subtract(target_, position_);

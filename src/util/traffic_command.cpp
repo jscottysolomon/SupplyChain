@@ -34,123 +34,57 @@
 void TrafficCommand::RoadSegmentSetUp() {
   int length = 150; int num = 3;
 
+  Junction* j1 = AddFourWayJunction({150,150});
+  Junction* j2 = AddFourWayJunction({300,150});
+  Junction* j3 = AddFourWayJunction({500,150});
 
-  for (float xx = X_START; xx <= X_START + (LENGTH * num); xx+=LENGTH) {
-    for (float yy = Y_START; yy <= Y_START + (LENGTH * num); yy+= LENGTH) {
-      Vector2 pos = {xx,yy};
-      Junction* junc = AddFourWayJunction(pos);
-    }
-  }
+  Junction* j4 = AddFourWayJunction({150,300});
+  Junction* j5 = AddFourWayJunction({300,300});
 
-  for (auto itA = junctions_.begin(); itA != junctions_.end(); ++itA) {
-    for (auto itB = std::next(itA); itB != junctions_.end(); ++itB) {
-        Junction* j1 = itA->second.get();
-        Junction* j2 = itB->second.get();
+  Junction* j6 = AddFourWayJunction({300,450});
+  Junction* j7 = AddFourWayJunction({500,450});
 
-        if(Vector2Distance(j1->GetPosition(),j2->GetPosition()) <= LENGTH 
-        && j1->GetId() != j2->GetId()) {
-        AddRoadSegment(j1, j2);
-      }
-    }
-  }
+  Junction* y1 = AddJunction(JunctionType::CenterYield,{400,450});
+  Junction* y2 = AddJunction(JunctionType::CenterYield,{500,300});
+
+  Junction* f1 = AddFactoryJunction(FactoryBuilder({400,550})
+    .Capacity(3)
+    .WithDock({550,450}, nullptr)
+    .WithDock({550,440}, nullptr)
+    .WithInventory({{1,50}})
+    .Build());
+
+   Junction* f2 = AddFactoryJunction(FactoryBuilder({600,300})
+    .Capacity(3)
+    .WithDock({500,400}, nullptr)
+    .WithDock({500,400}, nullptr)
+    .WithInventory({{1,50}})
+    .Build());
+
+  RoadSegment* rs1 = AddRoadSegment(j1,j2);
+  RoadSegment* rs2 = AddRoadSegment(j2,j3);
+  RoadSegment* rs3 = AddRoadSegment(j1,j4);
+  RoadSegment* rs4 = AddRoadSegment(j2,j5);
+  RoadSegment* rs5 = AddRoadSegment(j5,j6);
+  RoadSegment* rs6 = AddRoadSegment(j4,j5);
+
+  RoadSegment* rs7 = AddRoadSegment(y1,j7);
+  RoadSegment* rs8 = AddRoadSegment(y1,j6);
+
+  RoadSegment* rs9 = AddRoadSegment(y2,j3);
+  RoadSegment* rs10 = AddRoadSegment(y2,j7);
+
+  AddRoadSegment(f1,y1);
+  AddRoadSegment(f2,y2);
+
 
   SegmentFlush();
 
-  std::size_t index = 4;
+  Truck* tr1 = CreateTruck(rs3,0.5);
+  Truck* tr2 = CreateTruck(rs5,0.5);
 
-  std::vector<RoadSegment*> truck_segs;
-  int ii = 0;
-
-  for (auto it = segments_.begin(); it != segments_.end(); ++it) {
-    RoadSegment* rs = it->second.get();
-
-    
-
-    if (ii % index == 0) {
-      index+= index;
-      Junction* j1 = AddJunction(rs->GetRightSideJunction(), 
-          rs->GetLeftSideJunction(),JunctionType::CenterYield, 0.5);
-
-      // if (ii % (index*index) && j1 != nullptr) {
-      //   Vector2 p1 = j1->GetPosition();
-      //   Junction* other = nullptr;
-      //   for (RoadSegment* rs: j1->GetSegments()) {
-      //     if (rs->GetRightSideJunction() == j1) {
-      //       other = rs->GetLeftSideJunction();
-      //     } else if (rs->GetLeftSideJunction() == j1) {
-      //       other = rs->GetRightSideJunction();
-      //     }
-
-      //     if (other == nullptr) continue;
-
-      //     Vector2 p2 = other->GetPosition();
-      //     Vector2 p3 = p1;
-
-      //     if (p1.x == p2.x) {
-      //         p3.x += OFFSET_JUNCTION;
-      //     } else if (p1.y == p2.y) {
-      //         p3.y += OFFSET_JUNCTION;
-      //     }
-      //     AddJunction(j1, p3, JunctionType::Factory);
-      //     break;
-      //   }
-
-      // }
-    } else if (ii % 4 == 0) {
-      truck_segs.push_back(rs);   
-    }
-
-    ii++;
-  }
-  SegmentFlush();
-
-  for (auto it = segments_.begin(); it != segments_.end(); ++it) {
-    RoadSegment* rs = it->second.get();
-  }
-  SegmentFlush();
-
-
-  std::unordered_map<int, int> inv = {{1,50},{2,50},{3,50},{4,50}};
-  index = 0;
-
-  for (RoadSegment* rs: truck_segs) {
-    Truck* tr = CreateTruck(rs, 0.5);
-    tr->SetInventory(inv);
-    tr->SetJunction(rs->GetRightSideJunction());   
-
-    //Adding stop
-    // Junction* jun = graph_.get_vertex(factories_.begin()->second->GetId());
-    // tr->AddStop(jun);
-    // if(index++ >= factories_.size()) {
-    //   index = 0;
-    // }
-  }
-
-
-  // Junction* j1 = AddFactoryJunction(FactoryBuilder({340,420})
-  //   .Capacity(3)
-  //   .WithDock({340,420}, nullptr)
-  //   .WithDock({340,440}, nullptr)
-  //   .WithInventory(inv)
-  //   .Build());
-
-  // Junction* j2 = AddFactoryJunction(FactoryBuilder({340,420})
-  //   .Capacity(3)
-  //   .WithDock({340,420}, nullptr)
-  //   .WithDock({340,440}, nullptr)
-  //   .WithInventory(inv)
-  //   .Build());
-
-  // Junction* j3 = AddFactoryJunction(FactoryBuilder({340,420})
-  //   .Capacity(3)
-  //   .WithDock({340,420}, nullptr)
-  //   .WithDock({340,440}, nullptr)
-  //   .WithInventory(inv)
-  //   .Build());
-
-  
-
-  // Truck* tr = 
+  tr1->AddStop(f1);
+  tr2->AddStop(f2);
 
   return;
 }
