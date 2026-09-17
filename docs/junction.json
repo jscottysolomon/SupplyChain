@@ -1,0 +1,22 @@
+{ "Junction" : {
+    "entityId": 001,
+    "position": {
+      "x": 0.00,
+      "y": 0.00
+    },
+    "segments": [
+      {"segmentId": 001},
+      {"segmentId": 002},
+      {"segmentId": 003}      
+    ],
+    "trafficNode": {
+      "type": "Factory",
+      "trucks": [
+        {"truckId": 001},
+        {"truckId": 002},
+        {"truckId": 003} 
+      ]
+      
+    }
+  }
+}
