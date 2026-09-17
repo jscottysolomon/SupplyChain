@@ -19,9 +19,9 @@
         ],
         "whitelist": [],
         "pallets" : [
-            {"WidgetId": 0001, "WidgetCount": 000},
-            {"WidgetId": 0002, "WidgetCount": 000}
-            {"WidgetId": 0003, "WidgetCount": 000},
+            {"WidgetId": 0001, "count": 000},
+            {"WidgetId": 0002, "count": 000}
+            {"WidgetId": 0003, "count": 000},
         ]
     },
     "schedule": [
