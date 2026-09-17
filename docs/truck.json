@@ -1,0 +1,45 @@
+{ "truck": {
+    "entityId": int,
+    "poxitionX": 00.00,
+    "positionY": 00.00,
+    "junctionId" : 00001,
+    "dockId": 0002
+    "roadSegmentId": 0003,
+    "isDocked": false
+    "speed": 0.25,
+    "state": "state"
+    "IsOnRightLane": true
+    "inventory": {
+        "palletMax": 10,
+        "currentPallets": 3,
+        "blacklist": [
+            {"WidgetId": 0001, "WidgetCount": 000},
+            {"WidgetId": 0002, "WidgetCount": 000}
+            {"WidgetId": 0003, "WidgetCount": 000},
+        ],
+        "whitelist": [],
+        "pallets" : [
+            {"WidgetId": 0001, "WidgetCount": 000},
+            {"WidgetId": 0002, "WidgetCount": 000}
+            {"WidgetId": 0003, "WidgetCount": 000},
+        ]
+    },
+    "schedule": [
+        {"JunctionId": 0001},
+        {"JunctionId": 0002},
+        {"JunctionId": 0003}
+    ],
+    "stops": [
+        {"JunctionId": 0001},
+        {"JunctionId": 0002},
+        {"JunctionId": 0003}
+    ],
+    "path": [
+        {"JunctionId": 0001},
+        {"JunctionId": 0002},
+        {"JunctionId": 0003}
+    ],
+    "TargetX": 00.00,
+    "TargetY": 00.00
+  }
+}

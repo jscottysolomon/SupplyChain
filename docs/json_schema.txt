@@ -1,6 +1,0 @@
-{ "truck": {
-    "entityId": int,
-    "completed": false
-    "inventory": 
-  }
-}
