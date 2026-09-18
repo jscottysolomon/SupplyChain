@@ -12,6 +12,15 @@ Sample run:
 ```
 cmake -S . -B build -G Ninja -DCMAKE_CXX_COMPILER=clang-cl -DCMAKE_MT="C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\mt.exe" -DCMAKE_BUILD_TYPE=Debug
 ```
+```
+source /workspaces/SupplyChain/external/emsdk/emsdk_env.sh
+cd /workspaces/SupplyChain
+rm -rf build-web
+emcmake cmake -S . -B build-web
+cmake --build build-web
+cd /workspaces/SupplyChain/build-web
+python3 -m http.server 8000
+```
 
 Dependencies:
 - CMAKE

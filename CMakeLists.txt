@@ -28,8 +28,19 @@ target_include_directories(CHAIN PRIVATE
   "${CMAKE_SOURCE_DIR}/external"
   "${CMAKE_SOURCE_DIR}/external/imgui"
 )
+if(EMSCRIPTEN)
+  set(CMAKE_EXECUTABLE_SUFFIX ".html")
 
-if (WIN32)
+  target_link_libraries(CHAIN PRIVATE
+    "${CMAKE_SOURCE_DIR}/lib/WEB/libraylib.a"
+  )
+
+  target_link_options(CHAIN PRIVATE
+    -sUSE_GLFW=3
+    -sASYNCIFY
+    -sALLOW_MEMORY_GROWTH=1
+  )
+elseif (WIN32)
   target_link_libraries(CHAIN PRIVATE
     "${CMAKE_SOURCE_DIR}/lib/MSVC/raylib.lib"
     opengl32
@@ -37,6 +48,12 @@ if (WIN32)
     winmm
     user32
     shell32
+  )
+  target_link_options(CHAIN PRIVATE
+    -sUSE_GLFW=3
+    -sASYNCIFY
+    -sALLOW_MEMORY_GROWTH=1
+    -sGLFW_SCALE_TO_MONITOR=0
   )
 elseif (APPLE)
   target_link_libraries(CHAIN PRIVATE
@@ -46,9 +63,9 @@ elseif (APPLE)
     "-framework IOKit"
     "-framework CoreVideo"
   )
-elseif (UNIX)
+elseif (UNIX AND NOT APPLE)
   target_link_libraries(CHAIN PRIVATE
-    raylib
+    "${CMAKE_SOURCE_DIR}/lib/Linux/libraylib.a"
     GL
     m
     pthread
