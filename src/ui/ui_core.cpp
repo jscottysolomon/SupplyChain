@@ -21,8 +21,8 @@ void GameUi::RenderUi() {
     }
   }
   
-  // BaseLayer();
-  // TruckWidget();
+  BaseLayer();
+  TruckWidget();
   FactoryWidget();
   ImGui::ShowIDStackToolWindow();
 }

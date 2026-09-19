@@ -32,6 +32,8 @@ class GameUi {
     // Factory& factory_;
     std::size_t factory_index_;
     int factory_id_;
+    int last_clicked_factory_id_;
+    bool capture_next_factory;
     
     ReceipeOrganizer* organizer_;
 

@@ -117,11 +117,12 @@ void GameUi::TruckScheduleTab() {
       TraceLog(LOG_WARNING, "Null truck for table rows");
       return;
     }
-    for (Junction* junc : truck->GetSchedule()) {
+    for (Junction* junc : truck->GetStops()) {
       Factory* factory = junc->GetFactory();
-      if(factory == nullptr) 
-        { continue; }
-      if (factory == nullptr) continue;
+      if(factory == nullptr) { 
+        TraceLog(LOG_WARNING,"Null factory in junction list of truck");
+        continue; 
+      }
 
       Plan* p = truck->GetPlan(factory->GetId());
       RuleContext& context = truck->GetContext(factory->GetId());
@@ -154,6 +155,18 @@ void GameUi::TruckScheduleTab() {
       ImGui::Separator();
       i++;
     }      
+    if(ImGui::Button("Add Stop")) {
+      truck = commander_.GetTruck(truck_id_);
+      Factory* factory = commander_.GetFactory(factory_id_);
+      if(truck && factory) {
+        Junction* junc = commander_.GetJunction(factory->GetJunctionEntityId());
+        if (junc) {
+          truck->AddStop(junc);
+        } else {
+          
+        }
+      }
+    }
     ImGui::EndTabItem();
   }
 }
@@ -183,19 +196,21 @@ void GameUi::TruckWidget() {
 
   bool open = true;
   ImVec2 displaySize = ImGui::GetIO().DisplaySize;
-  ImGui::SetNextWindowPos(ImVec2(0,0),ImGuiCond_Always);
-  ImGui::SetNextWindowSize(ImVec2(displaySize.x/4, displaySize.y));
+  ImGui::SetNextWindowPos(ImVec2(0,0),ImGuiCond_FirstUseEver);
+  ImGui::SetNextWindowSize(ImVec2(displaySize.x/4, displaySize.y/2));
 
-  ImGui::Begin("Truck", &open, ImGuiWindowFlags_NoResize |
-      ImGuiWindowFlags_NoResize |
-      ImGuiWindowFlags_NoCollapse);
+  // ImGui::Begin("Truck", &open, ImGuiWindowFlags_NoResize |
+  //     ImGuiWindowFlags_NoResize |
+  //     ImGuiWindowFlags_NoCollapse & ~(ImGuiWindowFlags_NoMove));
+
+  ImGui::Begin("Truck", &open);
 
   ImGui::Text("ID: %d", truck->GetId());
   ImGui::Text("Capacity: %d/%d", truck->GetAvailableCapacity(), truck->GetMaxCapacity());
 
   //TODO: use table for displaying targets & functions to reduce redundancy
   if (ImGui::BeginTabBar("Tabs")) {
-    // TruckScheduleTab();
+    TruckScheduleTab();
     if (ImGui::BeginTabItem("Inventory")) {      
       for (std::pair<int,int> inv : truck->GetInventoryMap()) {
         ImGui::Text("%s[%d]: %d\n", organizer_->GetWidgetName(inv.first).c_str(), inv.first, inv.second);

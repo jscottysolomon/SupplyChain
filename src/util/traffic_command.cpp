@@ -30,6 +30,7 @@
 #define Y_START 150
 #define X_START 400
 #define OFFSET_JUNCTION 50
+#define F_OFFSET 100
 
 void TrafficCommand::RoadSegmentSetUp() {
   int length = 150; int num = 3;
@@ -37,6 +38,8 @@ void TrafficCommand::RoadSegmentSetUp() {
   Junction* j1 = AddFourWayJunction({150,150});
   Junction* j2 = AddFourWayJunction({300,150});
   Junction* j3 = AddFourWayJunction({500,150});
+  Junction* j8 = AddFourWayJunction({700,150});
+
 
   Junction* j4 = AddFourWayJunction({150,300});
   Junction* j5 = AddFourWayJunction({300,300});
@@ -44,8 +47,14 @@ void TrafficCommand::RoadSegmentSetUp() {
   Junction* j6 = AddFourWayJunction({300,450});
   Junction* j7 = AddFourWayJunction({500,450});
 
+  Junction* j9 = AddFourWayJunction({150,700});
+  Junction* j10 = AddFourWayJunction({700,700});
+
+
   Junction* y1 = AddJunction(JunctionType::CenterYield,{400,450});
-  Junction* y2 = AddJunction(JunctionType::CenterYield,{500,300});
+  Junction* y2 = AddJunction(JunctionType::CenterYield,{500,275});
+  Junction* y3 = AddJunction(JunctionType::CenterYield,{500,375});
+
 
   Junction* f1 = AddFactoryJunction(FactoryBuilder({400,550})
     .Capacity(3)
@@ -54,15 +63,35 @@ void TrafficCommand::RoadSegmentSetUp() {
     .WithInventory({{1,50}})
     .Build());
 
-   Junction* f2 = AddFactoryJunction(FactoryBuilder({600,300})
+  Junction* f2 = AddFactoryJunction(FactoryBuilder({y2->GetPosition().x - F_OFFSET,
+    y2->GetPosition().y})
+  .Capacity(3)
+  .WithDock({y2->GetPosition().x - F_OFFSET, y2->GetPosition().y}, nullptr)
+  .WithDock({y2->GetPosition().x - F_OFFSET,y2->GetPosition().y}, nullptr)
+  .WithInventory({{2,50}})
+  .Build());
+
+  Junction* f3 = AddFactoryJunction(FactoryBuilder({y3->GetPosition().x - F_OFFSET,
+    y3->GetPosition().y})
     .Capacity(3)
-    .WithDock({500,400}, nullptr)
-    .WithDock({500,400}, nullptr)
+    .WithDock({y3->GetPosition().x - F_OFFSET, y3->GetPosition().y}, nullptr)
+    .WithDock({y3->GetPosition().x - F_OFFSET, y3->GetPosition().y}, nullptr)
     .WithInventory({{1,50}})
+    .Build());
+  
+  Junction* f4 = AddFactoryJunction(FactoryBuilder({y3->GetPosition().x + F_OFFSET,
+    y3->GetPosition().y})
+    .Capacity(3)
+    .WithDock({y3->GetPosition().x + F_OFFSET, y3->GetPosition().y}, nullptr)
+    .WithDock({y3->GetPosition().x + F_OFFSET, y3->GetPosition().y}, nullptr)
+    .WithInventory({{2,50}})
     .Build());
 
   RoadSegment* rs1 = AddRoadSegment(j1,j2);
   RoadSegment* rs2 = AddRoadSegment(j2,j3);
+  AddRoadSegment(j8,j3);
+
+
   RoadSegment* rs3 = AddRoadSegment(j1,j4);
   RoadSegment* rs4 = AddRoadSegment(j2,j5);
   RoadSegment* rs5 = AddRoadSegment(j5,j6);
@@ -72,20 +101,26 @@ void TrafficCommand::RoadSegmentSetUp() {
   RoadSegment* rs8 = AddRoadSegment(y1,j6);
 
   RoadSegment* rs9 = AddRoadSegment(y2,j3);
-  RoadSegment* rs10 = AddRoadSegment(y2,j7);
+  AddRoadSegment(y2,y3);
+  RoadSegment* rs10 = AddRoadSegment(y3,j7);
+
+  RoadSegment* rs11 = AddRoadSegment(j9,j10);
+  RoadSegment* rs12 = AddRoadSegment(j9,j1);
+  RoadSegment* rs13 = AddRoadSegment(j8,j10);
 
   AddRoadSegment(f1,y1);
   AddRoadSegment(f2,y2);
-
+  AddRoadSegment(f3,y3);
+  AddRoadSegment(f4,y3);
 
   SegmentFlush();
 
   Truck* tr1 = CreateTruck(rs3,0.5);
   Truck* tr2 = CreateTruck(rs5,0.5);
 
-  tr1->AddStop(f1);
+  tr1->AddStop({f3,f1,f2});
+  
   tr2->AddStop(f2);
-
   return;
 }
 

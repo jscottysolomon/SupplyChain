@@ -22,7 +22,9 @@ class MapObject {
 		virtual ~MapObject() = default;
 		void SetPosition(Vector2 position) {
 			position_ = position;
-			id_ = NextId();
+			if(id_ < 0) {
+				id_ = NextId();
+			}
 		}
 		Vector2 GetPosition() {
 			return position_;

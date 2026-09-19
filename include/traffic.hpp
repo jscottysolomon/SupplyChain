@@ -37,10 +37,14 @@ class TrafficNode: public MapObject {
       // NextId();
     }
     virtual ~TrafficNode() = default;
-    void SetJunctionId(graaf::vertex_id_t id) 
-			{junction_id_ = id;}
-		graaf::vertex_id_t GetJunctionId() 
-			{return junction_id_;}
+    void SetJunctionGraphId(graaf::vertex_id_t id) 
+			{junction_graph_id_ = id;}
+		graaf::vertex_id_t GetJunctionGraphId() 
+			{return junction_graph_id_;}
+    void SetJunctionEntityId(int id) 
+     {junction_entity_id_ = id;}
+    int GetJunctionEntityId() 
+      {return junction_entity_id_;}
     int GetCost();
     int GetLaneNumber() 
       {return lanes_;}
@@ -49,7 +53,8 @@ class TrafficNode: public MapObject {
     void OnTick() override = 0;
     void Draw() override = 0;
   protected:
-    graaf::vertex_id_t junction_id_;
+    graaf::vertex_id_t junction_graph_id_;
+    int junction_entity_id_;
     std::vector<Truck*> trucks_;
     int lanes_ = 2;
 };
@@ -70,12 +75,19 @@ public:
     type_ = type;
     obj_ = obj;
     segments_ = segments;
+
+    if(obj_) {
+      obj_->SetJunctionEntityId(id_);
+    }
   }
 
-  Junction(TrafficNode* obj, JunctionType type){
+  Junction(TrafficNode* obj, JunctionType type) : MapObject(obj->GetPosition()){
     obj_ = obj;
     type_ = type;
-    if(obj != nullptr) SetPosition(obj_->GetPosition());
+    if(obj != nullptr) {
+      SetPosition(obj_->GetPosition());
+      obj_->SetJunctionEntityId(id_);
+    }
   }
 
   ~Junction() override {
@@ -107,10 +119,16 @@ public:
   TrafficNode* GetEntity() 
     { return obj_;}
   Factory* GetFactory();
+  int GetEntityId() {
+    if(obj_){
+      return obj_->GetId();
+    }
+    return -1;
+  }
 
   void SetGraphId(graaf::vertex_id_t id) {
     graph_id_ = id;
-    obj_->SetJunctionId(graph_id_);
+    obj_->SetJunctionGraphId(graph_id_);
   }
   graaf::vertex_id_t GetGraphId() 
     {return graph_id_;}

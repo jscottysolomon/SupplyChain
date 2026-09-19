@@ -34,6 +34,7 @@ void GameUi::BaseLayer() {
     if (ImGui::IsItemClicked()) {
       if (factory_id_ != factory.GetId()) {
         factory_id_ = factory.GetId();
+        last_clicked_factory_id_ = factory_id_;
       }
     }
   });
@@ -50,8 +51,7 @@ void GameUi::BaseLayer() {
       }
     }
   
-    ImGui::End();
   });
 
-    
+  ImGui::End();    
 }
