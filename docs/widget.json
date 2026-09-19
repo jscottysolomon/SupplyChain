@@ -1,0 +1,15 @@
+{ "widget": {
+    "id" : 001,
+    "name": "Coils",
+    "recipe" [
+      {"widgetId": 002, "quantity": 1},
+      {"widgetId": 002, "quantity": 1},
+      {"widgetId": 002, "quantity": 1}
+    ],
+    "outputAmount": 1,
+    "fillPallet": 50,
+    "productionTime": 15.50,
+    "preLoadTime": 90,
+    "loadTime": 90
+  }
+}

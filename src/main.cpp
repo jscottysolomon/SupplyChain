@@ -25,11 +25,19 @@
 #include "util.hpp"
 #include "ui_core.hpp"
 
+void UpdateDrawFrame();
+
+#if defined(PLATFORM_WEB)
+  #include <emscripten/emscripten.h>
+#endif
+
 #define TICK_RATE 60
 
 float resize_factor = 1.0;
 float resized_tile_size = TILE_SIZE * resize_factor;
 float zoom = 3.75;
+TrafficCommand traffic;
+GameUi uiHandler(traffic);
 
 /**
  * @brief Unloads all loaded textures and allocated memory.
@@ -72,11 +80,10 @@ int main(void)
   InitWindow(1200, 800, "SupplyChain");
 
   // if (!IsWindowFullscreen()) ToggleFullscreen();
-  SetTargetFPS(TICK_RATE);
-
-  // SetGlobalTime();
-  TrafficCommand traffic;
-  GameUi uiHandler(traffic);
+  #ifndef PLATFORM_WEB
+    SetTargetFPS(TICK_RATE);
+  #endif
+  
 
   rlImGuiSetup(true);
 
@@ -84,29 +91,37 @@ int main(void)
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
   #endif
 
-
-  while (!WindowShouldClose())
-  {
-    if (IsWindowResized()) {
-
+  // SetGlobalTime();
+  #if defined(PLATFORM_WEB)
+      emscripten_set_main_loop(UpdateDrawFrame, 0, 1);
+  #else
+    while (!WindowShouldClose())
+    {
+      if (IsWindowResized()) {
+        
+      }
+      UpdateDrawFrame();      
     }
-    traffic.OnTick();
-
-    BeginDrawing();
-      ClearBackground(background);
-      traffic.Draw();
-
-      rlImGuiBegin();
-        uiHandler.RenderUi();
-      rlImGuiEnd();
-      // DrawRectangle(GetMousePosition().x,GetMousePosition().y,5,5,WHITE);
-    EndDrawing();
-  }
+  #endif
 
   rlImGuiShutdown();
   CloseWindow();
 
   return 0;
+}
+
+void UpdateDrawFrame() {
+  traffic.OnTick();
+
+  BeginDrawing();
+    ClearBackground(background);
+    traffic.Draw();
+
+    rlImGuiBegin();
+      uiHandler.RenderUi();
+    rlImGuiEnd();
+    // DrawRectangle(GetMousePosition().x,GetMousePosition().y,5,5,WHITE);
+  EndDrawing();
 }
 
 // void segfault_handler(int signal) {

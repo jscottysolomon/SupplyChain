@@ -1,0 +1,74 @@
+{ "junction" : {
+    "entityId": 001,
+    "position": {
+      "x": 0.00,
+      "y": 0.00
+    },
+    "segments": [
+        {"segmentId": 001},
+        {"segmentId": 002},
+        {"segmentId": 003}      
+    ],
+    "trafficNodeID:": 001
+  }
+}
+
+"factory": {
+    "entityId" 001
+    "maxDocks": 3
+    "loadMultiplier": 1.0,
+    "docks": [
+        {"dockId": 0001}
+      ],
+    "productionLines": [
+      {
+          "widgetId": 0001,
+          "efficiency": 1.0
+          "timeSinceLastProduction": 8,
+          "productionStartTime": 8
+      }
+    ],
+    "inventory": {
+        "palletMax": 10,
+        "blacklist": [
+            {"WidgetId": 0001, "WidgetCount": 000},
+            {"WidgetId": 0002, "WidgetCount": 000}
+            {"WidgetId": 0003, "WidgetCount": 000},
+        ],
+        "whitelist": [],
+        "pallets" : [
+            {"WidgetId": 0001, "count": 000},
+            {"WidgetId": 0002, "count": 000}
+            {"WidgetId": 0003, "count": 000},
+        ]
+    }
+}
+
+{ "dock": { 
+    "id": 0001,
+    "position": {
+        "x": 0.00,
+        "y": 0.00
+    },
+    "truckId": 0001
+    }
+}
+
+
+
+
+
+{ "segment": {
+    "id": 0001
+    "rightJunctionId": 00001,
+    "leftJunctionId": 0002,
+    "isOneWay": false,
+    "speedLimit", 35
+    "laneNum": 2,
+    "trucks": [
+        {"truckId": 001},
+        {"truckId": 002},
+        {"truckId": 003} 
+      ]
+  }
+}
