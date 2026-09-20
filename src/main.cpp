@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "road.hpp"
+#include "save.hpp"
 #include "traffic.hpp"
 #include "util.hpp"
 #include "ui_core.hpp"
@@ -103,6 +104,8 @@ int main(void)
       UpdateDrawFrame();      
     }
   #endif
+
+  WriteSave(traffic);
 
   rlImGuiShutdown();
   CloseWindow();

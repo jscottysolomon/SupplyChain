@@ -54,6 +54,7 @@ void Factory::Undock(Truck* truck) {
       dock->assigned = false;
       dock->cargo_ready = false;
       dock->truck = nullptr;
+      dock->truck_id = -1;
     }
   }
 }
@@ -74,4 +75,22 @@ FactoryBuilder& FactoryBuilder::WithRoad(Road* road) {
   }
 
   return *this;
+}
+
+void Factory::AddDock(Vector2 pos, Truck* t) {
+  struct Dock* dock = new Dock;
+
+  dock->position = pos;
+  dock->truck = t;
+  dock->assigned = t; //nullptr if t=nullptr
+  dock->cargo_ready = false;
+  dock->id = NextId();
+  
+  if(t) {
+    dock->truck_id = t->GetId();
+  } else {
+    dock->truck_id = -1;
+  }
+
+  docks_.push_back(dock);
 }

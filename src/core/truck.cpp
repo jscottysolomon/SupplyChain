@@ -23,10 +23,10 @@ void Truck::Stall() {
 }
 
 void Truck::Receive() {
-  if (!dock_) return;
+  if (!dock_id_) return;
   if (state_ != kReceiving) return;
 
-  Plan* p = plans_.at((stops_[0]->GetId()));
+  Plan* p = plans_.at(dynamic_schedule_ids_.at(0));
 
   if (p != nullptr) {
     p->NextAction();
@@ -40,15 +40,15 @@ void Truck::Dispatch() {
   if (!docked_) return;
   if (state_ != kDispatching) return;
 
-  stops_.erase(stops_.begin());
+  dynamic_schedule_ids_.erase(dynamic_schedule_ids_.begin());
   docked_ = false;
-  dock_ = nullptr;
+  dock_id_ = -1;
   create_route = true;
   SetState(kDriving);
 }
 
 void Truck::Drive() {
-  if (stops_.empty()) return;
+  if (dynamic_schedule_ids_.empty()) return;
   if (docked_) return;
   if (state_ != kDriving) return;
 
@@ -75,8 +75,8 @@ void Truck::Drive() {
     // }
 
     //5. Go to next target
-    if(!route_.empty()) {
-      route_.pop_front();
+    if(!pathway_ids_.empty()) {
+      pathway_ids_.pop_front();
       DeriveNextTarget();
     //6 OR Dock at dock via mediator_
     } else {
@@ -93,11 +93,11 @@ void Truck::AddStop(std::vector<Junction*> junctions) {
 }
 
 void Truck::AddStop(Junction* junction) {
-  if (stops_.size() <= 0) {
-    route_ = mediator_.RequestRoute(junction_,junction);
+  if (dynamic_schedule_ids_.size() <= 0) {
+    pathway_ids_ = mediator_->RequestRoute(junction_id_,junction);
   }
-  stops_.push_back(junction);
-  schedule_.push_back(junction);
+  dynamic_schedule_ids_.push_back(junction->GetId());
+  fixed_schedule_ids_.push_back(junction->GetId());
 
   Factory* factory = junction->GetFactory();
   
@@ -112,9 +112,13 @@ void Truck::AddStop(Junction* junction) {
 }
 
 bool Truck::DeriveNextTarget() {
-  if(!route_.empty()) {
-    junction_ = route_.front();
-    target_ = junction_->GetPosition();
+  if(!pathway_ids_.empty()) {
+    junction_id_ = pathway_ids_.front();
+    if(Junction* j = mediator_->GetJunction(junction_id_)) {
+      target_ = j->GetPosition();
+    } else {
+      TraceLog(LOG_WARNING,"Searched for non-existant id");
+    }
     return true;
   } else {
     // SetTarget({-1,-1});

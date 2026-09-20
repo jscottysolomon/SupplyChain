@@ -5,7 +5,6 @@
     "junctionId" : 00001,
     "dockId": 0002
     "roadSegmentId": 0003,
-    "isDocked": false
     "speed": 0.25,
     "state": "state"
     "IsOnRightLane": true

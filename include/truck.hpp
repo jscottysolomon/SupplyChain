@@ -9,6 +9,7 @@
 #include <vector>
 #include <queue>
 
+#include <nlohmann/json.hpp>
 #include <raylib.h>
 #include <raymath.h>
 
@@ -24,7 +25,7 @@ class Road;
 struct Dock;
 
 enum TruckState {
-	kDriving,
+	kDriving = 0,
 	kReceiving,
 	kDispatching,
 	kStalling
@@ -33,15 +34,15 @@ enum TruckState {
 //TODO change stops to priority queue
 class Truck : public MapObject {
 	public:
-		Truck(Vector2 vec, TrafficMediator& controller) : MapObject(vec), mediator_(controller) {
+		Truck() = default;
+		Truck(Vector2 vec, TrafficMediator* controller) : MapObject(vec) {
 			SetPosition(vec);
+			mediator_ = controller;
 			docked_ = false;
 			speed_ = .025f;
-			junction_ = nullptr;
-			dock_ = nullptr;
 			create_route = false;
 			state_ = kDriving; //TODO: update
-			capacity_ = 500;
+			pallete_capacity = 500;
 			target_ = {-1,-1};
 			right_side_ = true;
 		}
@@ -51,36 +52,49 @@ class Truck : public MapObject {
 		void Draw() override {
 			DrawRectangle(position_.x,position_.y,TRUCK_WIDTH,TRUCK_WIDTH,PINK);
 		}
-		//Getters & Setters
-		void SetRoadSegment(RoadSegment* rs) 
-			{ segment_ = rs; }
-		RoadSegment* GetRoadSegment() 
-			{ return segment_; }
-		std::vector<Junction*> GetStops()
-			{ return stops_; }
-		std::vector<Junction*> GetSchedule()
-			{ return schedule_;}
-		void SetJunction(Junction* junc)
-			{ junction_ = junc; }
-		Junction* GetJunction() 
-			{ return junction_; }
+		
+		int GetDockId() const 
+			{ return dock_id_;}
+		void SetDockId(int id) 
+			{dock_id_ = id;}
+		int GetJunctionId() const
+			{ return junction_id_;}
+		void SetJunctionId(int id) 
+			{ junction_id_ = id;}
+		int GetSegmentId() const
+			{ return segment_id_;}
+		void SetRoadSegmentId(int id)
+			{segment_id_ = id;}
+		std::vector<int> GetDynamicSchedule() 
+			{ return dynamic_schedule_ids_; }
+		std::vector<int> GetFixedSchedule()
+			{ return fixed_schedule_ids_;}
+		std::list<int> GetPathway() 
+			{ return pathway_ids_; }
 		
 		void AddStop(Junction* junction);
 		void AddStop(std::vector<Junction*> junctions);
 
 		void ClearStops() {
-			while (!stops_.empty()) {
-				stops_.erase(stops_.begin());
+			while (!dynamic_schedule_ids_.empty()) {
+				dynamic_schedule_ids_.erase(dynamic_schedule_ids_.begin());
 			}
 		}
 
 		/*Inventory Wrapper*/
 		void SetInventory(std::unordered_map<int,int> inv) { inventory_.SetInventory(inv); }
-		std::unordered_map<int,int> GetInventoryMap() { return inventory_.GetInventoryMap(); }
-		Inventory* GetInventory() { return &inventory_; }
-		int GetWidgetQuantity(int id) { return inventory_.GetWidgetQuantity(id); }
-		int GetMaxCapacity() {return inventory_.GetMaxCapacity(); }
-		int GetAvailableCapacity() { return inventory_.GetAvailableCapacity(); }
+		std::unordered_map<int,int> GetInventoryMap() const
+			{ return inventory_.GetInventoryMap(); }
+		const Inventory* GetInventory() const
+			{ return &inventory_; }
+		Inventory* GetInventory()
+			{ return &inventory_; }
+		int GetWidgetQuantity(int id) const
+			{ return inventory_.GetWidgetQuantity(id); }
+		int GetMaxCapacity() const
+			{return inventory_.GetMaxCapacity(); }
+		int GetAvailableCapacity() const 
+			{ return inventory_.GetAvailableCapacity(); }
 
 		bool IsState(TruckState state) { return state_ == state; }
 
@@ -90,7 +104,7 @@ class Truck : public MapObject {
 		 * @return true 
 		 * @return false 
 		 */
-		bool IsOnRightLane()
+		bool IsOnRightLane() const
 			{return right_side_;}
 
 		Plan* GetPlan(int id) {
@@ -109,14 +123,64 @@ class Truck : public MapObject {
 			
 			p->RemoveTarget(t);
 		}
+
+		NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(Truck,pallete_capacity,speed_,docked_,create_route,state_)
 	private:
 		/*Internal State*/
-		int capacity_;		//widgets capacity
-		float speed_;		//movement speed
-		bool docked_;		//docked at factory
-		bool create_route;
-		TruckState state_;
+		int pallete_capacity = 10;		//widgets capacity
+		float speed_ = 0.25f;		//movement speed
+		TruckState state_ = TruckState::kDriving;
+		bool right_side_ = false;
+		bool docked_ = false;		//docked at factory
+		bool create_route = false;
+		Vector2 target_ = {-1,-1}; //target position
+
+		/*Relative Ids*/
+		int junction_id_ = -1;
+		int segment_id_ = -1;
+		int dock_id_ = -1;
+		std::vector<int> dynamic_schedule_ids_ = {};
+		std::vector<int> fixed_schedule_ids_ = {};
+		std::list<int> pathway_ids_ = {};
+
+		TrafficMediator* mediator_;	//traffic control mediator
+
+		/*Cargo Management*/
+		Inventory inventory_;
+		std::unordered_map<int,RuleContext> contexts_; //id, context
+		std::unordered_map<int, Plan*> plans_;
+
+		/*Road Relations*/
+		// Junction* junction_;
+		// RoadSegment* segment_;
+		// Dock* dock_;
+		// std::vector<Junction*> dynamic_schedule_; 		//dynamic list of stops
+		// std::vector<Junction*> fixed_schedule_; 	//fixed schedule
+		// std::list<Junction*> pathway;	//route to current target factory
+
+		/*Schedules and Routes*/
 		
+
+		
+		void Receive();
+		void Dispatch();
+		void Stall();
+		void Drive();		
+		bool DeriveNextTarget();
+
+		bool HasValidTarget() 
+			{ return target_.x > 0 && target_.y > 0; }
+
+		void SetTarget(Vector2 pos) 
+			{ target_ = pos; }
+
+
+		void MoveToTarget() {
+			Vector2 movement_vector = Vector2Subtract(target_, position_);
+			Vector2 movement = Vector2Scale(movement_vector, speed_);
+			SetPosition(Vector2Add(position_, movement));
+		}
+
 		void SetState(TruckState state) {
 			state_ = state;
 			switch (state) {
@@ -132,69 +196,7 @@ class Truck : public MapObject {
 			}
 		}
 
-		/*Road Relations*/
-		Junction* junction_;
-		TrafficMediator& mediator_;	//traffic control mediator
-		RoadSegment* segment_;
-		Vector2 target_;				//target position
-		Dock* dock_;
-		bool right_side_;
-
-		/*Schedules and Routes*/
-		std::vector<Junction*> stops_; 		//dynamic list of stops
-		std::vector<Junction*> schedule_; 	//fixed schedule
-		std::list<Junction*> route_;	//route to current target factory
-
-		/*Cargo Management*/
-		Inventory inventory_;
-		std::unordered_map<int,RuleContext> contexts_; //id, context
-		std::unordered_map<int, Plan*> plans_;
-		void Receive();
-		void Dispatch();
-		void Stall();
-		void Drive();		
-
-		bool HasValidTarget() {
-			return target_.x > 0 && target_.y > 0;
-		}
-
-		void SetTarget(Vector2 pos) {
-			target_ = pos;
-		}
-
-		bool DeriveNextTarget();
-
-		void MoveToTarget() {
-			Vector2 movement_vector = Vector2Subtract(target_, position_);
-			Vector2 movement = Vector2Scale(movement_vector, speed_);
-			SetPosition(Vector2Add(position_, movement));
-		}
-
 		//Functions
-};
-
-class TruckBuilder {
-public:
-	TruckBuilder(Vector2 vec, TrafficMediator& controller) {
-		truck_ = new Truck(vec, controller);
-	}
-
-	Truck* Build() {return truck_;}
-
-	TruckBuilder& Capacity(int capacity) {
-		return *this;
-	}
-
-	TruckBuilder& WithInventory (std::unordered_map<int,int> inv) {
-		truck_->SetInventory(inv);
-		return *this;
-	}
-
-	TruckBuilder& WithStop(Factory* factory);
-
-
-private:
-	Truck* truck_;
 };
 
 #endif

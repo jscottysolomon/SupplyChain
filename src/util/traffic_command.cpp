@@ -192,13 +192,13 @@ void TrafficCommand::ConnectJunctions(Junction* j1, Junction* j2, RoadSegment* r
 }
 
 Truck* TrafficCommand::CreateTruck(RoadSegment* rs, Vector2 pos) {
-  auto truck = std::make_unique<Truck>(pos,*mediator_);
+  auto truck = std::make_unique<Truck>(pos,mediator_);
   Truck* raw = truck.get();
   trucks_.emplace(truck->GetId(), std::move(truck));
 
   rs->AddTruck(raw);
-  raw->SetRoadSegment(rs); 
-  raw->SetJunction(rs->GetLeftSideJunction());
+  raw->SetRoadSegmentId(rs->GetId()); 
+  raw->SetJunctionId(rs->GetLeftSideJunction()->GetId());
   return raw;
 }
 

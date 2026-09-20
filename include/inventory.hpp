@@ -32,7 +32,7 @@ public:
     return true;
   }
 
-  bool Contains(int id) {
+  bool Contains(int id) const {
     return !(map_.find(id) == map_.end());
   }
 
@@ -102,9 +102,9 @@ public:
     return RemoveWidget(id,1);
   }
 
-  int GetWidgetQuantity(int id) {
+  int GetWidgetQuantity(int id) const {
     if (!Contains(id)) return 0;
-    return map_[id];
+    return map_.at(id);
   }
 
   void SetWhitelist(std::set<int> lst) {
@@ -129,13 +129,11 @@ public:
     whitelist_.insert(id);
   }
 
-  std::set<int> GetWhitelist() {
-    return whitelist_;
-  }
+  std::set<int> GetWhitelist() const 
+    { return whitelist_; }
 
-  std::set<int> GetBlacklist() {
-    return blacklist_;
-  }
+  std::set<int> GetBlacklist() const 
+    { return blacklist_; }
 
   void ClearWhitelist() {
     whitelist_.clear();
@@ -157,17 +155,14 @@ public:
     return max_capacity_ == used_capacity_;
   }
 
-  int GetAvailableCapacity() {
-    return max_capacity_ - used_capacity_;
-  }
+  int GetAvailableCapacity() const 
+    { return max_capacity_ - used_capacity_; }
 
-  int GetUsedCapacity() {
-    return used_capacity_;
-  }
+  int GetUsedCapacity() const 
+    { return used_capacity_; }
 
-  int GetMaxCapacity() {
-    return max_capacity_;
-  }
+  int GetMaxCapacity() const 
+    { return max_capacity_; }
 
   void SetInventory(std::unordered_map<int, int> inv) {
     used_capacity_ = 0;
@@ -180,9 +175,8 @@ public:
     map_ = inv;
   }
 
-  std::unordered_map<int, int> GetInventoryMap() {
-    return map_;
-  }
+  std::unordered_map<int, int> GetInventoryMap() const 
+    { return map_; }
 
   void OnTick() {
 

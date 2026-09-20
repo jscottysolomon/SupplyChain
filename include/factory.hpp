@@ -23,6 +23,8 @@ struct Dock {
 	Truck* truck;
 	bool assigned;
 	bool cargo_ready;
+	int id;
+	int truck_id;
 };
 
 struct ProductionLine {
@@ -51,33 +53,44 @@ class Factory : public TrafficNode {
 		void Undock(Truck* t);
 
 		//Getter, Setters, Check State, Et cetera
-		std::vector<Dock*> GetDocks() 
+		std::vector<Dock*> GetDocks() const
 			{return docks_;}
 		void IncreaseDockCapacity() 
 			{dock_capcity_++;}
 		void SetDockQuantity(int capacity) 
 			{dock_capcity_ = capacity;}
+		int GetDockMaximum() const
+			{ return dock_capcity_; }
 		void SetRoad(Road* r) 
 			{road_ = r;}
 		Road* GetRoad() 
 			{return road_;}
 		void SetRoadSegment(RoadSegment* segment)
 			{segment_ = segment;}
-		RoadSegment* GetRoadSegment() 
+		const RoadSegment* GetRoadSegment() const
+			{return segment_;}
+		RoadSegment* GetRoadSegment()
 			{return segment_;}
 		void SetIntersection(Intersection* i) 
 			{intersection_ = i;}
 		Intersection* GetIntersection() 
 			{return intersection_;}
-		std::unordered_map<int,int> GetInventoryMap()
+		std::unordered_map<int,int> GetInventoryMap() const
 			{return inventory_.GetInventoryMap();}
 
 		/*Inventory Wrapper*/
-		Inventory* GetInventory() { return &inventory_; }
-		void SetInventory(std::unordered_map<int,int> inv) { inventory_.SetInventory(inv); }
-		int GetAvailableCapacity() { return inventory_.GetAvailableCapacity(); }
-		int GetWidgetQuantity(int id) { return inventory_.GetWidgetQuantity(id); }
-		int GetMaxCapacity() { return inventory_.GetMaxCapacity(); }
+		const Inventory* GetInventory() const
+			{ return &inventory_; }
+		Inventory* GetInventory()
+			{ return &inventory_; }
+		void SetInventory(std::unordered_map<int,int> inv) 
+			{ inventory_.SetInventory(inv); }
+		int GetAvailableCapacity() const
+			{ return inventory_.GetAvailableCapacity(); }
+		int GetWidgetQuantity(int id) const
+			{ return inventory_.GetWidgetQuantity(id); }
+		int GetMaxCapacity() const
+			{ return inventory_.GetMaxCapacity(); }
 
 		Dock* GetDock(Truck* t) {
 			for (Dock* dock: docks_) {
@@ -88,16 +101,7 @@ class Factory : public TrafficNode {
 			return nullptr;
 		}
 
-		void AddDock(Vector2 pos, Truck* t) {
-			struct Dock* dock = new Dock;
-
-			dock->position = pos;
-			dock->truck = t;
-			dock->assigned = t; //nullptr if t=nullptr
-			dock->cargo_ready = false;
-
-			docks_.push_back(dock);
-		}
+		void AddDock(Vector2 pos, Truck* t);
 
 		void AddProductionLine(int id) {
 			production_lines_.push_back({-1,-1,1.0,id});
@@ -113,11 +117,11 @@ class Factory : public TrafficNode {
 		}
 		void OnTick() override;
 		
-		std::vector<ProductionLine> GetProductionLines() {
+		std::vector<ProductionLine> GetProductionLines() const {
 			return production_lines_;
 		}
 
-		std::set<int> GetRecipeIds() {
+		std::set<int> GetRecipeIds() const {
 			std::set<int> ret;
 			for (ProductionLine line: production_lines_) {
 				for (std::pair<int,int> p: organizer->GetRecipe(line.id)) {

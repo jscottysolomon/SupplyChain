@@ -26,10 +26,10 @@ class MapObject {
 				id_ = NextId();
 			}
 		}
-		Vector2 GetPosition() {
+		Vector2 GetPosition() const {
 			return position_;
 		}
-		int GetId() {return id_;}
+		int GetId() const {return id_;}
 		void Tick();
 		virtual void Draw() {
 			DrawRectangle(position_.x,position_.y,15,15,BLUE);

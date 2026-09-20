@@ -13,6 +13,7 @@
 
 #include <graaflib/graph.h>
 #include <graaflib/edge.h>
+#include <nlohmann/json.hpp>
 #include <raylib.h>
 
 #include "common.hpp"
@@ -39,15 +40,17 @@ class TrafficNode: public MapObject {
     virtual ~TrafficNode() = default;
     void SetJunctionGraphId(graaf::vertex_id_t id) 
 			{junction_graph_id_ = id;}
-		graaf::vertex_id_t GetJunctionGraphId() 
+		graaf::vertex_id_t GetJunctionGraphId() const
 			{return junction_graph_id_;}
-    void SetJunctionEntityId(int id) 
+    void SetJunctionEntityId(int id)
      {junction_entity_id_ = id;}
-    int GetJunctionEntityId() 
+    int GetJunctionEntityId() const
       {return junction_entity_id_;}
     int GetCost();
-    int GetLaneNumber() 
+    int GetLaneNumber() const
       {return lanes_;}
+    std::vector<Truck*> GetTrucks() const
+      { return trucks_; }
     void SetLaneNumber(int lanes) 
       {lanes_ = lanes;}
     void OnTick() override = 0;
@@ -119,7 +122,7 @@ public:
   TrafficNode* GetEntity() 
     { return obj_;}
   Factory* GetFactory();
-  int GetEntityId() {
+  int GetEntityId() const {
     if(obj_){
       return obj_->GetId();
     }
@@ -271,21 +274,7 @@ public:
   }
 };
 
-class TrafficMediator {
-  public:
-    TrafficMediator(TrafficCommand& commander, graaf::directed_graph<Junction*, RoadSegment*>& graph
-      ): commander_(commander), graph_(graph)  {
 
-    }
-    std::list<Junction*> RequestRoute(Junction* src, Junction* dest);
-    bool RequestIntersection(Intersection* inter, Truck* truck);
-    Dock* RequestDock(Factory* factory, Truck* truck);
-    Dock* RequestDock(Junction* junction, Truck* truck);
-  private:
-    TrafficCommand& commander_;
-    graaf::directed_graph<Junction*, RoadSegment*>& graph_;
-    // std::unordered_map<int, graaf::vertex_id_t>& vertecies_;
-};
 
 /**
  * @brief TrafficCommand is in charge of creating any map objects
@@ -524,6 +513,31 @@ private:
   std::queue<std::unique_ptr<RoadSegment>> segment_additions_;
   // std::unordered_map<int, graaf::vertex_id_t> vertecies_;
   TrafficMediator* mediator_;
+};
+
+class TrafficMediator {
+  public:
+    TrafficMediator(TrafficCommand& commander, graaf::directed_graph<Junction*, RoadSegment*>& graph
+      ): commander_(commander), graph_(graph)  {
+
+    }
+    std::list<int> RequestRoute(int id, Junction* dest);
+    bool RequestIntersection(Intersection* inter, Truck* truck);
+    Dock* RequestDock(Factory* factory, Truck* truck);
+    Dock* RequestDock(Junction* junction, Truck* truck);
+
+    Truck* GetTruck(int id) const
+      { return commander_.GetTruck(id); }
+    Junction* GetJunction(int id) const
+      {return commander_.GetJunction(id);}
+    RoadSegment* GetSegment(int id) const
+      {return commander_.GetSegment(id);}
+      
+    
+  private:
+    TrafficCommand& commander_;
+    graaf::directed_graph<Junction*, RoadSegment*>& graph_;
+    // std::unordered_map<int, graaf::vertex_id_t>& vertecies_;
 };
 
 struct Vertex{

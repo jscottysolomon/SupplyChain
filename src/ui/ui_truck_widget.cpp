@@ -117,7 +117,10 @@ void GameUi::TruckScheduleTab() {
       TraceLog(LOG_WARNING, "Null truck for table rows");
       return;
     }
-    for (Junction* junc : truck->GetStops()) {
+    for (int id : truck->GetDynamicSchedule()) {
+      Junction* junc = commander_.GetJunction(id);
+      if(!junc) continue;
+
       Factory* factory = junc->GetFactory();
       if(factory == nullptr) { 
         TraceLog(LOG_WARNING,"Null factory in junction list of truck");

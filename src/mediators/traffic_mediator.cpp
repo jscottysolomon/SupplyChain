@@ -20,8 +20,9 @@
 
 Vertex* GetVertex(std::vector<Vertex*> vertices, Intersection* intersection);
 
-std::list<Junction*> TrafficMediator::RequestRoute(Junction* src, Junction* dest) {
-  std::list<Junction*> path;
+std::list<int> TrafficMediator::RequestRoute(int id, Junction* dest) {
+  std::list<int> path;
+  Junction* src = commander_.GetJunction(id);
 
   if(src == nullptr || dest == nullptr) {
     TraceLog(LOG_WARNING, "Passed null junction for path request");
@@ -38,7 +39,7 @@ std::list<Junction*> TrafficMediator::RequestRoute(Junction* src, Junction* dest
   for (graaf::vertex_id_t id: shortest_path.vertices) {
     Junction* node = graph_.get_vertex(id);
     if(node != nullptr) {
-      path.push_back(node);
+      path.push_back(node->GetId());
     } else {
       TraceLog(LOG_WARNING, "Null pointer in path");
     }
