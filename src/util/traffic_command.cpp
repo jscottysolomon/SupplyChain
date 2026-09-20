@@ -20,7 +20,6 @@
 #include <graaflib/algorithm/shortest_path/bfs_shortest_path.h>
 
 #include "factory.hpp"
-#include "intersection.hpp"
 #include "util.hpp"
 #include "traffic.hpp"
 #include "truck.hpp"

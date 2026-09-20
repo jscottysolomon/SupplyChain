@@ -5,6 +5,8 @@
 #include <set>
 #include <vector>
 
+#include <nlohmann/json.hpp>
+
 #include "widget.hpp"
 #include "inventory.hpp"
 
@@ -15,10 +17,14 @@
 struct RuleContext {
   Inventory* truck_inv = nullptr;
   Inventory* factory_inv = nullptr;
+  int truck_id = -1;
+  int factory_id = -1;
 
   std::set<int>* whitelist = nullptr;
   std::set<int>* blacklist = nullptr;
 };
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(RuleContext, truck_id, factory_id)
 
 ////////////////////////////////////////////////////////
 // Rule
@@ -37,36 +43,34 @@ public:
 
 class AmountRule: public Rule {
 public:
-  AmountRule() {
-    step_ = 5;
-  }
+  AmountRule()  = default;
 
-  void SetAmount(int amount) {
-    amount_ = amount;
-  }
+  void SetStep(int step)
+    { step_ = step; }
+
+  void SetAmount(int amount) 
+    { amount_ = amount; }
 
   virtual void DecreaseAmount() {
     amount_ = (amount_ - step_ > 0) 
         ? amount_ - step_
         : 0;
   }
-  virtual void IncreaseAmount() {
-    amount_ += step_;
-  }
+  virtual void IncreaseAmount() 
+    { amount_ += step_; }
 
-  int GetWidgetId() {
-    return widget_id_;
-  }
+  int GetWidgetId() 
+    { return widget_id_; }
 
-  int GetAmount() {
-    return amount_;
-  }
+  int GetAmount() const
+    { return amount_; }
+
 protected:
-  int amount_;
-  int widget_id_;
-  int initial_;
-  int step_;
-  bool started_;
+  int amount_ = 0;
+  int widget_id_ = -1;
+  int initial_ = -1;
+  int step_ = 5;
+  bool started_ = false;
 };
 
 ////////////////////////////////////////////////////////
@@ -83,6 +87,8 @@ public:
     started_ = false;
   }
 
+  ReceiveQuantity() = default;
+
   bool Evaluate(const RuleContext& context) override {
     if (context.factory_inv == nullptr) {
       return false;
@@ -96,17 +102,21 @@ public:
     return context.factory_inv->GetWidgetQuantity(widget_id_)
       >= (initial_ + amount_);
   }
+
+  NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(ReceiveQuantity,amount_,widget_id_,initial_,step_,started_)
 };
 
 // fill till x amount of W in truck inv
 class DispatchQuantity : public AmountRule {
 public:
   DispatchQuantity(int widget_id, int amount) {
-      widget_id_ = widget_id;
-      amount_ = amount;
-      initial_ = -1; //This is based on when the rule was created, not when it starts
-      started_ = false;
-    }
+    widget_id_ = widget_id;
+    amount_ = amount;
+    initial_ = -1; //This is based on when the rule was created, not when it starts
+    started_ = false;
+  }
+
+  DispatchQuantity() = default;
 
   bool Evaluate(const RuleContext& context) override {
     if (context.truck_inv == nullptr) {
@@ -121,6 +131,8 @@ public:
     return context.truck_inv->GetWidgetQuantity(widget_id_)
       >= (initial_ + amount_);
   }
+
+  NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(DispatchQuantity,amount_,widget_id_,initial_,step_,started_)
 };
 
 class TruckIsFull : public Rule {
@@ -306,8 +318,8 @@ public:
   }
 
 private:
-  std::vector<Target*> targets_;
-  std::vector<Rule*> rules_;
+  std::vector<Target*> targets_ = {};
+  std::vector<Rule*> rules_ = {};
   RuleContext context_;
 };
 

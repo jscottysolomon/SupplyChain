@@ -5,8 +5,6 @@
 #include <unordered_map>
 
 #include "factory.hpp"
-#include "intersection.hpp"
-#include "road.hpp"
 #include "truck.hpp"
 #include "util.hpp"
 #include "widget.hpp"
@@ -57,24 +55,6 @@ void Factory::Undock(Truck* truck) {
       dock->truck_id = -1;
     }
   }
-}
-
-FactoryBuilder& FactoryBuilder::WithRoad(Road* road) {
-  factory->SetRoad(road);
-
-  for (Intersection* inter: road->GetIntersections()) {
-    if (inter->HasRoad(road)) {
-      if (factory->GetIntersection() == nullptr) {
-        factory->SetIntersection(inter);
-      } else if (Vector2Distance(factory->GetPosition(), inter->GetPosition())
-        < Vector2Distance(factory->GetIntersection()->GetPosition(),factory->GetPosition())) {
-          factory->SetIntersection(inter);
-        }
-    }
-
-  }
-
-  return *this;
 }
 
 void Factory::AddDock(Vector2 pos, Truck* t) {

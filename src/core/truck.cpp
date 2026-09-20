@@ -8,7 +8,6 @@
 #include "common.hpp"
 #include "factory.hpp"
 #include "inventory.hpp"
-#include "road.hpp"
 #include "widget.hpp"
 
 void Truck::OnTick() {
@@ -105,6 +104,8 @@ void Truck::AddStop(Junction* junction) {
     RuleContext context;
     context.factory_inv = factory->GetInventory();
     context.truck_inv = GetInventory();
+    context.factory_id = factory->GetId();
+    context.truck_id = id_;
     contexts_.insert({factory->GetId(),context});
 
     plans_.insert({factory->GetId(), new Plan(context)});

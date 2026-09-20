@@ -1,470 +1,534 @@
 {
   "centerYields": [
     {
-      "id": 20,
-      "junctionId": 21,
-      "laneNumber": 2,
-      "position": {
+      "id_": 20,
+      "junction_entity_id_": 21,
+      "lanes_": 2,
+      "position_": {
         "x": 400.0,
         "y": 450.0
       },
-      "trucks": []
+      "trucks_": []
     },
     {
-      "id": 22,
-      "junctionId": 23,
-      "laneNumber": 2,
-      "position": {
+      "id_": 22,
+      "junction_entity_id_": 23,
+      "lanes_": 2,
+      "position_": {
         "x": 500.0,
         "y": 275.0
       },
-      "trucks": []
+      "trucks_": []
     },
     {
-      "id": 24,
-      "junctionId": 25,
-      "laneNumber": 2,
-      "position": {
+      "id_": 24,
+      "junction_entity_id_": 25,
+      "lanes_": 2,
+      "position_": {
         "x": 500.0,
         "y": 375.0
       },
-      "trucks": []
+      "trucks_": []
     }
   ],
   "docks": [
     {
-      "cargoReady": false,
+      "cargo_ready": false,
       "id": 27,
-      "isAssigned": false,
       "position": {
         "x": 550.0,
         "y": 450.0
       },
-      "truckId": -1
+      "truck_id": -1
     },
     {
-      "cargoReady": false,
+      "cargo_ready": false,
       "id": 28,
-      "isAssigned": false,
       "position": {
         "x": 550.0,
         "y": 440.0
       },
-      "truckId": -1
+      "truck_id": -1
     },
     {
-      "cargoReady": false,
+      "cargo_ready": false,
       "id": 31,
-      "isAssigned": false,
       "position": {
         "x": 400.0,
         "y": 275.0
       },
-      "truckId": -1
+      "truck_id": -1
     },
     {
-      "cargoReady": false,
+      "cargo_ready": false,
       "id": 32,
-      "isAssigned": false,
       "position": {
         "x": 400.0,
         "y": 275.0
       },
-      "truckId": -1
+      "truck_id": -1
     },
     {
-      "cargoReady": false,
+      "cargo_ready": false,
       "id": 35,
-      "isAssigned": false,
       "position": {
         "x": 400.0,
         "y": 375.0
       },
-      "truckId": -1
+      "truck_id": -1
     },
     {
-      "cargoReady": false,
+      "cargo_ready": false,
       "id": 36,
-      "isAssigned": false,
       "position": {
         "x": 400.0,
         "y": 375.0
       },
-      "truckId": -1
+      "truck_id": -1
     },
     {
-      "cargoReady": false,
+      "cargo_ready": false,
       "id": 39,
-      "isAssigned": false,
       "position": {
         "x": 600.0,
         "y": 375.0
       },
-      "truckId": -1
+      "truck_id": -1
     },
     {
-      "cargoReady": false,
+      "cargo_ready": false,
       "id": 40,
-      "isAssigned": false,
       "position": {
         "x": 600.0,
         "y": 375.0
       },
-      "truckId": -1
+      "truck_id": -1
     }
   ],
   "factories": [
     {
-      "dockMax": 3,
-      "docks": [
-        27,
-        28
-      ],
-      "entityId": 26,
-      "inventory": {
-        "blacklist": [],
-        "maxCapacity": 500,
-        "whitelist": [],
-        "widgets": [
+      "dock_capcity_": 3,
+      "id_": 26,
+      "inventory_": {
+        "blacklist_": [],
+        "map_": [
           [
             1,
             50
           ]
-        ]
+        ],
+        "max_palletes": 10,
+        "used_palletes_": 50,
+        "whitelist_": []
       },
-      "position": {
+      "position_": {
         "x": 400.0,
         "y": 550.0
       },
-      "productionLines": []
+      "production_lines_": []
     },
     {
-      "dockMax": 3,
-      "docks": [
-        31,
-        32
-      ],
-      "entityId": 30,
-      "inventory": {
-        "blacklist": [],
-        "maxCapacity": 500,
-        "whitelist": [],
-        "widgets": [
+      "dock_capcity_": 3,
+      "id_": 30,
+      "inventory_": {
+        "blacklist_": [],
+        "map_": [
           [
             2,
             50
           ]
-        ]
+        ],
+        "max_palletes": 10,
+        "used_palletes_": 50,
+        "whitelist_": []
       },
-      "position": {
+      "position_": {
         "x": 400.0,
         "y": 275.0
       },
-      "productionLines": []
+      "production_lines_": []
     },
     {
-      "dockMax": 3,
-      "docks": [
-        35,
-        36
-      ],
-      "entityId": 34,
-      "inventory": {
-        "blacklist": [],
-        "maxCapacity": 500,
-        "whitelist": [],
-        "widgets": [
+      "dock_capcity_": 3,
+      "id_": 34,
+      "inventory_": {
+        "blacklist_": [],
+        "map_": [
           [
             1,
             50
           ]
-        ]
+        ],
+        "max_palletes": 10,
+        "used_palletes_": 50,
+        "whitelist_": []
       },
-      "position": {
+      "position_": {
         "x": 400.0,
         "y": 375.0
       },
-      "productionLines": []
+      "production_lines_": []
     },
     {
-      "dockMax": 3,
-      "docks": [
-        39,
-        40
-      ],
-      "entityId": 38,
-      "inventory": {
-        "blacklist": [],
-        "maxCapacity": 500,
-        "whitelist": [],
-        "widgets": [
+      "dock_capcity_": 3,
+      "id_": 38,
+      "inventory_": {
+        "blacklist_": [],
+        "map_": [
           [
             2,
             50
           ]
-        ]
+        ],
+        "max_palletes": 10,
+        "used_palletes_": 50,
+        "whitelist_": []
       },
-      "position": {
+      "position_": {
         "x": 600.0,
         "y": 375.0
       },
-      "productionLines": []
+      "production_lines_": []
     }
   ],
   "fourway": [
     {
-      "id": 8,
-      "junctionId": 9,
-      "laneNumber": 2,
-      "position": {
+      "id_": 8,
+      "junction_entity_id_": 9,
+      "lanes_": 2,
+      "position_": {
         "x": 150.0,
         "y": 300.0
       },
-      "trucks": []
+      "trucks_": []
     },
     {
-      "id": 0,
-      "junctionId": 1,
-      "laneNumber": 2,
-      "position": {
+      "id_": 0,
+      "junction_entity_id_": 1,
+      "lanes_": 2,
+      "position_": {
         "x": 150.0,
         "y": 150.0
       },
-      "trucks": []
+      "trucks_": []
     },
     {
-      "id": 10,
-      "junctionId": 11,
-      "laneNumber": 2,
-      "position": {
+      "id_": 10,
+      "junction_entity_id_": 11,
+      "lanes_": 2,
+      "position_": {
         "x": 300.0,
         "y": 300.0
       },
-      "trucks": []
+      "trucks_": []
     },
     {
-      "id": 2,
-      "junctionId": 3,
-      "laneNumber": 2,
-      "position": {
+      "id_": 2,
+      "junction_entity_id_": 3,
+      "lanes_": 2,
+      "position_": {
         "x": 300.0,
         "y": 150.0
       },
-      "trucks": []
+      "trucks_": []
     },
     {
-      "id": 12,
-      "junctionId": 13,
-      "laneNumber": 2,
-      "position": {
+      "id_": 12,
+      "junction_entity_id_": 13,
+      "lanes_": 2,
+      "position_": {
         "x": 300.0,
         "y": 450.0
       },
-      "trucks": []
+      "trucks_": []
     },
     {
-      "id": 4,
-      "junctionId": 5,
-      "laneNumber": 2,
-      "position": {
+      "id_": 4,
+      "junction_entity_id_": 5,
+      "lanes_": 2,
+      "position_": {
         "x": 500.0,
         "y": 150.0
       },
-      "trucks": []
+      "trucks_": []
     },
     {
-      "id": 14,
-      "junctionId": 15,
-      "laneNumber": 2,
-      "position": {
+      "id_": 14,
+      "junction_entity_id_": 15,
+      "lanes_": 2,
+      "position_": {
         "x": 500.0,
         "y": 450.0
       },
-      "trucks": []
+      "trucks_": []
     },
     {
-      "id": 6,
-      "junctionId": 7,
-      "laneNumber": 2,
-      "position": {
+      "id_": 6,
+      "junction_entity_id_": 7,
+      "lanes_": 2,
+      "position_": {
         "x": 700.0,
         "y": 150.0
       },
-      "trucks": []
+      "trucks_": []
     },
     {
-      "id": 16,
-      "junctionId": 17,
-      "laneNumber": 2,
-      "position": {
+      "id_": 16,
+      "junction_entity_id_": 17,
+      "lanes_": 2,
+      "position_": {
         "x": 150.0,
         "y": 700.0
       },
-      "trucks": []
+      "trucks_": []
     },
     {
-      "id": 18,
-      "junctionId": 19,
-      "laneNumber": 2,
-      "position": {
+      "id_": 18,
+      "junction_entity_id_": 19,
+      "lanes_": 2,
+      "position_": {
         "x": 700.0,
         "y": 700.0
       },
-      "trucks": []
+      "trucks_": []
     }
   ],
   "junctions": [
     {
-      "entityId": 9,
-      "position": {
+      "id_": 9,
+      "obj_id_": 8,
+      "position_": {
         "x": 150.0,
         "y": 300.0
       },
-      "trafficEntityId": 8
+      "type_": 2
     },
     {
-      "entityId": 1,
-      "position": {
+      "id_": 1,
+      "obj_id_": 0,
+      "position_": {
         "x": 150.0,
         "y": 150.0
       },
-      "trafficEntityId": 0
+      "type_": 2
     },
     {
-      "entityId": 11,
-      "position": {
+      "id_": 11,
+      "obj_id_": 10,
+      "position_": {
         "x": 300.0,
         "y": 300.0
       },
-      "trafficEntityId": 10
+      "type_": 2
     },
     {
-      "entityId": 3,
-      "position": {
+      "id_": 3,
+      "obj_id_": 2,
+      "position_": {
         "x": 300.0,
         "y": 150.0
       },
-      "trafficEntityId": 2
+      "type_": 2
     },
     {
-      "entityId": 13,
-      "position": {
+      "id_": 13,
+      "obj_id_": 12,
+      "position_": {
         "x": 300.0,
         "y": 450.0
       },
-      "trafficEntityId": 12
+      "type_": 2
     },
     {
-      "entityId": 5,
-      "position": {
+      "id_": 5,
+      "obj_id_": 4,
+      "position_": {
         "x": 500.0,
         "y": 150.0
       },
-      "trafficEntityId": 4
+      "type_": 2
     },
     {
-      "entityId": 15,
-      "position": {
+      "id_": 15,
+      "obj_id_": 14,
+      "position_": {
         "x": 500.0,
         "y": 450.0
       },
-      "trafficEntityId": 14
+      "type_": 2
     },
     {
-      "entityId": 7,
-      "position": {
+      "id_": 7,
+      "obj_id_": 6,
+      "position_": {
         "x": 700.0,
         "y": 150.0
       },
-      "trafficEntityId": 6
+      "type_": 2
     },
     {
-      "entityId": 17,
-      "position": {
+      "id_": 17,
+      "obj_id_": 16,
+      "position_": {
         "x": 150.0,
         "y": 700.0
       },
-      "trafficEntityId": 16
+      "type_": 2
     },
     {
-      "entityId": 19,
-      "position": {
+      "id_": 19,
+      "obj_id_": 18,
+      "position_": {
         "x": 700.0,
         "y": 700.0
       },
-      "trafficEntityId": 18
+      "type_": 2
     },
     {
-      "entityId": 21,
-      "position": {
+      "id_": 21,
+      "obj_id_": 20,
+      "position_": {
         "x": 400.0,
         "y": 450.0
       },
-      "trafficEntityId": 20
+      "type_": 5
     },
     {
-      "entityId": 23,
-      "position": {
+      "id_": 23,
+      "obj_id_": 22,
+      "position_": {
         "x": 500.0,
         "y": 275.0
       },
-      "trafficEntityId": 22
+      "type_": 5
     },
     {
-      "entityId": 25,
-      "position": {
+      "id_": 25,
+      "obj_id_": 24,
+      "position_": {
         "x": 500.0,
         "y": 375.0
       },
-      "trafficEntityId": 24
+      "type_": 5
     },
     {
-      "entityId": 29,
-      "position": {
+      "id_": 29,
+      "obj_id_": 26,
+      "position_": {
         "x": 400.0,
         "y": 550.0
       },
-      "trafficEntityId": 26
+      "type_": 0
     },
     {
-      "entityId": 33,
-      "position": {
+      "id_": 33,
+      "obj_id_": 30,
+      "position_": {
         "x": 400.0,
         "y": 275.0
       },
-      "trafficEntityId": 30
+      "type_": 0
     },
     {
-      "entityId": 37,
-      "position": {
+      "id_": 37,
+      "obj_id_": 34,
+      "position_": {
         "x": 400.0,
         "y": 375.0
       },
-      "trafficEntityId": 34
+      "type_": 0
     },
     {
-      "entityId": 41,
-      "position": {
+      "id_": 41,
+      "obj_id_": 38,
+      "position_": {
         "x": 600.0,
         "y": 375.0
       },
-      "trafficEntityId": 38
+      "type_": 0
     }
   ],
   "trucks": [
     {
       "create_route": false,
+      "dock_id_": -1,
       "docked_": false,
-      "pallete_capacity": 500,
+      "dynamic_schedule_ids_": [
+        37,
+        29,
+        33
+      ],
+      "fixed_schedule_ids_": [
+        37,
+        29,
+        33
+      ],
+      "id_": 61,
+      "inventory_": {
+        "blacklist_": [],
+        "map_": [],
+        "max_palletes": 10,
+        "used_palletes_": 0,
+        "whitelist_": []
+      },
+      "junction_id_": 3,
+      "pathway_ids_": [
+        3,
+        5,
+        23,
+        25,
+        37
+      ],
+      "position_": {
+        "x": 204.90133666992188,
+        "y": 150.0
+      },
+      "right_side_": true,
+      "segment_id_": 45,
       "speed_": 0.02500000037252903,
-      "state_": 0
+      "state_": 0,
+      "target_": {
+        "x": 300.0,
+        "y": 150.0
+      }
     },
     {
       "create_route": false,
+      "dock_id_": -1,
       "docked_": false,
-      "pallete_capacity": 500,
+      "dynamic_schedule_ids_": [
+        33
+      ],
+      "fixed_schedule_ids_": [
+        33
+      ],
+      "id_": 62,
+      "inventory_": {
+        "blacklist_": [],
+        "map_": [],
+        "max_palletes": 10,
+        "used_palletes_": 0,
+        "whitelist_": []
+      },
+      "junction_id_": 3,
+      "pathway_ids_": [
+        3,
+        5,
+        23,
+        33
+      ],
+      "position_": {
+        "x": 300.0,
+        "y": 245.0987091064453
+      },
+      "right_side_": true,
+      "segment_id_": 47,
       "speed_": 0.02500000037252903,
-      "state_": 0
+      "state_": 0,
+      "target_": {
+        "x": 300.0,
+        "y": 150.0
+      }
     }
   ]
 }

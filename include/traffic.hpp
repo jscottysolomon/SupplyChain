@@ -19,7 +19,6 @@
 #include "common.hpp"
 #include "entity.hpp"
 #include "util.hpp"
-#include "road.hpp"
 
 class RoadSegment;
 class Junction;
@@ -37,6 +36,9 @@ class TrafficNode: public MapObject {
     TrafficNode(Vector2 pos) : MapObject(pos) {
       // NextId();
     }
+
+    TrafficNode() = default;
+
     virtual ~TrafficNode() = default;
     void SetJunctionGraphId(graaf::vertex_id_t id) 
 			{junction_graph_id_ = id;}
@@ -49,7 +51,7 @@ class TrafficNode: public MapObject {
     int GetCost();
     int GetLaneNumber() const
       {return lanes_;}
-    std::vector<Truck*> GetTrucks() const
+    std::vector<int> GetTrucks() const
       { return trucks_; }
     void SetLaneNumber(int lanes) 
       {lanes_ = lanes;}
@@ -58,7 +60,7 @@ class TrafficNode: public MapObject {
   protected:
     graaf::vertex_id_t junction_graph_id_;
     int junction_entity_id_;
-    std::vector<Truck*> trucks_;
+    std::vector<int> trucks_;
     int lanes_ = 2;
 };
 
@@ -75,23 +77,15 @@ class Junction : public MapObject {
 public:
   Junction(Vector2 position, JunctionType type, TrafficNode* obj, 
       std::vector<RoadSegment*> segments) : MapObject(position) {
-    type_ = type;
-    obj_ = obj;
     segments_ = segments;
-
-    if(obj_) {
-      obj_->SetJunctionEntityId(id_);
-    }
+    SetEntity(obj,type);
   }
 
   Junction(TrafficNode* obj, JunctionType type) : MapObject(obj->GetPosition()){
-    obj_ = obj;
-    type_ = type;
-    if(obj != nullptr) {
-      SetPosition(obj_->GetPosition());
-      obj_->SetJunctionEntityId(id_);
-    }
+    SetEntity(obj,type);
   }
+
+  Junction() = default;
 
   ~Junction() override {
     delete obj_;
@@ -113,13 +107,22 @@ public:
     {return type == type_; }
   JunctionType GetType() 
     { return type_; }
-  int GetCost() {
+  int GetCost() const {
     if (obj_ != nullptr) {
       return obj_->GetCost();
     }
     return 0;
   }
-  TrafficNode* GetEntity() 
+  void SetEntity(TrafficNode* node, JunctionType type) {
+    obj_ = node; 
+    type_ = type;
+    if(obj_) {
+      SetPosition(obj_->GetPosition());
+      obj_->SetJunctionEntityId(id_);
+      obj_id_ = node->GetId();
+    }
+  }
+  TrafficNode* GetEntity() const
     { return obj_;}
   Factory* GetFactory();
   int GetEntityId() const {
@@ -133,12 +136,14 @@ public:
     graph_id_ = id;
     obj_->SetJunctionGraphId(graph_id_);
   }
-  graaf::vertex_id_t GetGraphId() 
+  graaf::vertex_id_t GetGraphId() const
     {return graph_id_;}
   
   void RemoveSegment(RoadSegment* rs1) {
     segments_.erase(std::remove(segments_.begin(), segments_.end(), rs1),segments_.end());
   }
+
+  NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(Junction, id_,position_,type_,obj_id_);
 
 private:
   JunctionType type_;
@@ -148,6 +153,7 @@ private:
    * 
    */
   TrafficNode* obj_;
+  int obj_id_;
   std::vector<RoadSegment*> segments_;
   graaf::vertex_id_t graph_id_;
 };
@@ -174,8 +180,9 @@ public:
 
   std::vector<Truck*> GetTrucks() 
     { return trucks_; }
-  void AddTruck(Truck* t) 
-    { trucks_.push_back(t); }
+  void AddTruck(Truck* t) { 
+    trucks_.push_back(t);
+  }
   int GetId() 
     { return id_; }
 
@@ -244,6 +251,7 @@ public:
   CenterYield(Vector2 pos) : TrafficNode(pos) {
     lanes_ = 2;
   }
+  CenterYield() = default;
   ~CenterYield() override = default;
 
 
@@ -255,6 +263,8 @@ public:
   void OnTick() override {
     
   }
+  NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(CenterYield, position_,id_, junction_entity_id_, lanes_, trucks_)
+
 };
 
 class FourWayStop : public TrafficNode {
@@ -262,6 +272,8 @@ public:
   FourWayStop(Vector2 pos) : TrafficNode(pos) {
     lanes_ = 2;
   }
+  FourWayStop() = default;
+
   ~FourWayStop() override = default;
 
   void Draw() override {
@@ -272,6 +284,8 @@ public:
   void OnTick() override {
     
   }
+
+  NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(FourWayStop, position_,id_, junction_entity_id_, lanes_, trucks_)
 };
 
 

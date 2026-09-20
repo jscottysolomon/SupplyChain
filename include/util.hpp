@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <time.h>
 
+#include <nlohmann/json.hpp>
 #include <raylib.h>
 
 double GetGlobalTime();
@@ -47,5 +48,7 @@ int Orientation(Point p, Point q, Point r) ;
 // and 'p2q2' intersect. 
 //taken from https://gist.github.com/SuryaPratapK/4b632447abbc0e95f6e81da321b855fb
 bool DoIntersect(Point p1, Point q1, Point p2, Point q2) ;
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Vector2, x, y)
 
 #endif

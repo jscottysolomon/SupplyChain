@@ -3,8 +3,10 @@ Factory.hpp
 */
 
 #include <vector>
-#include <raylib.h>
 #include <time.h>
+
+#include <nlohmann/json.hpp>
+#include <raylib.h>
 
 #include "entity.hpp"
 #include "inventory.hpp"
@@ -14,9 +16,7 @@ Factory.hpp
 #ifndef FACTORY_HPP
 #define FACTORY_HPP
 
-class Truck; //avoiding circular dependency
-class Road;
-class Intersection;
+class Truck; //avoiding circular dependency;
 
 struct Dock {
 	Vector2 position;
@@ -27,6 +27,8 @@ struct Dock {
 	int truck_id;
 };
 
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Dock, position, truck_id, cargo_ready, id)
+
 struct ProductionLine {
 	double last_production;		//last time something was procduced
 	double production_start; 	//when productino of item started
@@ -34,14 +36,18 @@ struct ProductionLine {
 	int id;
 };
 
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ProductionLine, last_production, production_start,
+	efficienty, id)
+
+
 class Factory : public TrafficNode {
 	public:
 		Factory(Vector2 points): TrafficNode(points) {
 			// SetPosition(points);
-			intersection_ = nullptr;
 			load_speed_ = 2;
 			organizer = ReceipeOrganizer::GetInstance();
 		}
+		Factory() = default;
 		~Factory() {
 			for (Dock* dock: docks_) {
 				delete dock;
@@ -61,20 +67,12 @@ class Factory : public TrafficNode {
 			{dock_capcity_ = capacity;}
 		int GetDockMaximum() const
 			{ return dock_capcity_; }
-		void SetRoad(Road* r) 
-			{road_ = r;}
-		Road* GetRoad() 
-			{return road_;}
 		void SetRoadSegment(RoadSegment* segment)
 			{segment_ = segment;}
 		const RoadSegment* GetRoadSegment() const
 			{return segment_;}
 		RoadSegment* GetRoadSegment()
 			{return segment_;}
-		void SetIntersection(Intersection* i) 
-			{intersection_ = i;}
-		Intersection* GetIntersection() 
-			{return intersection_;}
 		std::unordered_map<int,int> GetInventoryMap() const
 			{return inventory_.GetInventoryMap();}
 
@@ -132,17 +130,14 @@ class Factory : public TrafficNode {
 			return ret;
 		}
 
+		NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(Factory,id_,position_,dock_capcity_,inventory_,production_lines_)
+
 	private:
-		int dock_capcity_;
-		int widget_capacity_;
-		float load_speed_;
-		std::vector<int> craftables_;
-		std::vector<int> loadables_;
+		int dock_capcity_ = 3;
+		float load_speed_ = 1;
 		std::vector<Dock*> docks_;
-		Intersection* intersection_;
-		Road* road_;
 		Inventory inventory_;
-		std::vector<ProductionLine> production_lines_;
+		std::vector<ProductionLine> production_lines_ = {};
 		ReceipeOrganizer* organizer;
 		RoadSegment* segment_;
 
@@ -163,8 +158,6 @@ public:
 		factory->SetDockQuantity(capcity);
 		return *this;
 	}
-
-	FactoryBuilder& WithRoad(Road* road);
 
 	FactoryBuilder& WithDock(Vector2 pos, Truck* truck) {
 		factory->AddDock(pos,truck);

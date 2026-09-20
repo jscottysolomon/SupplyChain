@@ -11,15 +11,14 @@
 #ifndef INVENTORY_HPP
 #define INVENTORY_HPP
 
+#include <nlohmann/json.hpp>
+
 #include <unordered_map>
 #include <set>
 
 class Inventory {
 public:
-  Inventory() {
-    max_capacity_ = 500;
-    used_capacity_ = 0;
-  }
+  Inventory() = default;
 
   //whitelist is default behavior
   bool IsAllowed(int id) {
@@ -47,11 +46,11 @@ public:
   int AddWidget(int id, int quantity) {
     if (id < 0) return 0;
     if (quantity <= 0) return 0;
-    if (used_capacity_ == max_capacity_) return 0;
+    if (used_palletes_ == max_palletes) return 0;
     if (!IsAllowed(id)) return 0;
 
-    if (max_capacity_ < used_capacity_ + quantity)  {
-      quantity = max_capacity_ - used_capacity_;
+    if (max_palletes < used_palletes_ + quantity)  {
+      quantity = max_palletes - used_palletes_;
     }
 
     //Is this necessary?
@@ -60,7 +59,7 @@ public:
     }
 
     map_[id] += quantity;
-    used_capacity_ += quantity;
+    used_palletes_ += quantity;
 
     return quantity;
   }
@@ -94,7 +93,7 @@ public:
       quantity = map_[id] - quantity;
     }
     map_[id] -= quantity;
-    used_capacity_ -= quantity;
+    used_palletes_ -= quantity;
     return quantity;
   }
 
@@ -152,24 +151,24 @@ public:
   }
 
   bool IsFull() {
-    return max_capacity_ == used_capacity_;
+    return max_palletes == used_palletes_;
   }
 
   int GetAvailableCapacity() const 
-    { return max_capacity_ - used_capacity_; }
+    { return max_palletes - used_palletes_; }
 
   int GetUsedCapacity() const 
-    { return used_capacity_; }
+    { return used_palletes_; }
 
   int GetMaxCapacity() const 
-    { return max_capacity_; }
+    { return max_palletes; }
 
   void SetInventory(std::unordered_map<int, int> inv) {
-    used_capacity_ = 0;
+    used_palletes_ = 0;
     map_.clear();
     
     for (std::pair<int,int> p: inv) {
-      used_capacity_ += p.second;
+      used_palletes_ += p.second;
     }
 
     map_ = inv;
@@ -181,14 +180,15 @@ public:
   void OnTick() {
 
   }
+  NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(Inventory,map_,whitelist_,blacklist_,max_palletes,used_palletes_)
   
   //Truck says here's what i have and factory decides what it wants and how much it takes per tick
 private:
   std::unordered_map<int, int> map_; //id,quantity
   std::set<int> whitelist_; //whitelist is default
   std::set<int> blacklist_;
-  int max_capacity_;
-  int used_capacity_;
+  int max_palletes = 10;
+  int used_palletes_ = 0;
 };
 
 #endif

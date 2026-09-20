@@ -18,9 +18,11 @@
 #include "inventory.hpp"
 #include "rules.hpp"
 #include "traffic.hpp"
+#include "util.hpp"
 #include "widget.hpp"
 
 class Factory; //avoiding circular dependency
+class Inventory;
 class Road;
 struct Dock;
 
@@ -42,7 +44,6 @@ class Truck : public MapObject {
 			speed_ = .025f;
 			create_route = false;
 			state_ = kDriving; //TODO: update
-			pallete_capacity = 500;
 			target_ = {-1,-1};
 			right_side_ = true;
 		}
@@ -123,11 +124,12 @@ class Truck : public MapObject {
 			
 			p->RemoveTarget(t);
 		}
-
-		NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(Truck,pallete_capacity,speed_,docked_,create_route,state_)
+		
+		NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(Truck,id_,position_,speed_,state_,
+			right_side_,docked_,create_route,target_,junction_id_,segment_id_,dock_id_,dynamic_schedule_ids_,
+			fixed_schedule_ids_, pathway_ids_,inventory_)
 	private:
 		/*Internal State*/
-		int pallete_capacity = 10;		//widgets capacity
 		float speed_ = 0.25f;		//movement speed
 		TruckState state_ = TruckState::kDriving;
 		bool right_side_ = false;
@@ -147,20 +149,8 @@ class Truck : public MapObject {
 
 		/*Cargo Management*/
 		Inventory inventory_;
-		std::unordered_map<int,RuleContext> contexts_; //id, context
+		std::unordered_map<int, RuleContext> contexts_; //id, context
 		std::unordered_map<int, Plan*> plans_;
-
-		/*Road Relations*/
-		// Junction* junction_;
-		// RoadSegment* segment_;
-		// Dock* dock_;
-		// std::vector<Junction*> dynamic_schedule_; 		//dynamic list of stops
-		// std::vector<Junction*> fixed_schedule_; 	//fixed schedule
-		// std::list<Junction*> pathway;	//route to current target factory
-
-		/*Schedules and Routes*/
-		
-
 		
 		void Receive();
 		void Dispatch();

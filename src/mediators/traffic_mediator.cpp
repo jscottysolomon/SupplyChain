@@ -15,7 +15,6 @@
 #include <raymath.h>
 
 #include "factory.hpp"
-#include "intersection.hpp"
 #include "truck.hpp"
 
 Vertex* GetVertex(std::vector<Vertex*> vertices, Intersection* intersection);
