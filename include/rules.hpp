@@ -10,6 +10,27 @@
 #include "widget.hpp"
 #include "inventory.hpp"
 
+
+enum RuleType {
+  kReceiveWidgetPalletQuantity = 0,
+  kReceivePalletQuantity,
+  kDispatchWidgetPalletQuantity,
+  kDispatchPalletQuantity,
+  kFactoryIsFull,
+  kTruckIsFull,
+  kInvalidRule
+};
+
+NLOHMANN_JSON_SERIALIZE_ENUM( RuleType, {
+  {kReceiveWidgetPalletQuantity, "receiveWidgetPalletQuantity"},
+  {kReceivePalletQuantity, "receivePalletQuantity"},
+  {kDispatchWidgetPalletQuantity, "dispatchWidgetPalletQuantity"},
+  {kDispatchPalletQuantity, "dispatchPalletQuantity"},
+  {kFactoryIsFull, "factoryIsFull"},
+  {kTruckIsFull, "truckIsFull"},
+  {kInvalidRule, nullptr}
+})
+
 ////////////////////////////////////////////////////////
 // Rule Context
 ////////////////////////////////////////////////////////
@@ -17,15 +38,7 @@
 struct RuleContext {
   Inventory* truck_inv = nullptr;
   Inventory* factory_inv = nullptr;
-  int truck_id = -1;
-  int factory_id = -1;
-
-  std::set<int>* whitelist = nullptr;
-  std::set<int>* blacklist = nullptr;
 };
-
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(RuleContext, truck_id, factory_id)
-
 ////////////////////////////////////////////////////////
 // Rule
 ////////////////////////////////////////////////////////
@@ -34,16 +47,14 @@ class Rule {
 public:
   virtual ~Rule() = default;
 
-  virtual int GetProgress() {
+  void SetType(RuleType type) 
+    { type_ = type; }
+  RuleType GetType() const
+    { return type_; }
+
+  int GetProgress() {
     return 0;
   }
-
-  virtual bool Evaluate(const RuleContext& context) = 0;
-};
-
-class AmountRule: public Rule {
-public:
-  AmountRule()  = default;
 
   void SetStep(int step)
     { step_ = step; }
@@ -51,12 +62,15 @@ public:
   void SetAmount(int amount) 
     { amount_ = amount; }
 
-  virtual void DecreaseAmount() {
-    amount_ = (amount_ - step_ > 0) 
-        ? amount_ - step_
-        : 0;
+  void SetWidgetId(int id) 
+    { widget_id_ = id;}
+
+  void DecreaseAmount() {
+    amount_ = (amount_ - step_ > 0)  
+      ? amount_ - step_ : 0;
   }
-  virtual void IncreaseAmount() 
+
+  void IncreaseAmount() 
     { amount_ += step_; }
 
   int GetWidgetId() 
@@ -65,7 +79,33 @@ public:
   int GetAmount() const
     { return amount_; }
 
-protected:
+  bool Evaluate(const RuleContext& context) {
+    switch(type_) {
+      case kReceiveWidgetPalletQuantity:
+        if (!started_) {
+          initial_ = context.factory_inv->GetWidgetPalletQuantity(widget_id_);
+          started_ = true;
+        }
+
+        return context.factory_inv->GetWidgetPalletQuantity(widget_id_)
+          >= (initial_ + amount_);
+      break;
+      case kDispatchWidgetPalletQuantity:
+        if (!started_) {
+          initial_ = context.truck_inv->GetWidgetPalletQuantity(widget_id_);
+          started_ = true;
+        }
+
+        return context.truck_inv->GetWidgetPalletQuantity(widget_id_)
+          >= (initial_ + amount_);
+      break;
+      default:
+        return false;
+    }
+  }
+
+private: 
+  RuleType type_ = RuleType::kInvalidRule;
   int amount_ = 0;
   int widget_id_ = -1;
   int initial_ = -1;
@@ -74,196 +114,72 @@ protected:
 };
 
 ////////////////////////////////////////////////////////
-// Leaf Rules
-////////////////////////////////////////////////////////
-
-// fill till x amount of W in factory inv
-class ReceiveQuantity : public AmountRule {
-public:
-  ReceiveQuantity(int widget_id, int amount) {
-    amount_ = amount;
-    widget_id_ = widget_id;
-    initial_ = -1;
-    started_ = false;
-  }
-
-  ReceiveQuantity() = default;
-
-  bool Evaluate(const RuleContext& context) override {
-    if (context.factory_inv == nullptr) {
-      return false;
-    }
-
-    if (!started_) {
-      initial_ = context.factory_inv->GetWidgetQuantity(widget_id_);
-      started_ = true;
-    }
-
-    return context.factory_inv->GetWidgetQuantity(widget_id_)
-      >= (initial_ + amount_);
-  }
-
-  NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(ReceiveQuantity,amount_,widget_id_,initial_,step_,started_)
-};
-
-// fill till x amount of W in truck inv
-class DispatchQuantity : public AmountRule {
-public:
-  DispatchQuantity(int widget_id, int amount) {
-    widget_id_ = widget_id;
-    amount_ = amount;
-    initial_ = -1; //This is based on when the rule was created, not when it starts
-    started_ = false;
-  }
-
-  DispatchQuantity() = default;
-
-  bool Evaluate(const RuleContext& context) override {
-    if (context.truck_inv == nullptr) {
-      return false;
-    }
-
-    if (!started_) {
-      initial_ = context.truck_inv->GetWidgetQuantity(widget_id_);
-      started_ = true;
-    }
-
-    return context.truck_inv->GetWidgetQuantity(widget_id_)
-      >= (initial_ + amount_);
-  }
-
-  NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(DispatchQuantity,amount_,widget_id_,initial_,step_,started_)
-};
-
-class TruckIsFull : public Rule {
-public:
-  bool Evaluate(const RuleContext& context) override {
-    if (context.truck_inv == nullptr)
-      return false;
-    
-    return context.truck_inv->IsFull();
-  }
-};
-
-class FactoryIsFull : public Rule {
-public:
-  bool Evaluate(const RuleContext& context) override {
-    if (context.factory_inv == nullptr)
-      return false;
-    
-    return context.factory_inv->IsFull();
-  }
-};
-
-class UntilTruckUnloadsAmt : public Rule {
-
-};
-
-class UntilFactoryUnloadsAmt: public Rule {
-
-};
-
-////////////////////////////////////////////////////////
 // Actions
 ////////////////////////////////////////////////////////
+
+enum ActionType {
+  kDispatchWidget = 0,
+  kReceiveWidget,
+  kInvalidAction
+};
 
 class Action {
 public:
   virtual ~Action() = default;
   // virtual int GetProgress() = 0;
 
-  virtual bool Execute(const RuleContext& context) = 0;
-};
+  void SetType(ActionType type) 
+    { type_ = type; }
+  ActionType GetType() const
+    { return type_; }
+  void SetWidgetId(int id)
+    { widget_id_ = id; }
+  int GetWidgetId() 
+    { return widget_id_; }
 
-
-class DispatchWidget : public Action {
-public:
-  DispatchWidget(int widget_id)
-    : widget_id_(widget_id) {
-  }
-
-  bool Execute(const RuleContext& context) override {
-    if (context.factory_inv->RemoveWidget(widget_id_)) {
-      return context.truck_inv->AddWidget(widget_id_); //No Check
+  virtual bool Execute(const RuleContext& context) {
+    switch(type_) {
+      case kDispatchWidget:
+        if (context.factory_inv->RemoveWidgetPallet(widget_id_)) {
+          return context.truck_inv->AddWidgetPallet(widget_id_); //No Check
+        }
+        return false;
+      break;
+      case kReceiveWidget:
+        if (context.truck_inv->RemoveWidgetPallet(widget_id_)) {
+          return context.factory_inv->AddWidgetPallet(widget_id_); //No Check
+        } return false;
+        break;
+      default:
+        return false;
+        break;
     }
-    return false;
   }
 
 private:
+  ActionType type_ = ActionType::kInvalidAction;
   int widget_id_;
-};
-
-class ReceiveWidget : public Action {
-public:
-  ReceiveWidget(int widget_id)
-    : widget_id_(widget_id) {
-  }
-
-  bool Execute(const RuleContext& context) override {
-    if (context.truck_inv->RemoveWidget(widget_id_)) {
-      return context.factory_inv->AddWidget(widget_id_); //No Check
-    } else {
-      return false;
-    }
-
-    return false;
-  }
-
-private:
-  int widget_id_;
-};
-
-class UnloadTruck : public Action {
-public:
-  bool Execute(const RuleContext& context) override {
-    // Unload truck.
-    return false;
-  }
-};
-
-
-class UnloadFactory : public Action {
-public:
-  bool Execute(const RuleContext& context) override {
-    // Unload factory.
-    return false;
-  }
-};
-
-
-class NothingAction : public Action {
-public:
-  bool Execute(const RuleContext&) override {
-    // Nothing to do.
-    return false;
-  }
 };
 
 class Target {
 public:
-  Target(Rule* r, Action* a): rule_(r), action_(a) {}
-  ~Target() {
-    delete rule_;
-    delete action_;
-  }
+  Target(Rule r, Action a): rule_(r), action_(a) {}
+  ~Target() = default;
   
   bool RuleMet(const RuleContext& context) {
-    if (rule_ == nullptr) return false;
-
-    return rule_->Evaluate(context);
+    return rule_.Evaluate(context);
   }
 
   bool PerformAction(RuleContext& context) {
-    if (action_ == nullptr) return false;
-    return action_->Execute(context);
+    return action_.Execute(context);
   }
 
-  Rule* GetRule() {
+  Rule GetRule() {
     return rule_;
   }
 private:
-  Rule* rule_;
-  Action* action_;
+  Rule rule_;
+  Action action_;
 };
 
 class Plan {
@@ -271,25 +187,31 @@ public:
   Plan(RuleContext c) {
     context_ = c;
   }
-  void AddTarget(Target* t) {
+  Plan() = default;
+
+  void AddTarget(Target t) {
     targets_.push_back(t);
   }
 
-  void AddTarget(Rule* rule, Action* action) {
-    Target* t = new Target(rule,action);
+  void AddTarget(Rule rule, Action action) {
+    Target t(rule,action);
     targets_.push_back(t);
   }
 
-  void RemoveTarget(Target* t) {
-    if(t == nullptr) return;
-    targets_.erase(std::find(targets_.begin(), targets_.end(), t));
+  void RemoveTarget(Target t) {
+    // targets_.erase(std::find(targets_.begin(), targets_.end(), t));
   }
+
+  void SetContext(RuleContext context) 
+    { context_ = context;}
+  RuleContext GetContext() const
+    {return context_;}
 
   void NextAction() {
     bool successful = false;
-    for (Target* t: targets_) {
-      if (!t->RuleMet(context_)) {
-        successful = t->PerformAction(context_);
+    for (Target t: targets_) {
+      if (!t.RuleMet(context_)) {
+        successful = t.PerformAction(context_);
       }
       if (successful) break;
     }
@@ -298,14 +220,14 @@ public:
   bool IsDone() {
     if (targets_.empty()) return false;
 
-    for (Rule* rule: rules_) {
-      if (rule->Evaluate(context_)) {
+    for (Rule rule: rules_) {
+      if (rule.Evaluate(context_)) {
         return true;
       }
     }
 
-    for (Target* t: targets_) {
-      if (!t->RuleMet(context_)) {
+    for (Target t: targets_) {
+      if (!t.RuleMet(context_)) {
         return false;
       }
     }
@@ -313,13 +235,13 @@ public:
     return true;
   }
 
-  std::vector<Target*> GetTargets() {
+  std::vector<Target> GetTargets() {
     return targets_;
   }
 
 private:
-  std::vector<Target*> targets_ = {};
-  std::vector<Rule*> rules_ = {};
+  std::vector<Target> targets_ = {};
+  std::vector<Rule> rules_ = {};
   RuleContext context_;
 };
 

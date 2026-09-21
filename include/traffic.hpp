@@ -29,7 +29,6 @@ struct Dock;
 class TrafficMediator;
 class TrafficCommand;
 
-
 /*Map Object that has a "cost" for graph purposes*/
 class TrafficNode: public MapObject {
   public:

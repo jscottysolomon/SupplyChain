@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "save.hpp"
+#include "scheduler.hpp"
 #include "traffic.hpp"
 #include "util.hpp"
 #include "ui_core.hpp"
@@ -37,7 +38,8 @@ float resize_factor = 1.0;
 float resized_tile_size = TILE_SIZE * resize_factor;
 float zoom = 3.75;
 TrafficCommand traffic;
-GameUi uiHandler(traffic);
+Scheduler scheduler;
+GameUi uiHandler(traffic, scheduler);
 
 /**
  * @brief Unloads all loaded textures and allocated memory.
@@ -114,6 +116,7 @@ int main(void)
 
 void UpdateDrawFrame() {
   traffic.OnTick();
+  scheduler.OnTick();
 
   BeginDrawing();
     ClearBackground(background);

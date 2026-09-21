@@ -46,6 +46,7 @@ class Truck : public MapObject {
 			state_ = kDriving; //TODO: update
 			target_ = {-1,-1};
 			right_side_ = true;
+
 		}
 		~Truck() override = default;
 		//General Functions
@@ -90,8 +91,8 @@ class Truck : public MapObject {
 			{ return &inventory_; }
 		Inventory* GetInventory()
 			{ return &inventory_; }
-		int GetWidgetQuantity(int id) const
-			{ return inventory_.GetWidgetQuantity(id); }
+		int GetWidgetPalletQuantity(int id) const
+			{ return inventory_.GetWidgetPalletQuantity(id); }
 		int GetMaxCapacity() const
 			{return inventory_.GetMaxCapacity(); }
 		int GetAvailableCapacity() const 
@@ -108,22 +109,10 @@ class Truck : public MapObject {
 		bool IsOnRightLane() const
 			{return right_side_;}
 
-		Plan* GetPlan(int id) {
-			if (plans_.find(id) != plans_.end()) {
-				return plans_.at(id);
-			}
-
-			return nullptr;
-		}
-
-		RuleContext& GetContext(int id) { 
-			return contexts_[id];
-		}
-		void RemoveTarget(Target* t, int factory_id) {
-			Plan* p = plans_.at(factory_id);
-			
-			p->RemoveTarget(t);
-		}
+		int GetPlan() const
+			{ return plan_id_; }
+		void SetPlan(int id)
+			{ plan_id_ = id;}
 		
 		NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(Truck,id_,position_,speed_,state_,
 			right_side_,docked_,create_route,target_,junction_id_,segment_id_,dock_id_,dynamic_schedule_ids_,
@@ -141,6 +130,7 @@ class Truck : public MapObject {
 		int junction_id_ = -1;
 		int segment_id_ = -1;
 		int dock_id_ = -1;
+		int plan_id_ = -1;
 		std::vector<int> dynamic_schedule_ids_ = {};
 		std::vector<int> fixed_schedule_ids_ = {};
 		std::list<int> pathway_ids_ = {};
@@ -150,7 +140,6 @@ class Truck : public MapObject {
 		/*Cargo Management*/
 		Inventory inventory_;
 		std::unordered_map<int, RuleContext> contexts_; //id, context
-		std::unordered_map<int, Plan*> plans_;
 		
 		void Receive();
 		void Dispatch();

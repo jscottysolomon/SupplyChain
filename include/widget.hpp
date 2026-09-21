@@ -25,6 +25,7 @@ struct Widget {
 	std::unordered_map<int, int> inputs; //id,quantity
 	int input_amount;
 	int output_amount;
+	int pallet_size = 50;
 	double production_time;
 };
 
@@ -45,7 +46,7 @@ public:
 			input_amt += p.second;
 		}
 
-		Widget w = {next_id_++,1,name,inputs,input_amt,output,time};
+		Widget w = {next_id_++,1,name,inputs,input_amt,output,50,time};
 		widgets_[w.id] = w;
 
 		return w.id;
@@ -68,6 +69,9 @@ public:
 		//TODO: Check if widget exists
 		return widgets_[id];
 	}
+
+	int GetWidgetPalletSize(int id)
+		{return widgets_.at(id).pallet_size; }
 
 	void SetReceipe(int id, std::unordered_map<int,int> recipe) {
 		widgets_[id].inputs = recipe;
@@ -120,18 +124,18 @@ public:
 		}
 
 		for (std::pair<int, int> p: w.inputs) {
-			if (inv->GetWidgetQuantity(p.first) < p.second) {
+			if (inv->GetWidgetPalletQuantity(p.first) < p.second) {
 				return false;
 			}
 		}
 
 		for (std::pair<int, int> p: w.inputs) {
-			if (inv->RemoveWidget(p.first, p.second) != p.second) {
+			if (inv->RemoveWidgetPallet(p.first, p.second) != p.second) {
 				TraceLog(LOG_WARNING, "Tried to remove too many widgets!");
 			}
 		}
 
-		if(w.output_amount != inv->AddWidget(id, w.output_amount)) {
+		if(w.output_amount != inv->AddWidgetPallet(id, w.output_amount)) {
 			TraceLog(LOG_WARNING, "Correct amt of widgets not made!");
 		}
 
@@ -149,7 +153,7 @@ public:
 		
 		// //Checking inventory has required amount for widgets
 		// for (std::pair<int, int> p: widgets_[id].inputs) {
-		// 	if (inv->GetWidgetQuantity(p.first) < p.second) {
+		// 	if (inv->GetWidgetPalletQuantity(p.first) < p.second) {
 		// 		satisfied = false;
 		// 	}
 		// }
@@ -157,10 +161,10 @@ public:
 		// if (!satisfied) return satisfied;
 
 		// for (std::pair<int, int> p: widgets_[id].inputs) {
-		// 	inv->RemoveWidget(p.first,p.second);
+		// 	inv->RemoveWidgetPallet(p.first,p.second);
 		// }
 
-		// inv->AddWidget(id,widgets_[id].output_amount);
+		// inv->AddWidgetPallet(id,widgets_[id].output_amount);
 
 		// return satisfied;
 		return false;

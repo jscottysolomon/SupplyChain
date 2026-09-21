@@ -43,7 +43,7 @@ public:
    * @param quantity 
    * @return amount added
    */
-  int AddWidget(int id, int quantity) {
+  int AddWidgetPallet(int id, int quantity) {
     if (id < 0) return 0;
     if (quantity <= 0) return 0;
     if (used_palletes_ == max_palletes) return 0;
@@ -71,8 +71,8 @@ public:
    * @return true Was able to add 1
    * @return false Could not add 1
    */
-  bool AddWidget(int id) {
-    return AddWidget(id, 1);
+  bool AddWidgetPallet(int id) {
+    return AddWidgetPallet(id, 1);
   }
 
   /**
@@ -83,7 +83,7 @@ public:
    * @param quantity 
    * @return total amount of specified widgets removed from inventory
    */
-  int RemoveWidget(int id, int quantity) {
+  int RemoveWidgetPallet(int id, int quantity) {
     if (quantity <= 0) return 0;
     if (!Contains(id)) return 0;
     if (map_.find(id) == map_.end()) {
@@ -97,11 +97,11 @@ public:
     return quantity;
   }
 
-  bool RemoveWidget(int id) {
-    return RemoveWidget(id,1);
+  bool RemoveWidgetPallet(int id) {
+    return RemoveWidgetPallet(id,1);
   }
 
-  int GetWidgetQuantity(int id) const {
+  int GetWidgetPalletQuantity(int id) const {
     if (!Contains(id)) return 0;
     return map_.at(id);
   }

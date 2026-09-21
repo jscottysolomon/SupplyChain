@@ -8,10 +8,10 @@
 #include "rules.hpp"
 
 bool Style(Rule* rule, Truck* truck, Factory* factory) {
-  if (rule->Evaluate(truck->GetContext(factory->GetId()))) {
-    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
-    return true;
-  }
+  // if (rule->Evaluate(truck->GetContext(factory->GetId()))) {
+  //   ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
+  //   return true;
+  // }
   return false;
 }
 

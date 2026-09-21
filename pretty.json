@@ -471,16 +471,15 @@
         "used_palletes_": 0,
         "whitelist_": []
       },
-      "junction_id_": 3,
+      "junction_id_": 5,
       "pathway_ids_": [
-        3,
         5,
         23,
         25,
         37
       ],
       "position_": {
-        "x": 204.90133666992188,
+        "x": 475.54241943359375,
         "y": 150.0
       },
       "right_side_": true,
@@ -488,7 +487,7 @@
       "speed_": 0.02500000037252903,
       "state_": 0,
       "target_": {
-        "x": 300.0,
+        "x": 500.0,
         "y": 150.0
       }
     },
@@ -510,23 +509,22 @@
         "used_palletes_": 0,
         "whitelist_": []
       },
-      "junction_id_": 3,
+      "junction_id_": 5,
       "pathway_ids_": [
-        3,
         5,
         23,
         33
       ],
       "position_": {
-        "x": 300.0,
-        "y": 245.0987091064453
+        "x": 475.54241943359375,
+        "y": 150.0
       },
       "right_side_": true,
       "segment_id_": 47,
       "speed_": 0.02500000037252903,
       "state_": 0,
       "target_": {
-        "x": 300.0,
+        "x": 500.0,
         "y": 150.0
       }
     }

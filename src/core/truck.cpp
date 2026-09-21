@@ -25,14 +25,14 @@ void Truck::Receive() {
   if (!dock_id_) return;
   if (state_ != kReceiving) return;
 
-  Plan* p = plans_.at(dynamic_schedule_ids_.at(0));
+  // Plan* p = plans_.at(dynamic_schedule_ids_.at(0));
 
-  if (p != nullptr) {
-    p->NextAction();
-    if (p->IsDone()) {
-      SetState(kDispatching);
-    }
-  }
+  // if (p != nullptr) {
+  //   p->NextAction();
+  //   if (p->IsDone()) {
+  //     SetState(kDispatching);
+  //   }
+  // }
 }
 
 void Truck::Dispatch() {
@@ -100,16 +100,14 @@ void Truck::AddStop(Junction* junction) {
 
   Factory* factory = junction->GetFactory();
   
-  if(factory && contexts_.find(factory->GetId()) == contexts_.end()) {
-    RuleContext context;
-    context.factory_inv = factory->GetInventory();
-    context.truck_inv = GetInventory();
-    context.factory_id = factory->GetId();
-    context.truck_id = id_;
-    contexts_.insert({factory->GetId(),context});
+  // if(factory && contexts_.find(factory->GetId()) == contexts_.end()) {
+  //   RuleContext context;
+  //   context.factory_inv = factory->GetInventory();
+  //   context.truck_inv = GetInventory();
+  //   contexts_.insert({factory->GetId(),context});
 
-    plans_.insert({factory->GetId(), new Plan(context)});
-  }
+  //   plans_.insert({factory->GetId(), new Plan(context)});
+  // }
 }
 
 bool Truck::DeriveNextTarget() {

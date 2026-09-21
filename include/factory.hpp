@@ -85,8 +85,8 @@ class Factory : public TrafficNode {
 			{ inventory_.SetInventory(inv); }
 		int GetAvailableCapacity() const
 			{ return inventory_.GetAvailableCapacity(); }
-		int GetWidgetQuantity(int id) const
-			{ return inventory_.GetWidgetQuantity(id); }
+		int GetWidgetPalletQuantity(int id) const
+			{ return inventory_.GetWidgetPalletQuantity(id); }
 		int GetMaxCapacity() const
 			{ return inventory_.GetMaxCapacity(); }
 
