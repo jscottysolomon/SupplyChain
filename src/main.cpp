@@ -37,9 +37,9 @@ void UpdateDrawFrame();
 float resize_factor = 1.0;
 float resized_tile_size = TILE_SIZE * resize_factor;
 float zoom = 3.75;
-TrafficCommand traffic;
-Scheduler scheduler;
-GameUi uiHandler(traffic, scheduler);
+TrafficCommand trafficCommander;
+Scheduler scheduler(&trafficCommander);
+GameUi uiHandler(trafficCommander, scheduler);
 
 /**
  * @brief Unloads all loaded textures and allocated memory.
@@ -88,6 +88,7 @@ int main(void)
   
 
   rlImGuiSetup(true);
+  scheduler.SetUp();
 
   #ifdef IMGUI_HAS_DOCK
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -106,7 +107,7 @@ int main(void)
     }
   #endif
 
-  WriteSave(traffic);
+  WriteSave(trafficCommander);
 
   rlImGuiShutdown();
   CloseWindow();
@@ -115,12 +116,12 @@ int main(void)
 }
 
 void UpdateDrawFrame() {
-  traffic.OnTick();
+  trafficCommander.OnTick();
   scheduler.OnTick();
 
   BeginDrawing();
     ClearBackground(background);
-    traffic.Draw();
+    trafficCommander.Draw();
 
     rlImGuiBegin();
       uiHandler.RenderUi();

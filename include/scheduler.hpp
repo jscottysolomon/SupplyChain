@@ -2,6 +2,10 @@
 #define SCHEDULER_HPP
 
 #include "rules.hpp"
+#include "traffic.hpp"
+#include "truck.hpp"
+#include "util.hpp"
+#include "factory.hpp"
 
 /*
  - decides what the truck should do next
@@ -15,6 +19,10 @@ class Scheduler {
 public: 
 
   Scheduler() = default;
+
+  Scheduler(TrafficCommand* command) {
+    commander_ = command;
+  }
 
   Rule CreateRule(RuleType type, int widget_id, int amount, int step) {
     Rule rule;
@@ -33,23 +41,51 @@ public:
   }
 
   void AddTarget(int truck_id, int factory_id, Rule rule, Action action) {
-    Plan plan = plans_.at(truck_id);
+    std::pair<int,int> key = {truck_id,factory_id};
+    Plan& plan = plans_.at(key);
     plan.AddTarget(rule,action);
   }
 
-  Plan GetPlan(int truck_id) {
-    return plans_.at(truck_id);
+  void CreatePlan(Truck* truck, Factory* factory) {
+    if(!truck || !factory) return;
+    RuleContext context = {truck->GetInventory(), factory->GetInventory(), 
+      truck->GetId(), factory->GetId()};
+    Plan plan(context);
+    plan.SetId(next_plan_id_++);
+    std::pair<int,int> key = {truck->GetId(),factory->GetId()};
+    plans_.emplace(key, plan);
+    truck->AddPlan(factory->GetId(),plan.GetId());
+  }
+
+  Plan& GetPlan(int truck_id, int factory_id) {
+    std::pair<int,int> key = {truck_id,factory_id};
+    return plans_.at(key);
   }
 
   void OnTick() {
 
   }
 
+  void AddToSchedule(int truck_id, int junction_id) {
+    Truck* truck = commander_->GetTruck(truck_id);
+    Junction* junction = commander_->GetJunction(junction_id);
+
+    if(truck && junction) {
+      truck->AddToSchedule(junction);
+      
+    } else {
+      TraceLog(LOG_ERROR, "Cannot find truck or junction specified");
+    }
+  }
+
+  void SetUp();
+
 private:
   int next_plan_id_ = 0;
 
-  std::unordered_map<int, Plan> plans_;
-  std::unordered_map<int, int> truck_plan_ids_;
+  std::unordered_map<std::pair<int,int>, Plan,PairHash> plans_; //{{truckId, factory} , Plan}
+
+  TrafficCommand* commander_;
 };
 
 #endif 

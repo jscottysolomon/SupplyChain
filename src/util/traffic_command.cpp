@@ -117,9 +117,9 @@ void TrafficCommand::RoadSegmentSetUp() {
   Truck* tr1 = CreateTruck(rs3,0.5);
   Truck* tr2 = CreateTruck(rs5,0.5);
 
-  tr1->AddStop({f3,f1,f2});
+  tr1->AddToSchedule({f3,f1,f2});
   
-  tr2->AddStop(f2);
+  tr2->AddToSchedule(f2);
   return;
 }
 

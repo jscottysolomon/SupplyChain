@@ -38,6 +38,8 @@ NLOHMANN_JSON_SERIALIZE_ENUM( RuleType, {
 struct RuleContext {
   Inventory* truck_inv = nullptr;
   Inventory* factory_inv = nullptr;
+  int truck_id = -1;
+  int factory_id = -1;
 };
 ////////////////////////////////////////////////////////
 // Rule
@@ -174,7 +176,7 @@ public:
     return action_.Execute(context);
   }
 
-  Rule GetRule() {
+  Rule& GetRule() {
     return rule_;
   }
 private:
@@ -235,14 +237,21 @@ public:
     return true;
   }
 
-  std::vector<Target> GetTargets() {
+  std::vector<Target>& GetTargets() {
     return targets_;
   }
+
+  int GetId() {
+    return id_;
+  }
+  void SetId(int id) 
+    {id_ = id;}
 
 private:
   std::vector<Target> targets_ = {};
   std::vector<Rule> rules_ = {};
   RuleContext context_;
+  int id_;
 };
 
 #endif

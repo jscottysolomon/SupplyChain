@@ -51,4 +51,10 @@ bool DoIntersect(Point p1, Point q1, Point p2, Point q2) ;
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Vector2, x, y)
 
+struct PairHash {
+    size_t operator()(const std::pair<int, int>& p) const {
+        return std::hash<int>{}(p.first) ^ (std::hash<int>{}(p.second) << 1);
+    }
+};
+
 #endif

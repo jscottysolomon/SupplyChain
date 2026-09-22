@@ -456,12 +456,16 @@
       "dynamic_schedule_ids_": [
         37,
         29,
-        33
+        33,
+        37,
+        37
       ],
       "fixed_schedule_ids_": [
         37,
         29,
-        33
+        33,
+        37,
+        37
       ],
       "id_": 61,
       "inventory_": {
@@ -471,24 +475,19 @@
         "used_palletes_": 0,
         "whitelist_": []
       },
-      "junction_id_": 5,
-      "pathway_ids_": [
-        5,
-        23,
-        25,
-        37
-      ],
+      "junction_id_": 37,
+      "pathway_ids_": [],
       "position_": {
-        "x": 475.54241943359375,
-        "y": 150.0
+        "x": 400.0,
+        "y": 375.0
       },
       "right_side_": true,
       "segment_id_": 45,
       "speed_": 0.02500000037252903,
       "state_": 0,
       "target_": {
-        "x": 500.0,
-        "y": 150.0
+        "x": 400.0,
+        "y": 375.0
       }
     },
     {
@@ -509,23 +508,19 @@
         "used_palletes_": 0,
         "whitelist_": []
       },
-      "junction_id_": 5,
-      "pathway_ids_": [
-        5,
-        23,
-        33
-      ],
+      "junction_id_": 33,
+      "pathway_ids_": [],
       "position_": {
-        "x": 475.54241943359375,
-        "y": 150.0
+        "x": 400.0,
+        "y": 275.0
       },
       "right_side_": true,
       "segment_id_": 47,
       "speed_": 0.02500000037252903,
       "state_": 0,
       "target_": {
-        "x": 500.0,
-        "y": 150.0
+        "x": 400.0,
+        "y": 275.0
       }
     }
   ]

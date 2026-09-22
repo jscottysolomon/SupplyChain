@@ -8,6 +8,42 @@
 #include "traffic.hpp"
 #include "rules.hpp"
 
+#define FIVE 5
+#define C_ZERO
+#define C_ONE
+#define C_TWO
+#define C_THREE
+#define C_FOUR
+
+void GameUi::ReceiveWidgetPalletQuantity(Rule& rule, Target& target, std::vector<Target>& removals) {
+  if (ImGui::BeginTable("Table", 6,ImGuiTableFlags_SizingFixedFit)) {
+    ImGui::TableSetupColumn("Type",   ImGuiTableColumnFlags_WidthFixed, 70.0f);
+    ImGui::TableSetupColumn("Minus",  ImGuiTableColumnFlags_WidthFixed, 25.0f);
+    ImGui::TableSetupColumn("Amount", ImGuiTableColumnFlags_WidthFixed, 25.0f);
+    ImGui::TableSetupColumn("Plus",   ImGuiTableColumnFlags_WidthFixed, 25.0f);
+    ImGui::TableSetupColumn("Item",   ImGuiTableColumnFlags_WidthStretch);
+    ImGui::TableSetupColumn("Remove", ImGuiTableColumnFlags_WidthFixed, 25.0f);
+
+    ImGui::TableNextRow();
+    ImGui::TableNextColumn();
+      ImGui::Text("Receive");
+    ImGui::TableNextColumn();
+      if (ImGui::Button("-")) 
+      { rule.DecreaseAmount(); }
+    ImGui::TableNextColumn();
+      ImGui::Text("%d", rule.GetAmount());
+    ImGui::TableNextColumn();
+      if (ImGui::Button("+") )
+      { rule.IncreaseAmount(); }
+    ImGui::TableNextColumn();
+      ImGui::Text("%s", organizer_->GetWidgetName(rule.GetWidgetId()).c_str());
+    ImGui::TableNextColumn();
+      if (ImGui::SmallButton("X")) 
+      { removals.push_back(target);}
+    ImGui::EndTable();
+  }
+}
+
 // void GameUi::QuantityTargetTableRow(std::string str, DispatchQuantity* rule, Target* t, 
 //     Factory* f, std::vector<Target*>& removals) {
 //   ImGui::BeginGroup();
@@ -67,47 +103,47 @@
 //   ImGui::EndGroup();
 // }
 
-void GameUi::TruckScheduleFactorySection(Factory* f, Plan p) {
-//   std::string str = "";
-//   if (p == nullptr) {
-//     TraceLog(LOG_ERROR, "Plan is null!");
-//     return;
-//   }
+void GameUi::PlanRuleMenu(Factory* fact, Plan plan) {
+  std::string str = "";
+  
 
-//   Truck* truck = commander_.GetTruck(truck_id_);
-//   if (!truck) {
-//     TraceLog(LOG_WARNING, "Null truck for table rows");
-//     return;
-//   }
+  Truck* truck = commander_.GetTruck(truck_id_);
+  if (!truck) {
+    TraceLog(LOG_WARNING, "Null truck for table rows");
+    return;
+  }
 
-//   if (ImGui::BeginPopup("Add Rule")) {
-//     if (ImGui::BeginMenu("Receive")) {
-//       for (std::pair<int,int> pair: f->GetInventoryMap()) {
-//         std::string name = organizer_->GetWidgetName(pair.first) + "##" +
-//             std::to_string(pair.first);
-//         if (ImGui::MenuItem(name.c_str())) {
-//             p->AddTarget(new ReceiveQuantity(pair.first, 5), new ReceiveWidget(pair.first));
-//             break;
-//         }
-//       }
-//       ImGui::EndMenu();
-//     }
-//     if (ImGui::BeginMenu("Dispatch")) {
-//       for (std::pair<int,int> pair: truck->GetInventoryMap()) {
-//         std::string name = organizer_->GetWidgetName(pair.first) + "##" +
-//           std::to_string(pair.first);
-//         if (ImGui::MenuItem(name.c_str())) {
-//           p->AddTarget(new DispatchQuantity(pair.first, 5), new DispatchWidget(pair.first));
-//           break;
-//         }
-//       }
-//       ImGui::EndMenu();
-//     }
+  if (ImGui::BeginPopup("Add Rule")) {
+    if (ImGui::BeginMenu("Receive")) {
+      for (std::pair<int,int> pair: fact->GetInventoryMap()) {
+        std::string name = organizer_->GetWidgetName(pair.first) + "##" +
+            std::to_string(pair.first);
+        if (ImGui::MenuItem(name.c_str())) {
+          Rule rule = scheduler_.CreateRule(RuleType::kReceiveWidgetPalletQuantity,pair.first,1,1);
+          Action action = scheduler_.CreateAction(ActionType::kReceiveWidget,pair.first);
+          // plan.AddTarget(rule,action);
+          scheduler_.AddTarget(truck_id_,fact->GetId(),rule,action);
+        }
+      }
+      ImGui::EndMenu();
+    }
+    if (ImGui::BeginMenu("Dispatch")) {
+      for (std::pair<int,int> pair: truck->GetInventoryMap()) {
+        std::string name = organizer_->GetWidgetName(pair.first) + "##" +
+          std::to_string(pair.first);
+        if (ImGui::MenuItem(name.c_str())) {
+          Rule rule = scheduler_.CreateRule(RuleType::kDispatchWidgetPalletQuantity,pair.first,1,1);
+          Action action = scheduler_.CreateAction(ActionType::kDispatchWidget,pair.first);
+          plan.AddTarget(rule,action);
+        }
+      }
+      ImGui::EndMenu();
+    }
 //     if (ImGui::Selectable("Wait Until")) {
 
 //     }   
-//     ImGui::EndPopup();
-//   }
+    ImGui::EndPopup();
+  }
 }
 
 void GameUi::TruckScheduleTab() {
@@ -123,37 +159,39 @@ void GameUi::TruckScheduleTab() {
       if(!junc) continue;
 
       Factory* factory = junc->GetFactory();
-      if(factory == nullptr) { 
+      if(!factory) { 
         TraceLog(LOG_WARNING,"Null factory in junction list of truck");
         continue; 
       }
+      
+      ImGui::Text("Factory ID: %d", factory->GetId());
 
-      if(truck->GetPlan() <= -1) 
-        continue;
+      if(truck->GetPlan(factory->GetId()) <= -1) {
+        scheduler_.CreatePlan(truck,factory);
+      }
 
-      Plan plan = scheduler_.GetPlan(truck->GetId());
+      Plan& plan = scheduler_.GetPlan(truck->GetId(), factory->GetId());
 
       RuleContext context = plan.GetContext();
       bool style = false;
       std::string str = "";
       std::vector<Target> removals;
 
-      ImGui::Text("Factory ID: %d", factory->GetId());
       ImGui::PushID(i);
       if (ImGui::Button("Add")) {
         ImGui::OpenPopup("Add Rule");
       }
-      TruckScheduleFactorySection(factory,plan);
+      PlanRuleMenu(factory,plan);
 
       int ii = 0;
-      for (Target target: plan.GetTargets()) {
+      for (Target& target: plan.GetTargets()) {
         ImGui::PushID(ii);
         TargetTableRow(target,factory,removals);
         ImGui::PopID();
         ii++;
       }
 
-      for (Target t: removals) {
+      for (Target& t: removals) {
         plan.RemoveTarget(t);
       }
       
@@ -169,9 +207,7 @@ void GameUi::TruckScheduleTab() {
       if(truck && factory) {
         Junction* junc = commander_.GetJunction(factory->GetJunctionEntityId());
         if (junc) {
-          truck->AddStop(junc);
-        } else {
-          
+          scheduler_.AddToSchedule(truck_id_, junc->GetId());
         }
       }
     }
@@ -179,10 +215,12 @@ void GameUi::TruckScheduleTab() {
   }
 }
 
-void GameUi::TargetTableRow(Target target, Factory* factory, std::vector<Target>& removals) {
-  Rule rule = target.GetRule();
+void GameUi::TargetTableRow(Target& target, Factory* factory, std::vector<Target>& removals) {
+  Rule& rule = target.GetRule();
   switch(rule.GetType()) {
-
+    case RuleType::kReceiveWidgetPalletQuantity:
+      ReceiveWidgetPalletQuantity(rule,target,removals);
+      break;
     default:
       break;
   }

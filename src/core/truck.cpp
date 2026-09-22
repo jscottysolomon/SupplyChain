@@ -85,13 +85,13 @@ void Truck::Drive() {
   }
 }
 
-void Truck::AddStop(std::vector<Junction*> junctions) {
+void Truck::AddToSchedule(std::vector<Junction*> junctions) {
   for (Junction* junc: junctions) {
-    AddStop(junc);
+    AddToSchedule(junc);
   }
 }
 
-void Truck::AddStop(Junction* junction) {
+void Truck::AddToSchedule(Junction* junction) {
   if (dynamic_schedule_ids_.size() <= 0) {
     pathway_ids_ = mediator_->RequestRoute(junction_id_,junction);
   }

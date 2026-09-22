@@ -74,8 +74,8 @@ class Truck : public MapObject {
 		std::list<int> GetPathway() 
 			{ return pathway_ids_; }
 		
-		void AddStop(Junction* junction);
-		void AddStop(std::vector<Junction*> junctions);
+		void AddToSchedule(Junction* junction);
+		void AddToSchedule(std::vector<Junction*> junctions);
 
 		void ClearStops() {
 			while (!dynamic_schedule_ids_.empty()) {
@@ -109,10 +109,10 @@ class Truck : public MapObject {
 		bool IsOnRightLane() const
 			{return right_side_;}
 
-		int GetPlan() const
-			{ return plan_id_; }
-		void SetPlan(int id)
-			{ plan_id_ = id;}
+		int GetPlan(int factory_id) const
+			{ return plans_.at(factory_id); }
+		void AddPlan(int factory_id, int plan_id)
+			{ plans_.emplace(factory_id,plan_id);}
 		
 		NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(Truck,id_,position_,speed_,state_,
 			right_side_,docked_,create_route,target_,junction_id_,segment_id_,dock_id_,dynamic_schedule_ids_,
@@ -130,7 +130,7 @@ class Truck : public MapObject {
 		int junction_id_ = -1;
 		int segment_id_ = -1;
 		int dock_id_ = -1;
-		int plan_id_ = -1;
+		std::unordered_map<int,int> plans_; //{FactoryID, PlanID}
 		std::vector<int> dynamic_schedule_ids_ = {};
 		std::vector<int> fixed_schedule_ids_ = {};
 		std::list<int> pathway_ids_ = {};

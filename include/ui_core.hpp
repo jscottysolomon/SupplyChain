@@ -38,15 +38,17 @@ class GameUi {
     ReceipeOrganizer* organizer_;
 
     void TruckWidget();
-    void TruckScheduleFactorySection(Factory* factory, Plan p);
+    void PlanRuleMenu(Factory* factory, Plan p);
     void TruckScheduleTab();
-    void TargetTableRow(Target target,Factory* factory, std::vector<Target>& removals);
+    void TargetTableRow(Target& target,Factory* factory, std::vector<Target>& removals);
     // void QuantityTargetTableRow(std::string str, DispatchQuantity* rule, Target* target, 
     //     Factory* factory, std::vector<Target*>& removals);
     // void QuantityTargetTableRow(std::string str, ReceiveQuantity* rule, Target* t, 
     //     Factory* f, std::vector<Target*>& removals);
     void FactoryWidget();
     void BaseLayer();
+
+    void ReceiveWidgetPalletQuantity(Rule& rule, Target& target, std::vector<Target>& removals);
 };
 
 #endif
