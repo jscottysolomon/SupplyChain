@@ -451,23 +451,17 @@
   "trucks": [
     {
       "create_route": false,
-      "dock_id_": -1,
+      "dock_id_": 35,
       "docked_": false,
       "dynamic_schedule_ids_": [
         37,
         29,
-        33,
-        37,
-        37,
-        41
+        33
       ],
       "fixed_schedule_ids_": [
         37,
         29,
-        33,
-        37,
-        37,
-        41
+        33
       ],
       "id_": 61,
       "inventory_": {
@@ -494,7 +488,7 @@
     },
     {
       "create_route": false,
-      "dock_id_": -1,
+      "dock_id_": 31,
       "docked_": false,
       "dynamic_schedule_ids_": [
         33

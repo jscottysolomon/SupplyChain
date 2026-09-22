@@ -9,6 +9,7 @@
 #include "factory.hpp"
 #include "inventory.hpp"
 #include "widget.hpp"
+#include "traffic.hpp"
 
 void Truck::OnTick() {
   Drive();
@@ -63,24 +64,22 @@ void Truck::Drive() {
   if(distance > 2.0f) {
     MoveToTarget();
   } else {
-    //3. Snap to Target
+    //Snap to Target
     SetPosition(target_);
-    
 
-    //4. Tell factory we've arrived if factory via mediator
-    // Factory *factory = junction_->GetFactory();
-    // if(factory && factory.) {
-
-    // }
-
-    //5. Go to next target
+    //Go to next target
     if(!pathway_ids_.empty()) {
       pathway_ids_.pop_front();
       DeriveNextTarget();
-    //6 OR Dock at dock via mediator_
-    } else {
+    //OR Request specific Dock
+    } else if(dock_id_ <= -1) {
+      dock_id_ = trafficServicer_->AssignDock(junction_id_,id_);
+      //TODO:add new junc to list or whatever
       return;
 
+    //OR Dock at dock
+    } else {
+      trafficServicer_->DockTruck(id_,junction_id_,dock_id_);
     }
   }
 }
@@ -93,27 +92,18 @@ void Truck::AddToSchedule(std::vector<Junction*> junctions) {
 
 void Truck::AddToSchedule(Junction* junction) {
   if (dynamic_schedule_ids_.size() <= 0) {
-    pathway_ids_ = mediator_->RequestRoute(junction_id_,junction);
+    pathway_ids_ = trafficServicer_->RequestRoute(junction_id_,junction);
   }
   dynamic_schedule_ids_.push_back(junction->GetId());
   fixed_schedule_ids_.push_back(junction->GetId());
 
   Factory* factory = junction->GetFactory();
-  
-  // if(factory && contexts_.find(factory->GetId()) == contexts_.end()) {
-  //   RuleContext context;
-  //   context.factory_inv = factory->GetInventory();
-  //   context.truck_inv = GetInventory();
-  //   contexts_.insert({factory->GetId(),context});
-
-  //   plans_.insert({factory->GetId(), new Plan(context)});
-  // }
 }
 
 bool Truck::DeriveNextTarget() {
   if(!pathway_ids_.empty()) {
     junction_id_ = pathway_ids_.front();
-    if(Junction* j = mediator_->GetJunction(junction_id_)) {
+    if(Junction* j = trafficServicer_->GetJunction(junction_id_)) {
       target_ = j->GetPosition();
     } else {
       TraceLog(LOG_WARNING,"Searched for non-existant id");

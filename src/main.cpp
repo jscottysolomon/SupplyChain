@@ -21,7 +21,6 @@
 #include <vector>
 
 #include "save.hpp"
-#include "scheduler.hpp"
 #include "traffic.hpp"
 #include "util.hpp"
 #include "ui_core.hpp"
@@ -39,7 +38,6 @@ float resized_tile_size = TILE_SIZE * resize_factor;
 float zoom = 3.75;
 TrafficCommand trafficCommander;
 LogisticsController logisticsController(&trafficCommander);
-RouteScheduler scheduler(&trafficCommander);
 GameUi uiHandler(trafficCommander, logisticsController);
 
 /**
@@ -89,7 +87,6 @@ int main(void)
   
 
   rlImGuiSetup(true);
-  scheduler.SetUp();
 
   #ifdef IMGUI_HAS_DOCK
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -118,7 +115,6 @@ int main(void)
 
 void UpdateDrawFrame() {
   trafficCommander.OnTick();
-  scheduler.OnTick();
 
   BeginDrawing();
     ClearBackground(background);

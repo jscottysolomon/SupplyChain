@@ -39,7 +39,7 @@ class Truck : public MapObject {
 		Truck() = default;
 		Truck(Vector2 vec, TrafficService* controller) : MapObject(vec) {
 			SetPosition(vec);
-			mediator_ = controller;
+			trafficServicer_ = controller;
 			docked_ = false;
 			speed_ = .025f;
 			create_route = false;
@@ -139,7 +139,7 @@ class Truck : public MapObject {
 		std::vector<int> fixed_schedule_ids_ = {};
 		std::list<int> pathway_ids_ = {};
 
-		TrafficService* mediator_;	//traffic control mediator
+		TrafficService* trafficServicer_;	//traffic control mediator
 
 		/*Cargo Management*/
 		Inventory inventory_;

@@ -124,7 +124,7 @@ void TrafficCommand::RoadSegmentSetUp() {
 }
 
 void TrafficCommand::CreateMediator() {
-  mediator_ = new TrafficService(*this,graph_);
+  servicer_ = new TrafficService(*this,graph_);
 }
 
 void TrafficCommand::SetUp() {
@@ -139,7 +139,7 @@ TrafficCommand::TrafficCommand() {
 }
 
 TrafficCommand::~TrafficCommand() {
-  delete mediator_;
+  delete servicer_;
 }
 
 void TrafficCommand::RemoveTruck(int id) {
@@ -191,7 +191,7 @@ void TrafficCommand::ConnectJunctions(Junction* j1, Junction* j2, RoadSegment* r
 }
 
 Truck* TrafficCommand::CreateTruck(RoadSegment* rs, Vector2 pos) {
-  auto truck = std::make_unique<Truck>(pos,mediator_);
+  auto truck = std::make_unique<Truck>(pos,servicer_);
   Truck* raw = truck.get();
   trucks_.emplace(truck->GetId(), std::move(truck));
 
@@ -381,3 +381,6 @@ void TrafficCommand::SegmentFlush() {
     segments_.emplace(raw->GetId(), std::move(segment));
   }
 }
+
+void TrafficCommand::SetListener(TrafficEventListener* listener) 
+  {servicer_->SetListener(listener);}

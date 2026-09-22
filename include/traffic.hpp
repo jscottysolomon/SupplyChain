@@ -305,21 +305,21 @@ public:
   void Draw();
 
   void ForEachFactory(const std::function<void(int, Factory&)>& fn) {
-      for (auto& [id, factory] : factories_) {
-          fn(id, *factory);
-      }
+    for (auto& [id, factory] : factories_) {
+        fn(id, *factory);
+    }
   }
 
   Factory* GetFactory(int id) {
-      auto it = factories_.find(id);
-      if (it == factories_.end()) {
-          return nullptr;
-      }
-      return it->second;
+    auto it = factories_.find(id);
+    if (it == factories_.end()) {
+        return nullptr;
+    }
+    return it->second;
   }
 
   void RemoveFactory(int id) {
-      factories_.erase(id);
+    factories_.erase(id);
   }
 
   Factory* GetNextFactoryOrFirst(int id) {
@@ -346,11 +346,11 @@ public:
   }
 
   Truck* GetTruck(int id) {
-      auto it = trucks_.find(id);
-      if (it == trucks_.end()) {
-          return nullptr;
-      }
-      return it->second.get();
+    auto it = trucks_.find(id);
+    if (it == trucks_.end()) {
+        return nullptr;
+    }
+    return it->second.get();
   }
 
   void RemoveTruck(int id);
@@ -379,11 +379,11 @@ public:
   }
 
   Junction* GetJunction(int id) {
-      auto it = junctions_.find(id);
-      if (it == junctions_.end()) {
-          return nullptr;
-      }
-      return it->second.get();
+    auto it = junctions_.find(id);
+    if (it == junctions_.end()) {
+        return nullptr;
+    }
+    return it->second.get();
   }
 
   void RemoveJunction(int id) {
@@ -407,6 +407,8 @@ public:
   void RemoveSegment(int id) {
       segments_.erase(id);
   }
+
+  void SetListener(TrafficEventListener* listener);
 
 private:
   void SetUp();
@@ -525,7 +527,7 @@ private:
   std::queue<int> segment_deletions_;
   std::queue<std::unique_ptr<RoadSegment>> segment_additions_;
   // std::unordered_map<int, graaf::vertex_id_t> vertecies_;
-  TrafficService* mediator_;
+  TrafficService* servicer_;
 };
 
 /**
@@ -540,8 +542,7 @@ class TrafficService {
     }
     std::list<int> RequestRoute(int id, Junction* dest);
     bool RequestIntersection(Intersection* inter, Truck* truck);
-    Dock* RequestDock(Factory* factory, Truck* truck);
-    Dock* RequestDock(Junction* junction, Truck* truck);
+    int AssignDock(int junction_id, int truck_id);
 
     void OnTick();
 
@@ -553,10 +554,14 @@ class TrafficService {
       {return commander_.GetJunction(id);}
     RoadSegment* GetSegment(int id) const
       {return commander_.GetSegment(id);}
+    void SetListener(TrafficEventListener* listener) 
+      { listener_ = listener; }
+    void DockTruck(int truck_id, int junction_id, int dock_id);
       
     
   private:
     TrafficCommand& commander_;
+    TrafficEventListener* listener_;
     graaf::directed_graph<Junction*, RoadSegment*>& graph_;
     // std::unordered_map<int, graaf::vertex_id_t>& vertecies_;
 };

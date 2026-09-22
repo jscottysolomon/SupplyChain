@@ -210,7 +210,6 @@ void GameUi::TruckWidget() {
   ImGui::Text("ID: %d", truck->GetId());
   ImGui::Text("Capacity: %d/%d", truck->GetAvailableCapacity(), truck->GetMaxCapacity());
 
-  // //TODO: use table for displaying targets & functions to reduce redundancy
   if (ImGui::BeginTabBar("Tabs")) {
     TruckScheduleTab();
     if (ImGui::BeginTabItem("Inventory")) {      

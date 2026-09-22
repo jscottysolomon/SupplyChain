@@ -57,4 +57,10 @@ struct PairHash {
     }
 };
 
+class TrafficEventListener {
+public:
+  virtual ~TrafficEventListener() = default;
+  virtual void OnTruckDocked(int truck_id, int factory_id, int dock_id) = 0;
+};
+
 #endif

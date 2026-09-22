@@ -57,15 +57,24 @@ Vertex* GetVertex(std::vector<Vertex*> vertices, Intersection* intersection) {
   return nullptr;
 }
 
-Dock* TrafficService::RequestDock(Junction* junction, Truck* truck) {
-  if(junction->GetType() == JunctionType::Factory) {
-    if (auto* factory = dynamic_cast<Factory*>(junction)) {
-      return factory->DockRequest(truck);
-    }
+int TrafficService::AssignDock(int junction_id, int truck_id) {
+  Junction* junction = commander_.GetJunction(junction_id);
+  Truck* truck = commander_.GetTruck(truck_id);
+  if(!junction || !truck)
+    {return -1;}
+
+  if (Factory* factory = junction->GetFactory()) {
+    if(Dock* dock = factory->DockRequest(truck))
+      {return dock->id;}
   }
-  return nullptr;
+  
+  return -1;
 }
 
-Dock* TrafficService::RequestDock(Factory* factory, Truck* truck) {
-  return factory->DockRequest(truck);
+void TrafficService::DockTruck(int truck_id, int junction_id, int dock_id) {
+  Junction* junction = commander_.GetJunction(junction_id);
+  if(Factory* factory = junction->GetFactory()) {
+    listener_->OnTruckDocked(truck_id,factory->GetId(),dock_id);
+  }
+  return;
 }
