@@ -16,14 +16,14 @@ void StyleEnd(bool style);
 
 class GameUi {
   public:
-  GameUi(TrafficCommand& traffic, Scheduler& scheduler)
-    : commander_(traffic), scheduler_(scheduler) {
+  GameUi(TrafficCommand& traffic, LogisticsController& scheduler)
+    : commander_(traffic), logisticsController_(scheduler) {
         organizer_ = ReceipeOrganizer::GetInstance();
     }
     void RenderUi();
   private:
     TrafficCommand& commander_;
-    Scheduler& scheduler_;
+    LogisticsController& logisticsController_;
 
     // Truck& truck_;
     std::size_t truck_index_ = 0;
@@ -41,7 +41,7 @@ class GameUi {
     void PlanRuleMenu(Factory* factory, Plan p);
     void TruckScheduleTab();
     void TargetTableRow(Target& target,Factory* factory, std::vector<Target>& removals);
-    void GameUi::DispatchWidgetPalletQuantity(Rule& rule, Target& target, std::vector<Target>& removals);
+    void DispatchWidgetPalletQuantity(Rule& rule, Target& target, std::vector<Target>& removals);
     void FactoryWidget();
     void BaseLayer();
 

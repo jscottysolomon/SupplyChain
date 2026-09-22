@@ -19,7 +19,7 @@
 
 Vertex* GetVertex(std::vector<Vertex*> vertices, Intersection* intersection);
 
-std::list<int> TrafficMediator::RequestRoute(int id, Junction* dest) {
+std::list<int> TrafficService::RequestRoute(int id, Junction* dest) {
   std::list<int> path;
   Junction* src = commander_.GetJunction(id);
 
@@ -57,7 +57,7 @@ Vertex* GetVertex(std::vector<Vertex*> vertices, Intersection* intersection) {
   return nullptr;
 }
 
-Dock* TrafficMediator::RequestDock(Junction* junction, Truck* truck) {
+Dock* TrafficService::RequestDock(Junction* junction, Truck* truck) {
   if(junction->GetType() == JunctionType::Factory) {
     if (auto* factory = dynamic_cast<Factory*>(junction)) {
       return factory->DockRequest(truck);
@@ -66,6 +66,6 @@ Dock* TrafficMediator::RequestDock(Junction* junction, Truck* truck) {
   return nullptr;
 }
 
-Dock* TrafficMediator::RequestDock(Factory* factory, Truck* truck) {
+Dock* TrafficService::RequestDock(Factory* factory, Truck* truck) {
   return factory->DockRequest(truck);
 }

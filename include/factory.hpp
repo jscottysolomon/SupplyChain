@@ -62,11 +62,11 @@ class Factory : public TrafficNode {
 		std::vector<Dock*> GetDocks() const
 			{return docks_;}
 		void IncreaseDockCapacity() 
-			{dock_capcity_++;}
-		void SetDockQuantity(int capacity) 
-			{dock_capcity_ = capacity;}
+			{dock_max_++;}
+		void SetDockMaximum(int capacity) 
+			{dock_max_ = capacity;}
 		int GetDockMaximum() const
-			{ return dock_capcity_; }
+			{ return dock_max_; }
 		void SetRoadSegment(RoadSegment* segment)
 			{segment_ = segment;}
 		const RoadSegment* GetRoadSegment() const
@@ -86,7 +86,7 @@ class Factory : public TrafficNode {
 		int GetAvailableCapacity() const
 			{ return inventory_.GetAvailableCapacity(); }
 		int GetWidgetPalletQuantity(int id) const
-			{ return inventory_.GetWidgetPalletQuantity(id); }
+			{ return inventory_.GetPalletQuantity(id); }
 		int GetMaxCapacity() const
 			{ return inventory_.GetMaxCapacity(); }
 
@@ -130,10 +130,10 @@ class Factory : public TrafficNode {
 			return ret;
 		}
 
-		NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(Factory,id_,position_,dock_capcity_,inventory_,production_lines_)
+		NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(Factory,id_,position_,dock_max_,inventory_,production_lines_)
 
 	private:
-		int dock_capcity_ = 3;
+		int dock_max_ = 3;
 		float load_speed_ = 1;
 		std::vector<Dock*> docks_;
 		Inventory inventory_;
@@ -149,13 +149,13 @@ class FactoryBuilder {
 public:
 	FactoryBuilder(Vector2 vec) {
 		factory = new Factory(vec);
-		factory->SetDockQuantity(1);
+		factory->SetDockMaximum(1);
 	}
 
 	Factory* Build() {return factory;}
 
 	FactoryBuilder& Capacity(int capcity) {
-		factory->SetDockQuantity(capcity);
+		factory->SetDockMaximum(capcity);
 		return *this;
 	}
 

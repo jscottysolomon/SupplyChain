@@ -38,8 +38,9 @@ float resize_factor = 1.0;
 float resized_tile_size = TILE_SIZE * resize_factor;
 float zoom = 3.75;
 TrafficCommand trafficCommander;
-Scheduler scheduler(&trafficCommander);
-GameUi uiHandler(trafficCommander, scheduler);
+LogisticsController logisticsController(&trafficCommander);
+RouteScheduler scheduler(&trafficCommander);
+GameUi uiHandler(trafficCommander, logisticsController);
 
 /**
  * @brief Unloads all loaded textures and allocated memory.

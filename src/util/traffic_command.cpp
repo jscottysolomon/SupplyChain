@@ -59,7 +59,7 @@ void TrafficCommand::RoadSegmentSetUp() {
     .Capacity(3)
     .WithDock({550,450}, nullptr)
     .WithDock({550,440}, nullptr)
-    .WithInventory({{1,50}})
+    .WithInventory({{1,3}})
     .Build());
 
   Junction* f2 = AddFactoryJunction(FactoryBuilder({y2->GetPosition().x - F_OFFSET,
@@ -67,7 +67,7 @@ void TrafficCommand::RoadSegmentSetUp() {
   .Capacity(3)
   .WithDock({y2->GetPosition().x - F_OFFSET, y2->GetPosition().y}, nullptr)
   .WithDock({y2->GetPosition().x - F_OFFSET,y2->GetPosition().y}, nullptr)
-  .WithInventory({{2,50}})
+  .WithInventory({{2,2}})
   .Build());
 
   Junction* f3 = AddFactoryJunction(FactoryBuilder({y3->GetPosition().x - F_OFFSET,
@@ -124,7 +124,7 @@ void TrafficCommand::RoadSegmentSetUp() {
 }
 
 void TrafficCommand::CreateMediator() {
-  mediator_ = new TrafficMediator(*this,graph_);
+  mediator_ = new TrafficService(*this,graph_);
 }
 
 void TrafficCommand::SetUp() {

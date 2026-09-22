@@ -8,13 +8,6 @@
 #include "traffic.hpp"
 #include "rules.hpp"
 
-#define FIVE 5
-#define C_ZERO
-#define C_ONE
-#define C_TWO
-#define C_THREE
-#define C_FOUR
-
 void GameUi::ReceiveWidgetPalletQuantity(Rule& rule, Target& target, std::vector<Target>& removals) {
   if (ImGui::BeginTable("Table", 6,ImGuiTableFlags_SizingFixedFit)) {
     ImGui::TableSetupColumn("Type",   ImGuiTableColumnFlags_WidthFixed, 70.0f);
@@ -78,7 +71,7 @@ void GameUi::PlanRuleMenu(Factory* fact, Plan plan) {
   
 
   Truck* truck = commander_.GetTruck(truck_id_);
-  if (!truck) {
+  if (!truck || !fact) {
     TraceLog(LOG_WARNING, "Null truck for table rows");
     return;
   }
@@ -89,10 +82,9 @@ void GameUi::PlanRuleMenu(Factory* fact, Plan plan) {
         std::string name = organizer_->GetWidgetName(pair.first) + "##" +
             std::to_string(pair.first);
         if (ImGui::MenuItem(name.c_str())) {
-          Rule rule = scheduler_.CreateRule(RuleType::kReceiveWidgetPalletQuantity,pair.first,1,1);
-          Action action = scheduler_.CreateAction(ActionType::kReceiveWidget,pair.first);
-          // plan.AddTarget(rule,action);
-          scheduler_.AddTarget(truck_id_,fact->GetId(),rule,action);
+          logisticsController_.AddPlanTarget(truck_id_,fact->GetId(),
+            RuleType::kReceiveWidgetPalletQuantity,pair.first,1,1,
+            ActionType::kReceiveWidget);
         }
       }
       ImGui::EndMenu();
@@ -102,9 +94,9 @@ void GameUi::PlanRuleMenu(Factory* fact, Plan plan) {
         std::string name = organizer_->GetWidgetName(pair.first) + "##" +
           std::to_string(pair.first);
         if (ImGui::MenuItem(name.c_str())) {
-          Rule rule = scheduler_.CreateRule(RuleType::kDispatchWidgetPalletQuantity,pair.first,1,1);
-          Action action = scheduler_.CreateAction(ActionType::kDispatchWidget,pair.first);
-          scheduler_.AddTarget(truck_id_,fact->GetId(),rule,action);
+          logisticsController_.AddPlanTarget(truck_id_,fact->GetId(),
+            RuleType::kDispatchWidgetPalletQuantity,pair.first,1,1,
+            ActionType::kDispatchWidget);
         }
       }
       ImGui::EndMenu();
@@ -137,10 +129,10 @@ void GameUi::TruckScheduleTab() {
       ImGui::Text("Factory ID: %d", factory->GetId());
 
       if(truck->GetPlan(factory->GetId()) <= -1) {
-        scheduler_.CreatePlan(truck,factory);
+        logisticsController_.CreatePlan(truck,factory);
       }
 
-      Plan& plan = scheduler_.GetPlan(truck->GetId(), factory->GetId());
+      Plan& plan = logisticsController_.GetPlan(truck->GetId(), factory->GetId());
 
       RuleContext context = plan.GetContext();
       bool style = false;
@@ -177,7 +169,7 @@ void GameUi::TruckScheduleTab() {
       if(truck && factory) {
         Junction* junc = commander_.GetJunction(factory->GetJunctionEntityId());
         if (junc) {
-          scheduler_.AddToSchedule(truck_id_, junc->GetId());
+          logisticsController_.AddStopToTruck(truck_id_, junc->GetId());
         }
       }
     }

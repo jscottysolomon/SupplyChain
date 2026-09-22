@@ -107,18 +107,18 @@
   ],
   "factories": [
     {
-      "dock_capcity_": 3,
+      "dock_max_": 3,
       "id_": 26,
       "inventory_": {
         "blacklist_": [],
         "map_": [
           [
             1,
-            50
+            3
           ]
         ],
-        "max_palletes": 10,
-        "used_palletes_": 50,
+        "max_palletes_": 10,
+        "used_palletes_": 3,
         "whitelist_": []
       },
       "position_": {
@@ -128,18 +128,18 @@
       "production_lines_": []
     },
     {
-      "dock_capcity_": 3,
+      "dock_max_": 3,
       "id_": 30,
       "inventory_": {
         "blacklist_": [],
         "map_": [
           [
             2,
-            50
+            2
           ]
         ],
-        "max_palletes": 10,
-        "used_palletes_": 50,
+        "max_palletes_": 10,
+        "used_palletes_": 2,
         "whitelist_": []
       },
       "position_": {
@@ -149,7 +149,7 @@
       "production_lines_": []
     },
     {
-      "dock_capcity_": 3,
+      "dock_max_": 3,
       "id_": 34,
       "inventory_": {
         "blacklist_": [],
@@ -159,7 +159,7 @@
             50
           ]
         ],
-        "max_palletes": 10,
+        "max_palletes_": 10,
         "used_palletes_": 50,
         "whitelist_": []
       },
@@ -170,7 +170,7 @@
       "production_lines_": []
     },
     {
-      "dock_capcity_": 3,
+      "dock_max_": 3,
       "id_": 38,
       "inventory_": {
         "blacklist_": [],
@@ -180,7 +180,7 @@
             50
           ]
         ],
-        "max_palletes": 10,
+        "max_palletes_": 10,
         "used_palletes_": 50,
         "whitelist_": []
       },
@@ -456,18 +456,24 @@
       "dynamic_schedule_ids_": [
         37,
         29,
-        33
+        33,
+        37,
+        37,
+        41
       ],
       "fixed_schedule_ids_": [
         37,
         29,
-        33
+        33,
+        37,
+        37,
+        41
       ],
       "id_": 61,
       "inventory_": {
         "blacklist_": [],
         "map_": [],
-        "max_palletes": 10,
+        "max_palletes_": 10,
         "used_palletes_": 0,
         "whitelist_": []
       },
@@ -500,7 +506,7 @@
       "inventory_": {
         "blacklist_": [],
         "map_": [],
-        "max_palletes": 10,
+        "max_palletes_": 10,
         "used_palletes_": 0,
         "whitelist_": []
       },

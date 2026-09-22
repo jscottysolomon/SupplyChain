@@ -124,18 +124,18 @@ public:
 		}
 
 		for (std::pair<int, int> p: w.inputs) {
-			if (inv->GetWidgetPalletQuantity(p.first) < p.second) {
+			if (inv->GetPalletQuantity(p.first) < p.second) {
 				return false;
 			}
 		}
 
 		for (std::pair<int, int> p: w.inputs) {
-			if (inv->RemoveWidgetPallet(p.first, p.second) != p.second) {
+			if (inv->RemovePallet(p.first, p.second) != p.second) {
 				TraceLog(LOG_WARNING, "Tried to remove too many widgets!");
 			}
 		}
 
-		if(w.output_amount != inv->AddWidgetPallet(id, w.output_amount)) {
+		if(w.output_amount != inv->AddPallet(id, w.output_amount)) {
 			TraceLog(LOG_WARNING, "Correct amt of widgets not made!");
 		}
 

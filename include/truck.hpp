@@ -37,7 +37,7 @@ enum TruckState {
 class Truck : public MapObject {
 	public:
 		Truck() = default;
-		Truck(Vector2 vec, TrafficMediator* controller) : MapObject(vec) {
+		Truck(Vector2 vec, TrafficService* controller) : MapObject(vec) {
 			SetPosition(vec);
 			mediator_ = controller;
 			docked_ = false;
@@ -92,7 +92,7 @@ class Truck : public MapObject {
 		Inventory* GetInventory()
 			{ return &inventory_; }
 		int GetWidgetPalletQuantity(int id) const
-			{ return inventory_.GetWidgetPalletQuantity(id); }
+			{ return inventory_.GetPalletQuantity(id); }
 		int GetMaxCapacity() const
 			{return inventory_.GetMaxCapacity(); }
 		int GetAvailableCapacity() const 
@@ -109,8 +109,12 @@ class Truck : public MapObject {
 		bool IsOnRightLane() const
 			{return right_side_;}
 
-		int GetPlan(int factory_id) const
-			{ return plans_.at(factory_id); }
+		int GetPlan(int factory_id) const {
+		  if(plans_.find(factory_id) == plans_.end())
+				{ return -1; }
+			
+			return plans_.at(factory_id); 
+		}
 		void AddPlan(int factory_id, int plan_id)
 			{ plans_.emplace(factory_id,plan_id);}
 		
@@ -135,7 +139,7 @@ class Truck : public MapObject {
 		std::vector<int> fixed_schedule_ids_ = {};
 		std::list<int> pathway_ids_ = {};
 
-		TrafficMediator* mediator_;	//traffic control mediator
+		TrafficService* mediator_;	//traffic control mediator
 
 		/*Cargo Management*/
 		Inventory inventory_;

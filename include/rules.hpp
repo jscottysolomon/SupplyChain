@@ -85,20 +85,20 @@ public:
     switch(type_) {
       case kReceiveWidgetPalletQuantity:
         if (!started_) {
-          initial_ = context.factory_inv->GetWidgetPalletQuantity(widget_id_);
+          initial_ = context.factory_inv->GetPalletQuantity(widget_id_);
           started_ = true;
         }
 
-        return context.factory_inv->GetWidgetPalletQuantity(widget_id_)
+        return context.factory_inv->GetPalletQuantity(widget_id_)
           >= (initial_ + amount_);
       break;
       case kDispatchWidgetPalletQuantity:
         if (!started_) {
-          initial_ = context.truck_inv->GetWidgetPalletQuantity(widget_id_);
+          initial_ = context.truck_inv->GetPalletQuantity(widget_id_);
           started_ = true;
         }
 
-        return context.truck_inv->GetWidgetPalletQuantity(widget_id_)
+        return context.truck_inv->GetPalletQuantity(widget_id_)
           >= (initial_ + amount_);
       break;
       default:
@@ -142,14 +142,14 @@ public:
   virtual bool Execute(const RuleContext& context) {
     switch(type_) {
       case kDispatchWidget:
-        if (context.factory_inv->RemoveWidgetPallet(widget_id_)) {
-          return context.truck_inv->AddWidgetPallet(widget_id_); //No Check
+        if (context.factory_inv->RemovePallet(widget_id_)) {
+          return context.truck_inv->AddPallet(widget_id_); //No Check
         }
         return false;
       break;
       case kReceiveWidget:
-        if (context.truck_inv->RemoveWidgetPallet(widget_id_)) {
-          return context.factory_inv->AddWidgetPallet(widget_id_); //No Check
+        if (context.truck_inv->RemovePallet(widget_id_)) {
+          return context.factory_inv->AddPallet(widget_id_); //No Check
         } return false;
         break;
       default:

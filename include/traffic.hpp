@@ -26,7 +26,7 @@ class Truck;
 class Factory;
 class Intersection;
 struct Dock;
-class TrafficMediator;
+class TrafficService;
 class TrafficCommand;
 
 /*Map Object that has a "cost" for graph purposes*/
@@ -525,12 +525,16 @@ private:
   std::queue<int> segment_deletions_;
   std::queue<std::unique_ptr<RoadSegment>> segment_additions_;
   // std::unordered_map<int, graaf::vertex_id_t> vertecies_;
-  TrafficMediator* mediator_;
+  TrafficService* mediator_;
 };
 
-class TrafficMediator {
+/**
+ * @brief Provides transactional services between Truck and Factory
+ * 
+ */
+class TrafficService {
   public:
-    TrafficMediator(TrafficCommand& commander, graaf::directed_graph<Junction*, RoadSegment*>& graph
+    TrafficService(TrafficCommand& commander, graaf::directed_graph<Junction*, RoadSegment*>& graph
       ): commander_(commander), graph_(graph)  {
 
     }
@@ -538,6 +542,10 @@ class TrafficMediator {
     bool RequestIntersection(Intersection* inter, Truck* truck);
     Dock* RequestDock(Factory* factory, Truck* truck);
     Dock* RequestDock(Junction* junction, Truck* truck);
+
+    void OnTick();
+
+    void ReceivePallet(int truck_id, int factory_id, int plan_id);
 
     Truck* GetTruck(int id) const
       { return commander_.GetTruck(id); }
