@@ -44,64 +44,34 @@ void GameUi::ReceiveWidgetPalletQuantity(Rule& rule, Target& target, std::vector
   }
 }
 
-// void GameUi::QuantityTargetTableRow(std::string str, DispatchQuantity* rule, Target* t, 
-//     Factory* f, std::vector<Target*>& removals) {
-//   ImGui::BeginGroup();
-//   ImGui::Text("Dispatch");
-//   ImGui::SameLine();
-//   if (ImGui::Button("-")) {
-//     rule->DecreaseAmount();
-//   }
-//   ImGui::SameLine();
-//   ImGui::Text("%d", rule->GetAmount());
-//   ImGui::SameLine();
-//   if (ImGui::Button("+")) {
-//     rule->IncreaseAmount();
-//   }
-//   ImGui::SameLine();
-//   ImGui::Text("%s", organizer_->GetWidgetName(rule->GetWidgetId()).c_str());
-//   ImGui::SameLine();
-//   if (ImGui::SmallButton("X")) {
-//     removals.push_back(t);
-//   }
-//   ImGui::SameLine();
-//   ImGui::EndGroup();
-// }
+void GameUi::DispatchWidgetPalletQuantity(Rule& rule, Target& target, std::vector<Target>& removals) {
+  if (ImGui::BeginTable("Table", 6,ImGuiTableFlags_SizingFixedFit)) {
+    ImGui::TableSetupColumn("Type",   ImGuiTableColumnFlags_WidthFixed, 70.0f);
+    ImGui::TableSetupColumn("Minus",  ImGuiTableColumnFlags_WidthFixed, 25.0f);
+    ImGui::TableSetupColumn("Amount", ImGuiTableColumnFlags_WidthFixed, 25.0f);
+    ImGui::TableSetupColumn("Plus",   ImGuiTableColumnFlags_WidthFixed, 25.0f);
+    ImGui::TableSetupColumn("Item",   ImGuiTableColumnFlags_WidthStretch);
+    ImGui::TableSetupColumn("Remove", ImGuiTableColumnFlags_WidthFixed, 25.0f);
 
-// void GameUi::QuantityTargetTableRow(std::string str, ReceiveQuantity* rule, Target* t, 
-//     Factory* f, std::vector<Target*>& removals) {
-//   ImGui::BeginGroup();
-//   ImGui::Text("Release");
-//   ImGui::SameLine();
-//   Truck* truck = commander_.GetTruck(truck_id_);
-//   if (!truck) {
-//     TraceLog(LOG_WARNING, "Null truck for table rows");
-//     ImGui::End();
-//     return;
-//   }
-
-//   str = CreateUniqueId("-", truck, f, rule->GetWidgetId());
-//   if (ImGui::Button(str.c_str()))
-//   {
-//     rule->DecreaseAmount();
-//   }
-//   ImGui::SameLine();
-//   ImGui::Text("%d", rule->GetAmount());
-//   ImGui::SameLine();
-//   str = CreateUniqueId("+", truck, f, rule->GetWidgetId());
-//   if (ImGui::Button(str.c_str())) {
-//     rule->IncreaseAmount();
-//   }
-//   ImGui::SameLine();
-//   ImGui::Text("%s", organizer_->GetWidgetName(rule->GetWidgetId()).c_str());
-//   ImGui::SameLine();
-//   str = CreateUniqueId("X", truck, f, rule->GetWidgetId());
-//   if (ImGui::SmallButton(str.c_str())) {
-//     removals.push_back(t);
-//   }
-//   ImGui::SameLine();
-//   ImGui::EndGroup();
-// }
+    ImGui::TableNextRow();
+    ImGui::TableNextColumn();
+      ImGui::Text("Dispatch");
+    ImGui::TableNextColumn();
+      if (ImGui::Button("-")) 
+      { rule.DecreaseAmount(); }
+    ImGui::TableNextColumn();
+      ImGui::Text("%d", rule.GetAmount());
+    ImGui::TableNextColumn();
+      if (ImGui::Button("+") )
+      { rule.IncreaseAmount(); }
+    ImGui::TableNextColumn();
+      ImGui::Text("%s", organizer_->GetWidgetName(rule.GetWidgetId()).c_str());
+    ImGui::TableNextColumn();
+      if (ImGui::SmallButton("X")) 
+      { removals.push_back(target);}
+    ImGui::EndTable();
+  }
+}
 
 void GameUi::PlanRuleMenu(Factory* fact, Plan plan) {
   std::string str = "";
@@ -134,7 +104,7 @@ void GameUi::PlanRuleMenu(Factory* fact, Plan plan) {
         if (ImGui::MenuItem(name.c_str())) {
           Rule rule = scheduler_.CreateRule(RuleType::kDispatchWidgetPalletQuantity,pair.first,1,1);
           Action action = scheduler_.CreateAction(ActionType::kDispatchWidget,pair.first);
-          plan.AddTarget(rule,action);
+          scheduler_.AddTarget(truck_id_,fact->GetId(),rule,action);
         }
       }
       ImGui::EndMenu();
